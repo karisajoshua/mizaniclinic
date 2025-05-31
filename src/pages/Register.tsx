@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, User, MapPin, Key, Phone, CheckCircle } from "lucide-react";
+import { ArrowLeft, User, MapPin, Key, Phone, CheckCircle, ArrowRight } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { generateReferralId } from "@/utils/regionCodes";
 import MobileHeader from "@/components/MobileHeader";
