@@ -10,13 +10,15 @@ import {
   Calendar, 
   Share2, 
   Copy, 
-  ArrowLeft, 
   MapPin,
   Phone,
   TrendingUp,
-  Clock
+  Clock,
+  Star,
+  CheckCircle
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import MobileHeader from "@/components/MobileHeader";
 
 const Dashboard = () => {
   const [userAccount, setUserAccount] = useState<any>(null);
@@ -42,19 +44,19 @@ const Dashboard = () => {
   };
 
   const shareWhatsApp = () => {
-    const message = `Join Dr. Mwaka's referral program and start earning! Use my code: ${userAccount?.userReferralId}. Register at: ${window.location.origin}/register`;
+    const message = `Join Mizani Clinic's referral program and start earning! Use my code: ${userAccount?.userReferralId}. Register at: ${window.location.origin}/register`;
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
   };
 
   if (!userAccount) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-tanzania-grey">
-        <Card className="p-8 text-center">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-green-50">
+        <Card className="p-8 text-center border-0 bg-white/80 backdrop-blur-sm shadow-glass">
           <CardTitle className="text-tanzania-navy mb-4">Access Denied</CardTitle>
           <CardDescription className="mb-4">Please complete registration and payment first</CardDescription>
           <Link to="/register">
-            <Button className="bg-tanzania-green hover:bg-tanzania-green-light">
+            <Button className="bg-gradient-to-r from-tanzania-green to-green-500 hover:from-green-500 hover:to-tanzania-green text-white">
               Go to Registration
             </Button>
           </Link>
@@ -70,136 +72,143 @@ const Dashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-tanzania-grey to-white">
-      {/* Header */}
-      <header className="bg-tanzania-navy text-white py-4 px-6">
-        <div className="container mx-auto flex justify-between items-center">
-          <div className="flex items-center space-x-4">
-            <Link to="/">
-              <Button variant="ghost" size="sm" className="text-white hover:bg-white/10">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Home
-              </Button>
-            </Link>
-            <div>
-              <h1 className="text-xl font-bold">Welcome, {userAccount.fullName}</h1>
-              <p className="text-sm opacity-80">{userAccount.region}</p>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
+      <MobileHeader />
+
+      {/* Welcome Header */}
+      <div className="bg-gradient-to-br from-tanzania-navy via-blue-900 to-tanzania-navy text-white py-6 px-4">
+        <div className="container mx-auto">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
+            <div className="animate-fade-in">
+              <h1 className="text-2xl sm:text-3xl font-bold">Welcome back, {userAccount.fullName}!</h1>
+              <p className="text-blue-200 flex items-center mt-1">
+                <MapPin className="w-4 h-4 mr-1" />
+                {userAccount.region}
+              </p>
+            </div>
+            <div className="text-left sm:text-right animate-slide-in">
+              <p className="text-sm text-blue-200">Your Referral ID</p>
+              <div className="flex items-center space-x-2">
+                <p className="font-mono font-bold text-tanzania-green text-lg">{userAccount.userReferralId}</p>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={copyReferralCode}
+                  className="h-8 w-8 p-0 text-white hover:bg-white/10"
+                >
+                  <Copy className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
           </div>
-          <div className="text-right">
-            <p className="text-sm opacity-80">Your Referral ID</p>
-            <p className="font-mono font-bold text-tanzania-green">{userAccount.userReferralId}</p>
-          </div>
         </div>
-      </header>
+      </div>
 
-      <div className="py-8 px-6">
+      <div className="px-4 py-8">
         <div className="container mx-auto max-w-6xl">
           <Tabs defaultValue="overview" className="w-full">
-            <TabsList className="grid w-full grid-cols-4 mb-8">
-              <TabsTrigger value="overview" className="flex items-center space-x-2">
+            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 mb-8 bg-white/80 backdrop-blur-sm shadow-lg h-auto p-1">
+              <TabsTrigger value="overview" className="flex flex-col sm:flex-row items-center space-y-1 sm:space-y-0 sm:space-x-2 py-3 data-[state=active]:bg-tanzania-green data-[state=active]:text-white">
                 <TrendingUp className="w-4 h-4" />
-                <span>Overview</span>
+                <span className="text-xs sm:text-sm font-medium">Overview</span>
               </TabsTrigger>
-              <TabsTrigger value="referrals" className="flex items-center space-x-2">
+              <TabsTrigger value="referrals" className="flex flex-col sm:flex-row items-center space-y-1 sm:space-y-0 sm:space-x-2 py-3 data-[state=active]:bg-tanzania-green data-[state=active]:text-white">
                 <Users className="w-4 h-4" />
-                <span>Referrals</span>
+                <span className="text-xs sm:text-sm font-medium">Referrals</span>
               </TabsTrigger>
-              <TabsTrigger value="commissions" className="flex items-center space-x-2">
+              <TabsTrigger value="commissions" className="flex flex-col sm:flex-row items-center space-y-1 sm:space-y-0 sm:space-x-2 py-3 data-[state=active]:bg-tanzania-green data-[state=active]:text-white">
                 <Coins className="w-4 h-4" />
-                <span>Earnings</span>
+                <span className="text-xs sm:text-sm font-medium">Earnings</span>
               </TabsTrigger>
-              <TabsTrigger value="booking" className="flex items-center space-x-2">
+              <TabsTrigger value="booking" className="flex flex-col sm:flex-row items-center space-y-1 sm:space-y-0 sm:space-x-2 py-3 data-[state=active]:bg-tanzania-green data-[state=active]:text-white">
                 <Calendar className="w-4 h-4" />
-                <span>Book Appointment</span>
+                <span className="text-xs sm:text-sm font-medium">Booking</span>
               </TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview" className="space-y-6">
               {/* Quick Stats */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 animate-fade-in">
-                <Card className="border-2 border-tanzania-grey hover:border-tanzania-green transition-all">
-                  <CardHeader className="pb-2">
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-sm text-tanzania-text">Total Referrals</CardTitle>
-                      <Users className="w-4 h-4 text-tanzania-green" />
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold text-tanzania-navy">3</div>
-                    <p className="text-xs text-green-600">+1 this week</p>
-                  </CardContent>
-                </Card>
-
-                <Card className="border-2 border-tanzania-grey hover:border-tanzania-green transition-all">
-                  <CardHeader className="pb-2">
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-sm text-tanzania-text">Total Earnings</CardTitle>
-                      <Coins className="w-4 h-4 text-tanzania-green" />
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold text-tanzania-navy">KES 1,500</div>
-                    <p className="text-xs text-green-600">+KES 500 this week</p>
-                  </CardContent>
-                </Card>
-
-                <Card className="border-2 border-tanzania-grey hover:border-tanzania-green transition-all">
-                  <CardHeader className="pb-2">
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-sm text-tanzania-text">Pending</CardTitle>
-                      <Clock className="w-4 h-4 text-orange-500" />
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold text-tanzania-navy">1</div>
-                    <p className="text-xs text-orange-600">Payment pending</p>
-                  </CardContent>
-                </Card>
-
-                <Card className="border-2 border-tanzania-grey hover:border-tanzania-green transition-all">
-                  <CardHeader className="pb-2">
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-sm text-tanzania-text">Next Appointment</CardTitle>
-                      <Calendar className="w-4 h-4 text-tanzania-green" />
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-sm font-bold text-tanzania-navy">Not Scheduled</div>
-                    <p className="text-xs text-tanzania-text">Book now</p>
-                  </CardContent>
-                </Card>
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 animate-fade-in">
+                {[
+                  {
+                    title: "Total Referrals",
+                    value: "3",
+                    change: "+1 this week",
+                    icon: Users,
+                    color: "from-blue-500 to-blue-600",
+                    changeColor: "text-green-600"
+                  },
+                  {
+                    title: "Total Earnings",
+                    value: "TSH 1,500",
+                    change: "+TSH 500 this week",
+                    icon: Coins,
+                    color: "from-green-500 to-green-600",
+                    changeColor: "text-green-600"
+                  },
+                  {
+                    title: "Pending",
+                    value: "1",
+                    change: "Payment pending",
+                    icon: Clock,
+                    color: "from-orange-500 to-orange-600",
+                    changeColor: "text-orange-600"
+                  },
+                  {
+                    title: "Next Appointment",
+                    value: "Not Scheduled",
+                    change: "Book now",
+                    icon: Calendar,
+                    color: "from-purple-500 to-purple-600",
+                    changeColor: "text-tanzania-text"
+                  }
+                ].map((stat, index) => (
+                  <Card key={index} className="group border-0 bg-white/80 backdrop-blur-sm hover:bg-white/90 transition-all duration-300 hover:shadow-glass-hover animate-scale-in" style={{animationDelay: `${index * 0.1}s`}}>
+                    <CardHeader className="pb-2">
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="text-xs sm:text-sm text-tanzania-text font-medium">{stat.title}</CardTitle>
+                        <div className={`w-8 h-8 bg-gradient-to-br ${stat.color} rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
+                          <stat.icon className="w-4 h-4 text-white" />
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-lg sm:text-xl font-bold text-tanzania-navy">{stat.value}</div>
+                      <p className={`text-xs ${stat.changeColor}`}>{stat.change}</p>
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
 
               {/* Referral Code Sharing */}
-              <Card className="border-2 border-tanzania-green animate-slide-in">
+              <Card className="border-0 bg-gradient-to-br from-tanzania-green/5 to-green-50 shadow-glass animate-slide-in">
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2 text-tanzania-navy">
                     <Share2 className="w-5 h-5 text-tanzania-green" />
                     <span>Share Your Referral Code</span>
                   </CardTitle>
                   <CardDescription>
-                    Earn KES 500 for each person who registers using your code
+                    Earn TSH 500 for each person who registers using your code
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex items-center space-x-4">
-                    <div className="flex-1 p-4 bg-tanzania-grey rounded-lg border-2 border-dashed border-tanzania-green">
+                  <div className="flex flex-col lg:flex-row items-center space-y-4 lg:space-y-0 lg:space-x-4">
+                    <Card className="flex-1 w-full p-4 bg-white/70 border-2 border-dashed border-tanzania-green rounded-xl">
                       <p className="text-sm text-tanzania-text mb-1">Your Referral Code:</p>
-                      <p className="text-2xl font-mono font-bold text-tanzania-green">{userAccount.userReferralId}</p>
-                    </div>
-                    <div className="space-x-2">
+                      <p className="text-xl sm:text-2xl font-mono font-bold text-tanzania-green">{userAccount.userReferralId}</p>
+                    </Card>
+                    <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 w-full lg:w-auto">
                       <Button 
                         onClick={copyReferralCode}
                         variant="outline" 
-                        className="border-tanzania-green text-tanzania-green hover:bg-tanzania-green hover:text-white"
+                        className="border-tanzania-green text-tanzania-green hover:bg-tanzania-green hover:text-white rounded-xl"
                       >
                         <Copy className="w-4 h-4 mr-2" />
                         Copy
                       </Button>
                       <Button 
                         onClick={shareWhatsApp}
-                        className="bg-green-500 hover:bg-green-600 text-white"
+                        className="bg-green-500 hover:bg-green-600 text-white rounded-xl"
                       >
                         <Share2 className="w-4 h-4 mr-2" />
                         WhatsApp
@@ -211,43 +220,45 @@ const Dashboard = () => {
             </TabsContent>
 
             <TabsContent value="referrals" className="space-y-6">
-              <Card className="animate-fade-in">
+              <Card className="border-0 bg-white/80 backdrop-blur-sm shadow-glass animate-fade-in">
                 <CardHeader>
                   <CardTitle className="text-tanzania-navy">People You've Referred</CardTitle>
                   <CardDescription>Track everyone who signed up using your code</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
+                  <div className="space-y-3">
                     {mockReferrals.map((referral, index) => (
-                      <div key={index} className="flex items-center justify-between p-4 border border-tanzania-grey rounded-lg hover:border-tanzania-green transition-all">
-                        <div className="flex items-center space-x-4">
-                          <div className="w-10 h-10 bg-tanzania-green rounded-full flex items-center justify-center">
-                            <Users className="w-5 h-5 text-white" />
-                          </div>
-                          <div>
-                            <p className="font-semibold text-tanzania-navy">{referral.name}</p>
-                            <div className="flex items-center space-x-4 text-sm text-tanzania-text">
-                              <span className="flex items-center">
-                                <MapPin className="w-3 h-3 mr-1" />
-                                {referral.location}
-                              </span>
-                              <span>Joined: {referral.joinDate}</span>
+                      <Card key={index} className="border-0 bg-gradient-to-r from-white to-blue-50/50 hover:from-blue-50 hover:to-green-50 transition-all duration-300 p-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-4">
+                            <div className="w-12 h-12 bg-gradient-to-br from-tanzania-green to-green-500 rounded-2xl flex items-center justify-center shadow-lg">
+                              <Users className="w-6 h-6 text-white" />
+                            </div>
+                            <div>
+                              <p className="font-semibold text-tanzania-navy text-lg">{referral.name}</p>
+                              <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 text-sm text-tanzania-text/70">
+                                <span className="flex items-center">
+                                  <MapPin className="w-3 h-3 mr-1" />
+                                  {referral.location}
+                                </span>
+                                <span>Joined: {referral.joinDate}</span>
+                              </div>
                             </div>
                           </div>
+                          <div className="text-right">
+                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                              referral.status === 'Active' 
+                                ? 'bg-green-100 text-green-800' 
+                                : 'bg-orange-100 text-orange-800'
+                            }`}>
+                              {referral.status}
+                            </span>
+                            {referral.status === 'Active' && (
+                              <p className="text-sm text-tanzania-green font-semibold mt-1">+TSH 500</p>
+                            )}
+                          </div>
                         </div>
-                        <div className="text-right">
-                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                            referral.status === 'Active' 
-                              ? 'bg-green-100 text-green-800' 
-                              : 'bg-orange-100 text-orange-800'
-                          }`}>
-                            {referral.status}
-                          </span>
-                          {referral.status === 'Active' && (
-                            <p className="text-sm text-tanzania-green font-semibold mt-1">+KES 500</p>
-                          )}
-                        </div>
-                      </div>
+                      </Card>
                     ))}
                   </div>
                 </CardContent>
@@ -255,48 +266,46 @@ const Dashboard = () => {
             </TabsContent>
 
             <TabsContent value="commissions" className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-in">
-                <Card className="border-2 border-tanzania-grey">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-fade-in">
+                <Card className="border-0 bg-white/80 backdrop-blur-sm shadow-glass">
                   <CardHeader>
                     <CardTitle className="text-tanzania-navy">Commission Breakdown</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <span className="text-tanzania-text">Today</span>
-                      <span className="font-bold text-tanzania-navy">KES 500</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-tanzania-text">Last 7 days</span>
-                      <span className="font-bold text-tanzania-navy">KES 1,000</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-tanzania-text">Last 30 days</span>
-                      <span className="font-bold text-tanzania-navy">KES 1,500</span>
-                    </div>
-                    <div className="border-t pt-4">
+                    {[
+                      { period: "Today", amount: "TSH 500" },
+                      { period: "Last 7 days", amount: "TSH 1,000" },
+                      { period: "Last 30 days", amount: "TSH 1,500" }
+                    ].map((item, index) => (
+                      <div key={index} className="flex justify-between items-center py-2 border-b border-tanzania-grey/30 last:border-b-0">
+                        <span className="text-tanzania-text">{item.period}</span>
+                        <span className="font-bold text-tanzania-navy text-lg">{item.amount}</span>
+                      </div>
+                    ))}
+                    <div className="border-t pt-4 mt-4">
                       <div className="flex justify-between items-center">
-                        <span className="font-semibold text-tanzania-navy">Total Earned</span>
-                        <span className="font-bold text-xl text-tanzania-green">KES 1,500</span>
+                        <span className="font-semibold text-tanzania-navy text-lg">Total Earned</span>
+                        <span className="font-bold text-2xl text-tanzania-green">TSH 1,500</span>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
 
-                <Card className="border-2 border-tanzania-grey">
+                <Card className="border-0 bg-white/80 backdrop-blur-sm shadow-glass">
                   <CardHeader>
                     <CardTitle className="text-tanzania-navy">Payout Information</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      <div className="p-4 bg-tanzania-grey rounded-lg">
+                      <Card className="bg-gradient-to-br from-blue-50 to-green-50 border-0 p-4">
                         <p className="text-sm text-tanzania-text mb-2">Next Payout</p>
                         <p className="font-bold text-tanzania-navy">Monthly - End of January</p>
-                      </div>
-                      <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+                      </Card>
+                      <Card className="bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200 p-4">
                         <p className="text-sm text-green-800 mb-2">Available for Payout</p>
-                        <p className="font-bold text-green-900 text-xl">KES 1,000</p>
-                      </div>
-                      <Button className="w-full bg-tanzania-green hover:bg-tanzania-green-light">
+                        <p className="font-bold text-green-900 text-2xl">TSH 1,000</p>
+                      </Card>
+                      <Button className="w-full bg-gradient-to-r from-tanzania-green to-green-500 hover:from-green-500 hover:to-tanzania-green text-white rounded-xl">
                         Request Payout
                       </Button>
                     </div>
@@ -306,21 +315,24 @@ const Dashboard = () => {
             </TabsContent>
 
             <TabsContent value="booking" className="space-y-6">
-              <Card className="animate-fade-in">
+              <Card className="border-0 bg-white/80 backdrop-blur-sm shadow-glass animate-fade-in">
                 <CardHeader>
-                  <CardTitle className="text-tanzania-navy">Book Appointment with Dr. Mwaka</CardTitle>
+                  <CardTitle className="text-tanzania-navy">Book Appointment with Mizani Clinic</CardTitle>
                   <CardDescription>Select an available time slot for your consultation</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div>
-                      <h3 className="font-semibold text-tanzania-navy mb-4">Available This Week</h3>
+                      <h3 className="font-semibold text-tanzania-navy mb-4 flex items-center">
+                        <Calendar className="w-5 h-5 mr-2 text-tanzania-green" />
+                        Available This Week
+                      </h3>
                       <div className="space-y-3">
                         {['Monday 10:00 AM', 'Tuesday 2:00 PM', 'Wednesday 11:00 AM', 'Friday 3:00 PM'].map((time, index) => (
                           <Button
                             key={index}
                             variant="outline"
-                            className="w-full justify-start border-tanzania-grey hover:border-tanzania-green hover:bg-tanzania-green hover:text-white"
+                            className="w-full justify-start border-2 border-tanzania-grey/50 hover:border-tanzania-green hover:bg-tanzania-green hover:text-white rounded-xl transition-all duration-300"
                           >
                             <Calendar className="w-4 h-4 mr-2" />
                             {time}
@@ -329,13 +341,16 @@ const Dashboard = () => {
                       </div>
                     </div>
                     <div>
-                      <h3 className="font-semibold text-tanzania-navy mb-4">Next Week</h3>
+                      <h3 className="font-semibold text-tanzania-navy mb-4 flex items-center">
+                        <Calendar className="w-5 h-5 mr-2 text-tanzania-green" />
+                        Next Week
+                      </h3>
                       <div className="space-y-3">
                         {['Monday 9:00 AM', 'Tuesday 1:00 PM', 'Thursday 10:00 AM', 'Friday 4:00 PM'].map((time, index) => (
                           <Button
                             key={index}
                             variant="outline"
-                            className="w-full justify-start border-tanzania-grey hover:border-tanzania-green hover:bg-tanzania-green hover:text-white"
+                            className="w-full justify-start border-2 border-tanzania-grey/50 hover:border-tanzania-green hover:bg-tanzania-green hover:text-white rounded-xl transition-all duration-300"
                           >
                             <Calendar className="w-4 h-4 mr-2" />
                             {time}
@@ -344,15 +359,31 @@ const Dashboard = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                    <h4 className="font-semibold text-tanzania-navy mb-2">Consultation Details</h4>
-                    <ul className="text-sm text-tanzania-text space-y-1">
-                      <li>• Duration: 30 minutes</li>
-                      <li>• Location: Dr. Mwaka's Clinic, Dar es Salaam</li>
-                      <li>• Fee: Included in your membership</li>
-                      <li>• Cancellation: Up to 24 hours before</li>
+                  
+                  <Card className="mt-6 bg-gradient-to-br from-blue-50 to-green-50 border-0 p-4">
+                    <h4 className="font-semibold text-tanzania-navy mb-3 flex items-center">
+                      <CheckCircle className="w-5 h-5 mr-2 text-tanzania-green" />
+                      Consultation Details
+                    </h4>
+                    <ul className="text-sm text-tanzania-text/70 space-y-2">
+                      <li className="flex items-center">
+                        <div className="w-2 h-2 bg-tanzania-green rounded-full mr-3"></div>
+                        Duration: 30 minutes
+                      </li>
+                      <li className="flex items-center">
+                        <div className="w-2 h-2 bg-tanzania-green rounded-full mr-3"></div>
+                        Location: Mizani Clinic, Dar es Salaam
+                      </li>
+                      <li className="flex items-center">
+                        <div className="w-2 h-2 bg-tanzania-green rounded-full mr-3"></div>
+                        Fee: Included in your membership
+                      </li>
+                      <li className="flex items-center">
+                        <div className="w-2 h-2 bg-tanzania-green rounded-full mr-3"></div>
+                        Cancellation: Up to 24 hours before
+                      </li>
                     </ul>
-                  </div>
+                  </Card>
                 </CardContent>
               </Card>
             </TabsContent>

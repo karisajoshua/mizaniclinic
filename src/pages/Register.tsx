@@ -6,8 +6,10 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, User, MapPin, Key } from "lucide-react";
+import { ArrowLeft, User, MapPin, Key, Phone, CheckCircle } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { generateReferralId } from "@/utils/regionCodes";
+import MobileHeader from "@/components/MobileHeader";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -38,8 +40,8 @@ const Register = () => {
       return;
     }
 
-    // Generate unique referral ID
-    const userReferralId = `TDSM-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
+    // Generate region-based referral ID
+    const userReferralId = generateReferralId(formData.region);
     
     // Store registration data
     localStorage.setItem('registrationData', JSON.stringify({
@@ -58,83 +60,102 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-tanzania-grey to-white">
-      {/* Header */}
-      <header className="bg-tanzania-navy text-white py-4 px-6">
-        <div className="container mx-auto flex items-center space-x-4">
-          <Link to="/">
-            <Button variant="ghost" size="sm" className="text-white hover:bg-white/10">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back
-            </Button>
-          </Link>
-          <h1 className="text-xl font-bold">Register with Referral Code</h1>
-        </div>
-      </header>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
+      <MobileHeader />
 
-      <div className="py-12 px-6">
+      <div className="px-4 py-8">
         <div className="container mx-auto max-w-md">
-          <Card className="border-2 border-tanzania-grey shadow-lg animate-fade-in">
-            <CardHeader className="text-center">
-              <div className="w-16 h-16 bg-tanzania-green rounded-full flex items-center justify-center mx-auto mb-4">
-                <User className="w-8 h-8 text-white" />
+          {/* Progress Indicator */}
+          <div className="mb-8 animate-fade-in">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-2">
+                <div className="w-8 h-8 bg-tanzania-green rounded-full flex items-center justify-center">
+                  <span className="text-white text-sm font-bold">1</span>
+                </div>
+                <span className="text-tanzania-green font-medium">Register</span>
               </div>
-              <CardTitle className="text-2xl text-tanzania-navy">Create Your Account</CardTitle>
-              <CardDescription className="text-tanzania-text">
+              <div className="flex-1 h-1 bg-tanzania-grey mx-4 rounded-full">
+                <div className="h-1 bg-tanzania-green rounded-full w-1/2"></div>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-8 h-8 bg-tanzania-grey rounded-full flex items-center justify-center">
+                  <span className="text-tanzania-text text-sm font-bold">2</span>
+                </div>
+                <span className="text-tanzania-text/60 font-medium">Payment</span>
+              </div>
+            </div>
+          </div>
+
+          <Card className="border-0 bg-white/80 backdrop-blur-sm shadow-glass hover:shadow-glass-hover transition-all duration-300 animate-scale-in">
+            <CardHeader className="text-center pb-6">
+              <div className="w-20 h-20 bg-gradient-to-br from-tanzania-green to-green-500 rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-xl animate-bounce-gentle">
+                <User className="w-10 h-10 text-white" />
+              </div>
+              <CardTitle className="text-2xl sm:text-3xl text-tanzania-navy font-bold">Create Your Account</CardTitle>
+              <CardDescription className="text-tanzania-text/70">
                 Enter your details and referral code to get started
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-6">
               <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="space-y-2">
-                  <Label htmlFor="fullName" className="text-tanzania-navy font-medium">Full Name *</Label>
+                <div className="space-y-3">
+                  <Label htmlFor="fullName" className="text-tanzania-navy font-medium flex items-center">
+                    <User className="w-4 h-4 mr-2 text-tanzania-green" />
+                    Full Name *
+                  </Label>
                   <Input
                     id="fullName"
                     placeholder="Enter your full name"
                     value={formData.fullName}
                     onChange={(e) => setFormData(prev => ({ ...prev, fullName: e.target.value }))}
-                    className="border-2 border-tanzania-grey focus:border-tanzania-green"
+                    className="h-12 border-2 border-tanzania-grey/50 focus:border-tanzania-green rounded-xl transition-all duration-300"
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="phone" className="text-tanzania-navy font-medium">Phone Number *</Label>
+                <div className="space-y-3">
+                  <Label htmlFor="phone" className="text-tanzania-navy font-medium flex items-center">
+                    <Phone className="w-4 h-4 mr-2 text-tanzania-green" />
+                    Phone Number *
+                  </Label>
                   <Input
                     id="phone"
                     placeholder="+255 XXX XXX XXX"
                     value={formData.phone}
                     onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                    className="border-2 border-tanzania-grey focus:border-tanzania-green"
+                    className="h-12 border-2 border-tanzania-grey/50 focus:border-tanzania-green rounded-xl transition-all duration-300"
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="referralCode" className="text-tanzania-navy font-medium">Referral Code *</Label>
-                  <div className="relative">
-                    <Key className="absolute left-3 top-3 w-4 h-4 text-tanzania-green" />
-                    <Input
-                      id="referralCode"
-                      placeholder="TDSM-AB1234"
-                      value={formData.referralCode}
-                      onChange={(e) => setFormData(prev => ({ ...prev, referralCode: e.target.value.toUpperCase() }))}
-                      className="pl-10 border-2 border-tanzania-grey focus:border-tanzania-green"
-                    />
-                  </div>
-                  <p className="text-sm text-gray-600">Format: TDSM-XXXXXX</p>
+                <div className="space-y-3">
+                  <Label htmlFor="referralCode" className="text-tanzania-navy font-medium flex items-center">
+                    <Key className="w-4 h-4 mr-2 text-tanzania-green" />
+                    Referral Code *
+                  </Label>
+                  <Input
+                    id="referralCode"
+                    placeholder="MC-DAR-AB1234"
+                    value={formData.referralCode}
+                    onChange={(e) => setFormData(prev => ({ ...prev, referralCode: e.target.value.toUpperCase() }))}
+                    className="h-12 border-2 border-tanzania-grey/50 focus:border-tanzania-green rounded-xl transition-all duration-300 font-mono"
+                  />
+                  <p className="text-sm text-tanzania-text/60 flex items-center">
+                    <CheckCircle className="w-3 h-3 mr-1 text-tanzania-green" />
+                    Format: MC-REGION-XXXXXX
+                  </p>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="region" className="text-tanzania-navy font-medium">Region/City *</Label>
+                <div className="space-y-3">
+                  <Label htmlFor="region" className="text-tanzania-navy font-medium flex items-center">
+                    <MapPin className="w-4 h-4 mr-2 text-tanzania-green" />
+                    Region/City *
+                  </Label>
                   <Select value={formData.region} onValueChange={(value) => setFormData(prev => ({ ...prev, region: value }))}>
-                    <SelectTrigger className="border-2 border-tanzania-grey focus:border-tanzania-green">
-                      <div className="flex items-center">
-                        <MapPin className="w-4 h-4 text-tanzania-green mr-2" />
-                        <SelectValue placeholder="Select your region" />
-                      </div>
+                    <SelectTrigger className="h-12 border-2 border-tanzania-grey/50 focus:border-tanzania-green rounded-xl transition-all duration-300">
+                      <SelectValue placeholder="Select your region" />
                     </SelectTrigger>
-                    <SelectContent className="max-h-60">
+                    <SelectContent className="max-h-60 bg-white/95 backdrop-blur-sm">
                       {tanzanianRegions.map((region) => (
-                        <SelectItem key={region} value={region}>
+                        <SelectItem key={region} value={region} className="hover:bg-tanzania-green/10">
                           {region}
                         </SelectItem>
                       ))}
@@ -144,21 +165,37 @@ const Register = () => {
 
                 <Button 
                   type="submit"
-                  className="w-full bg-tanzania-green hover:bg-tanzania-green-light text-white py-3 text-lg font-semibold"
+                  className="w-full h-12 bg-gradient-to-r from-tanzania-green to-green-500 hover:from-green-500 hover:to-tanzania-green text-white text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
                 >
                   Complete Registration
+                  <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </form>
 
-              <div className="mt-6 p-4 bg-tanzania-grey rounded-lg">
-                <h3 className="font-semibold text-tanzania-navy mb-2">What happens next?</h3>
-                <ul className="text-sm text-tanzania-text space-y-1">
-                  <li>• Your unique referral ID will be generated</li>
-                  <li>• You'll be redirected to complete payment</li>
-                  <li>• Access your dashboard after payment confirmation</li>
-                  <li>• Start earning KES 500 per referral!</li>
+              <Card className="bg-gradient-to-br from-blue-50 to-green-50 border-0 p-4 mt-6">
+                <h3 className="font-semibold text-tanzania-navy mb-3 flex items-center">
+                  <CheckCircle className="w-5 h-5 mr-2 text-tanzania-green" />
+                  What happens next?
+                </h3>
+                <ul className="text-sm text-tanzania-text/70 space-y-2">
+                  <li className="flex items-center">
+                    <div className="w-2 h-2 bg-tanzania-green rounded-full mr-3"></div>
+                    Your unique referral ID will be generated automatically
+                  </li>
+                  <li className="flex items-center">
+                    <div className="w-2 h-2 bg-tanzania-green rounded-full mr-3"></div>
+                    You'll be redirected to complete payment
+                  </li>
+                  <li className="flex items-center">
+                    <div className="w-2 h-2 bg-tanzania-green rounded-full mr-3"></div>
+                    Access your dashboard after payment confirmation
+                  </li>
+                  <li className="flex items-center">
+                    <div className="w-2 h-2 bg-tanzania-green rounded-full mr-3"></div>
+                    Start earning TSH 500 per referral!
+                  </li>
                 </ul>
-              </div>
+              </Card>
             </CardContent>
           </Card>
         </div>
