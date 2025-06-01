@@ -8,6 +8,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, CreditCard, Receipt, CheckCircle, Phone, Copy } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { generateReferralId } from "@/utils/regionCodes";
 import MobileHeader from "@/components/MobileHeader";
 
 const Payment = () => {
@@ -36,9 +37,13 @@ const Payment = () => {
       return;
     }
 
-    // Store payment info
+    // Generate referral ID ONLY after payment confirmation
+    const userReferralId = generateReferralId(registrationData.region);
+
+    // Store payment info with newly generated referral ID
     const userAccount = {
       ...registrationData,
+      userReferralId,
       paymentConfirmed: true,
       receiptNumber,
       paymentDate: new Date().toISOString(),
@@ -55,27 +60,39 @@ const Payment = () => {
     
     toast({
       title: "Payment Confirmed!",
-      description: "Your dashboard is now active. Welcome to Mizani Clinic!",
+      description: `Your Ambassador ID: ${userReferralId}. Welcome to Mizani Clinic!`,
     });
 
     navigate('/dashboard');
   };
 
   const handleMobileMoneyPayment = () => {
-    toast({
-      title: "Mobile Money Payment",
-      description: "This feature will be integrated with mobile money providers",
-    });
-  };
+    // Generate referral ID for mobile money payment too
+    const userReferralId = generateReferralId(registrationData.region);
 
-  const copyReferenceNumber = () => {
-    if (registrationData?.userReferralId) {
-      navigator.clipboard.writeText(registrationData.userReferralId);
-      toast({
-        title: "Copied!",
-        description: "Reference number copied to clipboard",
-      });
-    }
+    const userAccount = {
+      ...registrationData,
+      userReferralId,
+      paymentConfirmed: true,
+      paymentMethod: "mobile_money",
+      paymentDate: new Date().toISOString(),
+      commissions: {
+        total: 0,
+        today: 0,
+        last7days: 0,
+        last30days: 0
+      },
+      referrals: []
+    };
+
+    localStorage.setItem('userAccount', JSON.stringify(userAccount));
+    
+    toast({
+      title: "Payment Confirmed!",
+      description: `Your Ambassador ID: ${userReferralId}. Welcome to Mizani Clinic!`,
+    });
+
+    navigate('/dashboard');
   };
 
   if (!registrationData) {
@@ -133,23 +150,18 @@ const Payment = () => {
                   <p className="text-tanzania-text">{registrationData.region}</p>
                 </div>
                 <div className="space-y-1">
-                  <span className="font-semibold text-tanzania-navy">Your Referral ID:</span>
-                  <div className="flex items-center space-x-2">
-                    <p className="text-tanzania-green font-mono font-bold text-lg">{registrationData.userReferralId}</p>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={copyReferenceNumber}
-                      className="h-6 w-6 p-0 hover:bg-tanzania-green/10"
-                    >
-                      <Copy className="w-3 h-3" />
-                    </Button>
-                  </div>
+                  <span className="font-semibold text-tanzania-navy">Phone:</span>
+                  <p className="text-tanzania-text">{registrationData.phone}</p>
                 </div>
                 <div className="space-y-1">
                   <span className="font-semibold text-tanzania-navy">Used Code:</span>
                   <p className="text-tanzania-text font-mono">{registrationData.referralCode}</p>
                 </div>
+              </div>
+              <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <p className="text-sm text-yellow-800">
+                  <strong>Your Ambassador ID will be generated after payment confirmation.</strong>
+                </p>
               </div>
             </CardContent>
           </Card>
@@ -227,7 +239,7 @@ const Payment = () => {
                             </div>
                             <div>
                               <p className="font-semibold text-tanzania-navy">Reference:</p>
-                              <p className="font-mono text-tanzania-text">{registrationData.userReferralId}</p>
+                              <p className="font-mono text-tanzania-text">REF-{registrationData.phone?.slice(-4) || "1234"}</p>
                             </div>
                           </div>
                         </div>
@@ -252,15 +264,15 @@ const Payment = () => {
                 <ul className="text-sm text-tanzania-text/70 space-y-2">
                   <li className="flex items-center">
                     <div className="w-2 h-2 bg-tanzania-green rounded-full mr-3"></div>
+                    Your unique Ambassador ID will be generated
+                  </li>
+                  <li className="flex items-center">
+                    <div className="w-2 h-2 bg-tanzania-green rounded-full mr-3"></div>
                     Your dashboard will be activated immediately
                   </li>
                   <li className="flex items-center">
                     <div className="w-2 h-2 bg-tanzania-green rounded-full mr-3"></div>
-                    Start sharing your referral code: <strong className="font-mono">{registrationData.userReferralId}</strong>
-                  </li>
-                  <li className="flex items-center">
-                    <div className="w-2 h-2 bg-tanzania-green rounded-full mr-3"></div>
-                    Earn TSH 500 for each successful referral
+                    Start sharing your referral code and earn TSH 500 per referral
                   </li>
                   <li className="flex items-center">
                     <div className="w-2 h-2 bg-tanzania-green rounded-full mr-3"></div>

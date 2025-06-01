@@ -52,20 +52,21 @@ const Dashboard = () => {
     }
 
     if (user) {
-      // Check if user has completed payment
+      // Check if user has completed payment and has a referral ID
       const storedUserAccount = localStorage.getItem('userAccount');
       const registrationData = localStorage.getItem('registrationData');
       
       if (storedUserAccount) {
         const accountData = JSON.parse(storedUserAccount);
+        // Only consider payment complete if they have a userReferralId (generated after payment)
         setUserAccount(accountData);
-        setHasCompletedPayment(accountData.paymentConfirmed || false);
+        setHasCompletedPayment(accountData.paymentConfirmed && accountData.userReferralId);
       } else if (registrationData) {
         const regData = JSON.parse(registrationData);
         const mockAccount: UserAccount = {
           fullName: user.user_metadata?.full_name || regData.fullName || "User",
           region: regData.region || "Dar es Salaam",
-          userReferralId: regData.userReferralId || `MCA25-T0001DSM`
+          userReferralId: "" // No referral ID until payment is confirmed
         };
         setUserAccount(mockAccount);
         setHasCompletedPayment(false);
@@ -124,7 +125,7 @@ const Dashboard = () => {
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <p><strong>Name:</strong> {userAccount.fullName}</p>
                   <p><strong>Region:</strong> {userAccount.region}</p>
-                  <p className="text-green-600 font-semibold mt-2">Your Ambassador ID will be assigned after payment</p>
+                  <p className="text-orange-600 font-semibold mt-2">⏳ Your Ambassador ID will be assigned after payment</p>
                 </div>
                 <Link to="/payment">
                   <Button className="w-full max-w-md bg-gradient-to-r from-tanzania-green to-tanzania-green-light hover:from-tanzania-green-light hover:to-tanzania-green text-white">

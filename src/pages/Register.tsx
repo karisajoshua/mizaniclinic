@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -8,7 +7,6 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, User, MapPin, Key, Phone, CheckCircle, ArrowRight } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-import { generateReferralId } from "@/utils/regionCodes";
 import MobileHeader from "@/components/MobileHeader";
 
 const Register = () => {
@@ -40,19 +38,15 @@ const Register = () => {
       return;
     }
 
-    // Generate region-based referral ID
-    const userReferralId = generateReferralId(formData.region);
-    
-    // Store registration data
+    // Store registration data WITHOUT generating referral ID
     localStorage.setItem('registrationData', JSON.stringify({
       ...formData,
-      userReferralId,
       registrationDate: new Date().toISOString()
     }));
 
     toast({
       title: "Registration Successful!",
-      description: `Your referral ID: ${userReferralId}`,
+      description: "Please proceed to payment to activate your account",
     });
 
     // Navigate to payment page
@@ -180,11 +174,11 @@ const Register = () => {
                 <ul className="text-sm text-tanzania-text/70 space-y-2">
                   <li className="flex items-center">
                     <div className="w-2 h-2 bg-tanzania-green rounded-full mr-3"></div>
-                    Your unique referral ID will be generated automatically
+                    Your unique referral ID will be generated after payment
                   </li>
                   <li className="flex items-center">
                     <div className="w-2 h-2 bg-tanzania-green rounded-full mr-3"></div>
-                    You'll be redirected to complete payment
+                    Complete payment to activate your account
                   </li>
                   <li className="flex items-center">
                     <div className="w-2 h-2 bg-tanzania-green rounded-full mr-3"></div>
