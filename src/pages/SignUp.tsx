@@ -4,25 +4,60 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Link, useNavigate } from "react-router-dom";
-import { Phone } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
+import { ArrowLeft, User, MapPin, Key, Phone, CheckCircle, ArrowRight } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { generateReferralId } from "@/utils/regionCodes";
+import { useAuth } from "@/hooks/useAuth";
 import MobileHeader from "@/components/MobileHeader";
 
 const SignUp = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [fullName, setFullName] = useState("");
+  const [formData, setFormData] = useState({
+    fullName: "",
+    email: "",
+    password: "",
+    referralCode: "",
+    region: "",
+    phone: ""
+  });
   const [loading, setLoading] = useState(false);
   const { signUp } = useAuth();
   const navigate = useNavigate();
+
+  const tanzanianRegions = [
+    "Arusha", "Dar es Salaam", "Dodoma", "Geita", "Iringa", "Kagera", 
+    "Katavi", "Kigoma", "Kilimanjaro", "Lindi", "Manyara", "Mara", 
+    "Mbeya", "Morogoro", "Mtwara", "Mwanza", "Njombe", "Pemba North", 
+    "Pemba South", "Pwani", "Rukwa", "Ruvuma", "Shinyanga", "Simiyu", 
+    "Singida", "Songwe", "Tabora", "Tanga", "Unguja North", "Unguja South"
+  ];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
-    const { error } = await signUp(email, password, fullName);
+    if (!formData.fullName || !formData.email || !formData.password || !formData.referralCode || !formData.region || !formData.phone) {
+      toast({
+        title: "Error",
+        description: "Please fill in all required fields",
+        variant: "destructive"
+      });
+      setLoading(false);
+      return;
+    }
+
+    // Generate region-based referral ID
+    const userReferralId = generateReferralId(formData.region);
+    
+    // Store registration data
+    localStorage.setItem('registrationData', JSON.stringify({
+      ...formData,
+      userReferralId,
+      registrationDate: new Date().toISOString()
+    }));
+
+    const { error } = await signUp(formData.email, formData.password, formData.fullName);
 
     if (error) {
       toast({
@@ -32,89 +67,197 @@ const SignUp = () => {
       });
     } else {
       toast({
-        title: "Success!",
-        description: "Please check your email to confirm your account.",
+        title: "Registration Successful!",
+        description: `Your referral ID: ${userReferralId}. Please check your email to confirm your account.`,
       });
-      navigate("/signin");
+      // Navigate to payment page
+      navigate('/payment');
     }
 
     setLoading(false);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-tanzania-grey via-white to-tanzania-grey">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
       <MobileHeader />
-      
-      <div className="container mx-auto px-4 py-8 max-w-md">
-        <Card className="border-0 shadow-2xl bg-white/90 backdrop-blur-sm">
-          <CardHeader className="text-center space-y-4">
-            <div className="w-16 h-16 bg-gradient-to-br from-tanzania-green to-tanzania-green-light rounded-2xl flex items-center justify-center mx-auto shadow-xl">
-              <Phone className="w-8 h-8 text-white" />
+
+      <div className="px-4 py-8">
+        <div className="container mx-auto max-w-md">
+          {/* Progress Indicator */}
+          <div className="mb-8 animate-fade-in">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-2">
+                <div className="w-8 h-8 bg-tanzania-green rounded-full flex items-center justify-center">
+                  <span className="text-white text-sm font-bold">1</span>
+                </div>
+                <span className="text-tanzania-green font-medium">Register</span>
+              </div>
+              <div className="flex-1 h-1 bg-tanzania-grey mx-4 rounded-full">
+                <div className="h-1 bg-tanzania-green rounded-full w-1/2"></div>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-8 h-8 bg-tanzania-grey rounded-full flex items-center justify-center">
+                  <span className="text-tanzania-text text-sm font-bold">2</span>
+                </div>
+                <span className="text-tanzania-text/60 font-medium">Payment</span>
+              </div>
             </div>
-            <CardTitle className="text-2xl font-black text-tanzania-navy">Join Mizani Clinic</CardTitle>
-            <CardDescription className="text-gray-600 font-medium">
-              Create your account to start earning
-            </CardDescription>
-          </CardHeader>
-          
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="fullName" className="text-tanzania-navy font-semibold">Full Name</Label>
-                <Input
-                  id="fullName"
-                  type="text"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  required
-                  className="border-2 border-gray-200 focus:border-tanzania-green"
-                />
+          </div>
+
+          <Card className="border-0 bg-white/80 backdrop-blur-sm shadow-glass hover:shadow-glass-hover transition-all duration-300 animate-scale-in">
+            <CardHeader className="text-center pb-6">
+              <div className="w-20 h-20 bg-gradient-to-br from-tanzania-green to-green-500 rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-xl animate-bounce-gentle">
+                <User className="w-10 h-10 text-white" />
               </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-tanzania-navy font-semibold">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="border-2 border-gray-200 focus:border-tanzania-green"
-                />
+              <CardTitle className="text-2xl sm:text-3xl text-tanzania-navy font-bold">Join Mizani Clinic</CardTitle>
+              <CardDescription className="text-tanzania-text/70">
+                Create your account and start earning
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="space-y-3">
+                  <Label htmlFor="fullName" className="text-tanzania-navy font-medium flex items-center">
+                    <User className="w-4 h-4 mr-2 text-tanzania-green" />
+                    Full Name *
+                  </Label>
+                  <Input
+                    id="fullName"
+                    placeholder="Enter your full name"
+                    value={formData.fullName}
+                    onChange={(e) => setFormData(prev => ({ ...prev, fullName: e.target.value }))}
+                    className="h-12 border-2 border-tanzania-grey/50 focus:border-tanzania-green rounded-xl transition-all duration-300"
+                  />
+                </div>
+
+                <div className="space-y-3">
+                  <Label htmlFor="email" className="text-tanzania-navy font-medium flex items-center">
+                    <Phone className="w-4 h-4 mr-2 text-tanzania-green" />
+                    Email *
+                  </Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="Enter your email"
+                    value={formData.email}
+                    onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                    className="h-12 border-2 border-tanzania-grey/50 focus:border-tanzania-green rounded-xl transition-all duration-300"
+                  />
+                </div>
+
+                <div className="space-y-3">
+                  <Label htmlFor="password" className="text-tanzania-navy font-medium flex items-center">
+                    <Key className="w-4 h-4 mr-2 text-tanzania-green" />
+                    Password *
+                  </Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="Create a password"
+                    value={formData.password}
+                    onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
+                    minLength={6}
+                    className="h-12 border-2 border-tanzania-grey/50 focus:border-tanzania-green rounded-xl transition-all duration-300"
+                  />
+                </div>
+
+                <div className="space-y-3">
+                  <Label htmlFor="phone" className="text-tanzania-navy font-medium flex items-center">
+                    <Phone className="w-4 h-4 mr-2 text-tanzania-green" />
+                    Phone Number *
+                  </Label>
+                  <Input
+                    id="phone"
+                    placeholder="+255 XXX XXX XXX"
+                    value={formData.phone}
+                    onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                    className="h-12 border-2 border-tanzania-grey/50 focus:border-tanzania-green rounded-xl transition-all duration-300"
+                  />
+                </div>
+
+                <div className="space-y-3">
+                  <Label htmlFor="referralCode" className="text-tanzania-navy font-medium flex items-center">
+                    <Key className="w-4 h-4 mr-2 text-tanzania-green" />
+                    Referral Code *
+                  </Label>
+                  <Input
+                    id="referralCode"
+                    placeholder="MC-DAR-AB1234"
+                    value={formData.referralCode}
+                    onChange={(e) => setFormData(prev => ({ ...prev, referralCode: e.target.value.toUpperCase() }))}
+                    className="h-12 border-2 border-tanzania-grey/50 focus:border-tanzania-green rounded-xl transition-all duration-300 font-mono"
+                  />
+                  <p className="text-sm text-tanzania-text/60 flex items-center">
+                    <CheckCircle className="w-3 h-3 mr-1 text-tanzania-green" />
+                    Format: MC-REGION-XXXXXX
+                  </p>
+                </div>
+
+                <div className="space-y-3">
+                  <Label htmlFor="region" className="text-tanzania-navy font-medium flex items-center">
+                    <MapPin className="w-4 h-4 mr-2 text-tanzania-green" />
+                    Region/City *
+                  </Label>
+                  <Select value={formData.region} onValueChange={(value) => setFormData(prev => ({ ...prev, region: value }))}>
+                    <SelectTrigger className="h-12 border-2 border-tanzania-grey/50 focus:border-tanzania-green rounded-xl transition-all duration-300">
+                      <SelectValue placeholder="Select your region" />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-60 bg-white/95 backdrop-blur-sm">
+                      {tanzanianRegions.map((region) => (
+                        <SelectItem key={region} value={region} className="hover:bg-tanzania-green/10">
+                          {region}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <Button 
+                  type="submit"
+                  className="w-full h-12 bg-gradient-to-r from-tanzania-green to-green-500 hover:from-green-500 hover:to-tanzania-green text-white text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                  disabled={loading}
+                >
+                  {loading ? "Creating Account..." : "Complete Registration"}
+                  <ArrowRight className="ml-2 w-5 h-5" />
+                </Button>
+              </form>
+
+              <div className="mt-6 text-center">
+                <p className="text-gray-600">
+                  Already have an account?{" "}
+                  <Link to="/signin" className="text-tanzania-green font-semibold hover:underline">
+                    Sign in here
+                  </Link>
+                </p>
               </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="password" className="text-tanzania-navy font-semibold">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  minLength={6}
-                  className="border-2 border-gray-200 focus:border-tanzania-green"
-                />
-              </div>
-              
-              <Button
-                type="submit"
-                className="w-full bg-gradient-to-r from-tanzania-green to-tanzania-green-light hover:from-tanzania-green-light hover:to-tanzania-green text-white font-bold py-3 rounded-xl shadow-lg"
-                disabled={loading}
-              >
-                {loading ? "Creating Account..." : "Sign Up"}
-              </Button>
-            </form>
-            
-            <div className="mt-6 text-center">
-              <p className="text-gray-600">
-                Already have an account?{" "}
-                <Link to="/signin" className="text-tanzania-green font-semibold hover:underline">
-                  Sign in here
-                </Link>
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+
+              <Card className="bg-gradient-to-br from-blue-50 to-green-50 border-0 p-4 mt-6">
+                <h3 className="font-semibold text-tanzania-navy mb-3 flex items-center">
+                  <CheckCircle className="w-5 h-5 mr-2 text-tanzania-green" />
+                  What happens next?
+                </h3>
+                <ul className="text-sm text-tanzania-text/70 space-y-2">
+                  <li className="flex items-center">
+                    <div className="w-2 h-2 bg-tanzania-green rounded-full mr-3"></div>
+                    Your unique referral ID will be generated automatically
+                  </li>
+                  <li className="flex items-center">
+                    <div className="w-2 h-2 bg-tanzania-green rounded-full mr-3"></div>
+                    You'll be redirected to complete payment
+                  </li>
+                  <li className="flex items-center">
+                    <div className="w-2 h-2 bg-tanzania-green rounded-full mr-3"></div>
+                    Access your dashboard after payment confirmation
+                  </li>
+                  <li className="flex items-center">
+                    <div className="w-2 h-2 bg-tanzania-green rounded-full mr-3"></div>
+                    Start earning TSH 500 per referral!
+                  </li>
+                </ul>
+              </Card>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
