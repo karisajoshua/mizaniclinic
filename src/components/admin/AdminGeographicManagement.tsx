@@ -20,25 +20,32 @@ const AdminGeographicManagement = () => {
     // In production, this would update the premium_unlocked status
   };
 
+  const handleAddNewCountry = () => {
+    console.log("Adding new country");
+    // In production, this would open a modal to add a new country
+  };
+
   return (
     <div className="space-y-6">
       {/* Geographic Overview */}
       <GeographicOverviewCards countries={countries} />
 
       {/* Country Management */}
-      <Card className="border-0 shadow-lg">
+      <Card className="bg-slate-800 border-slate-700 shadow-xl">
         <CardHeader>
-          <CardTitle className="flex items-center justify-between">
+          <CardTitle className="flex items-center justify-between text-white">
             <span className="flex items-center space-x-2">
-              <MapPin className="w-6 h-6 text-blue-500" />
+              <MapPin className="w-6 h-6 text-blue-400" />
               <span>Country Limits Management</span>
             </span>
-            <Button>
+            <Button onClick={handleAddNewCountry} className="bg-blue-600 hover:bg-blue-700">
               <Plus className="w-4 h-4 mr-2" />
               Add New Country
             </Button>
           </CardTitle>
-          <CardDescription>Manage ambassador limits and premium status for each country</CardDescription>
+          <CardDescription className="text-slate-400">
+            Manage ambassador limits and premium status for each country
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <CountryManagementCards 
