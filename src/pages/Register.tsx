@@ -4,35 +4,41 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, User, MapPin, Key, Phone, CheckCircle, ArrowRight, Globe } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import MobileHeader from "@/components/MobileHeader";
+import { EAST_AFRICAN_COUNTRIES, COUNTRY_REGIONS } from "@/utils/eastAfricaData";
 
 const Register = () => {
   const [formData, setFormData] = useState({
     name: "",
-    city: "",
     country: "Tanzania",
-    phone: "",
+    phone: "+255 ",
     referralCode: "",
     region: ""
   });
   const navigate = useNavigate();
 
-  const tanzanianRegions = [
-    "Arusha", "Dar es Salaam", "Dodoma", "Geita", "Iringa", "Kagera", 
-    "Katavi", "Kigoma", "Kilimanjaro", "Lindi", "Manyara", "Mara", 
-    "Mbeya", "Morogoro", "Mtwara", "Mwanza", "Njombe", "Pemba North", 
-    "Pemba South", "Pwani", "Rukwa", "Ruvuma", "Shinyanga", "Simiyu", 
-    "Singida", "Songwe", "Tabora", "Tanga", "Unguja North", "Unguja South"
-  ];
+  // Update phone code when country changes
+  useEffect(() => {
+    const selectedCountry = EAST_AFRICAN_COUNTRIES.find(c => c.name === formData.country);
+    if (selectedCountry) {
+      setFormData(prev => ({ 
+        ...prev, 
+        phone: `${selectedCountry.phoneCode} `,
+        region: "" // Reset region when country changes
+      }));
+    }
+  }, [formData.country]);
+
+  const availableRegions = COUNTRY_REGIONS[formData.country] || [];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.name || !formData.city || !formData.country || !formData.phone || !formData.referralCode || !formData.region) {
+    if (!formData.name || !formData.country || !formData.phone || !formData.referralCode || !formData.region) {
       toast({
         title: "Error",
         description: "Please fill in all required fields",
@@ -41,8 +47,19 @@ const Register = () => {
       return;
     }
 
+    // Validate phone number has more than just country code
+    const selectedCountry = EAST_AFRICAN_COUNTRIES.find(c => c.name === formData.country);
+    if (selectedCountry && formData.phone.trim() === selectedCountry.phoneCode.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter your phone number after the country code",
+        variant: "destructive"
+      });
+      return;
+    }
+
     // Validate referral code format (MCA25-T0001DSM)
-    const referralCodeRegex = /^MCA25-T\d{4}[A-Z]{3}$/;
+    const referralCodeRegex = /^MCA25-[A-Z]\d{4}[A-Z]{3}$/;
     if (!referralCodeRegex.test(formData.referralCode)) {
       toast({
         title: "Invalid Referral Code",
@@ -121,20 +138,6 @@ const Register = () => {
                 </div>
 
                 <div className="space-y-3">
-                  <Label htmlFor="city" className="text-tanzania-navy font-medium flex items-center">
-                    <MapPin className="w-4 h-4 mr-2 text-tanzania-green" />
-                    City *
-                  </Label>
-                  <Input
-                    id="city"
-                    placeholder="Enter your city"
-                    value={formData.city}
-                    onChange={(e) => setFormData(prev => ({ ...prev, city: e.target.value }))}
-                    className="h-12 border-2 border-tanzania-grey/50 focus:border-tanzania-green rounded-xl transition-all duration-300"
-                  />
-                </div>
-
-                <div className="space-y-3">
                   <Label htmlFor="country" className="text-tanzania-navy font-medium flex items-center">
                     <Globe className="w-4 h-4 mr-2 text-tanzania-green" />
                     Country *
@@ -144,7 +147,11 @@ const Register = () => {
                       <SelectValue placeholder="Select your country" />
                     </SelectTrigger>
                     <SelectContent className="max-h-60 bg-white/95 backdrop-blur-sm">
-                      <SelectItem value="Tanzania">Tanzania</SelectItem>
+                      {EAST_AFRICAN_COUNTRIES.map((country) => (
+                        <SelectItem key={country.code} value={country.name} className="hover:bg-tanzania-green/10">
+                          {country.name} ({country.phoneCode})
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -156,11 +163,14 @@ const Register = () => {
                   </Label>
                   <Input
                     id="phone"
-                    placeholder="+255 XXX XXX XXX"
+                    placeholder="XXX XXX XXX"
                     value={formData.phone}
                     onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
                     className="h-12 border-2 border-tanzania-grey/50 focus:border-tanzania-green rounded-xl transition-all duration-300"
                   />
+                  <p className="text-sm text-tanzania-text/60">
+                    Country code is automatically added based on your selected country
+                  </p>
                 </div>
 
                 <div className="space-y-3">
@@ -191,7 +201,7 @@ const Register = () => {
                       <SelectValue placeholder="Select your region" />
                     </SelectTrigger>
                     <SelectContent className="max-h-60 bg-white/95 backdrop-blur-sm">
-                      {tanzanianRegions.map((region) => (
+                      {availableRegions.map((region) => (
                         <SelectItem key={region} value={region} className="hover:bg-tanzania-green/10">
                           {region}
                         </SelectItem>
@@ -229,7 +239,7 @@ const Register = () => {
                   </li>
                   <li className="flex items-center">
                     <div className="w-2 h-2 bg-tanzania-green rounded-full mr-3"></div>
-                    Start earning Tshs. 88,000/- per referral!
+                    Start earning up to Tshs. 88,000/- per referral!
                   </li>
                 </ul>
               </Card>

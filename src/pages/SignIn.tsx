@@ -5,10 +5,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link, useNavigate } from "react-router-dom";
-import { Phone, User, Key } from "lucide-react";
+import { Phone, User, Key, TestTube } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
 import MobileHeader from "@/components/MobileHeader";
+import { TEST_AMBASSADORS } from "@/utils/eastAfricaData";
 
 const SignIn = () => {
   const [ambassadorId, setAmbassadorId] = useState("");
@@ -21,10 +22,32 @@ const SignIn = () => {
     e.preventDefault();
     setLoading(true);
 
-    // For now, we'll use the ambassador ID as email format for authentication
-    // In a real implementation, you'd need to modify the auth system
-    const email = `${ambassadorId.toLowerCase()}@mizaniclinic.com`;
+    // Check if it's a test account first
+    const testAccount = TEST_AMBASSADORS.find(
+      account => account.ambassadorId === ambassadorId && account.password === password
+    );
 
+    if (testAccount) {
+      // Store test user data in localStorage for dashboard access
+      localStorage.setItem('testUser', JSON.stringify({
+        ambassadorId: testAccount.ambassadorId,
+        name: testAccount.name,
+        region: testAccount.region,
+        country: testAccount.country,
+        isTestAccount: true
+      }));
+
+      toast({
+        title: "Test Login Successful!",
+        description: `Welcome ${testAccount.name}! You are using a test account.`,
+      });
+      navigate("/dashboard");
+      setLoading(false);
+      return;
+    }
+
+    // For real accounts, use the auth system
+    const email = `${ambassadorId.toLowerCase()}@mizaniclinic.com`;
     const { error } = await signIn(email, password);
 
     if (error) {
@@ -44,6 +67,11 @@ const SignIn = () => {
     setLoading(false);
   };
 
+  const handleTestLogin = (testAccount: typeof TEST_AMBASSADORS[0]) => {
+    setAmbassadorId(testAccount.ambassadorId);
+    setPassword(testAccount.password);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-tanzania-grey via-white to-tanzania-grey">
       <MobileHeader />
@@ -60,7 +88,7 @@ const SignIn = () => {
             </CardDescription>
           </CardHeader>
           
-          <CardContent>
+          <CardContent className="space-y-6">
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="ambassadorId" className="text-tanzania-navy font-semibold flex items-center">
@@ -101,12 +129,39 @@ const SignIn = () => {
                 {loading ? "Signing In..." : "Sign In"}
               </Button>
             </form>
+
+            {/* Test Accounts Section */}
+            <Card className="bg-gradient-to-br from-blue-50 to-green-50 border-0 p-4">
+              <h3 className="font-bold text-tanzania-navy mb-3 flex items-center">
+                <TestTube className="w-5 h-5 mr-2 text-tanzania-green" />
+                Test Accounts (For Development)
+              </h3>
+              <div className="space-y-2">
+                {TEST_AMBASSADORS.map((account, index) => (
+                  <Button
+                    key={index}
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleTestLogin(account)}
+                    className="w-full text-left justify-start hover:bg-tanzania-green/10 border-tanzania-green/30"
+                  >
+                    <div className="text-left">
+                      <div className="font-semibold text-xs">{account.ambassadorId}</div>
+                      <div className="text-xs text-gray-600">{account.name} - {account.country}</div>
+                    </div>
+                  </Button>
+                ))}
+              </div>
+              <p className="text-xs text-gray-500 mt-2">
+                Click any test account to auto-fill login credentials
+              </p>
+            </Card>
             
-            <div className="mt-6 text-center">
+            <div className="text-center">
               <p className="text-gray-600">
                 Don't have an account?{" "}
-                <Link to="/signup" className="text-tanzania-green font-semibold hover:underline">
-                  Sign up here
+                <Link to="/register" className="text-tanzania-green font-semibold hover:underline">
+                  Register here
                 </Link>
               </p>
             </div>

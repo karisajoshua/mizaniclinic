@@ -4,11 +4,12 @@ import { Users, Coins, Calendar, ArrowRight, CheckCircle, Phone, MapPin, Star, S
 import { Link } from "react-router-dom";
 import MobileHeader from "@/components/MobileHeader";
 import { useAuth } from "@/hooks/useAuth";
+
 const Index = () => {
-  const {
-    user
-  } = useAuth();
-  return <div className="min-h-screen bg-gradient-to-br from-tanzania-grey via-white to-tanzania-grey overflow-hidden">
+  const { user } = useAuth();
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-tanzania-grey via-white to-tanzania-grey overflow-hidden">
       <MobileHeader />
 
       {/* Hero Section - Brand Focused */}
@@ -111,21 +112,22 @@ const Index = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[{
-            icon: Phone,
-            title: "1. Register",
-            description: "Complete form with referral code",
-            color: "from-tanzania-navy to-blue-800"
-          }, {
-            icon: Users,
-            title: "2. Refer",
-            description: "Share code, invite others to join",
-            color: "from-tanzania-green to-tanzania-green-light"
-          }, {
-            icon: Coins,
-            title: "3. Earn",
-            description: "Tshs. 19,800/- per referral (30% of Tshs. 66,000/-)",
-            color: "from-orange-500 to-red-500"
-          }].map((step, index) => <Card key={index} className="group relative overflow-hidden border-0 bg-white hover:bg-tanzania-grey transition-all duration-300 hover:shadow-2xl transform hover:scale-105 shadow-lg">
+              icon: Phone,
+              title: "1. Register",
+              description: "Complete form with referral code",
+              color: "from-tanzania-navy to-blue-800"
+            }, {
+              icon: Users,
+              title: "2. Refer",
+              description: "Share code, invite others to join",
+              color: "from-tanzania-green to-tanzania-green-light"
+            }, {
+              icon: Coins,
+              title: "3. Earn",
+              description: "Earn upto Tshs. 88,000/-",
+              color: "from-orange-500 to-red-500"
+            }].map((step, index) => (
+              <Card key={index} className="group relative overflow-hidden border-0 bg-white hover:bg-tanzania-grey transition-all duration-300 hover:shadow-2xl transform hover:scale-105 shadow-lg">
                 <CardHeader className="text-center pb-4">
                   <div className={`w-20 h-20 bg-gradient-to-br ${step.color} rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-xl group-hover:scale-110 transition-transform duration-300`}>
                     <step.icon className="w-10 h-10 text-white" />
@@ -137,7 +139,8 @@ const Index = () => {
                     {step.description}
                   </CardDescription>
                 </CardContent>
-              </Card>)}
+              </Card>
+            ))}
           </div>
         </div>
       </section>
@@ -197,6 +200,8 @@ const Index = () => {
           <p className="text-blue-200 font-medium">Your Success, Our Mission</p>
         </div>
       </footer>
-    </div>;
+    </div>
+  );
 };
+
 export default Index;
