@@ -32,13 +32,13 @@ const Dashboard = () => {
 
   if (!userAccount) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-emerald-50">
-        <Card className="p-8 text-center border-0 bg-white/80 backdrop-blur-sm shadow-glass">
-          <CardTitle className="text-gray-800 mb-4">Access Denied 🔒</CardTitle>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-emerald-50 px-4">
+        <Card className="p-6 sm:p-8 text-center border-0 bg-white/80 backdrop-blur-sm shadow-glass max-w-md w-full">
+          <CardTitle className="text-gray-800 mb-4">Access Denied</CardTitle>
           <CardDescription className="mb-4">Complete registration and payment first</CardDescription>
           <Link to="/register">
-            <Button className="bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-600 text-white">
-              Go to Registration 🚀
+            <Button className="w-full bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-600 text-white">
+              Go to Registration
             </Button>
           </Link>
         </Card>
@@ -46,7 +46,7 @@ const Dashboard = () => {
     );
   }
 
-  // Mock data for demonstration
+  // Mock data for demonstration (converted to USD)
   const ambassadorStats: AmbassadorStats = {
     totalEarnings: 15750,
     activationPackEarnings: 4500,
@@ -90,52 +90,52 @@ const Dashboard = () => {
       <MobileHeader />
       <DashboardHeader userAccount={userAccount} />
 
-      <div className="px-4 py-8">
+      <div className="px-3 sm:px-4 py-6 sm:py-8">
         <div className="container mx-auto max-w-6xl">
           <Tabs defaultValue="overview" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-5 mb-8 bg-white/90 backdrop-blur-sm shadow-lg h-auto p-1">
-              <TabsTrigger value="overview" className="flex flex-col sm:flex-row items-center space-y-1 sm:space-y-0 sm:space-x-2 py-3 data-[state=active]:bg-green-500 data-[state=active]:text-white">
+            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-5 mb-6 sm:mb-8 bg-white/90 backdrop-blur-sm shadow-lg h-auto p-1">
+              <TabsTrigger value="overview" className="flex flex-col sm:flex-row items-center space-y-1 sm:space-y-0 sm:space-x-2 py-2 sm:py-3 data-[state=active]:bg-green-500 data-[state=active]:text-white">
                 <TrendingUp className="w-4 h-4" />
                 <span className="text-xs sm:text-sm font-bold">Overview</span>
               </TabsTrigger>
-              <TabsTrigger value="earnings" className="flex flex-col sm:flex-row items-center space-y-1 sm:space-y-0 sm:space-x-2 py-3 data-[state=active]:bg-green-500 data-[state=active]:text-white">
+              <TabsTrigger value="earnings" className="flex flex-col sm:flex-row items-center space-y-1 sm:space-y-0 sm:space-x-2 py-2 sm:py-3 data-[state=active]:bg-green-500 data-[state=active]:text-white">
                 <Coins className="w-4 h-4" />
                 <span className="text-xs sm:text-sm font-bold">5 Ways</span>
               </TabsTrigger>
-              <TabsTrigger value="referrals" className="flex flex-col sm:flex-row items-center space-y-1 sm:space-y-0 sm:space-x-2 py-3 data-[state=active]:bg-green-500 data-[state=active]:text-white">
+              <TabsTrigger value="referrals" className="flex flex-col sm:flex-row items-center space-y-1 sm:space-y-0 sm:space-x-2 py-2 sm:py-3 data-[state=active]:bg-green-500 data-[state=active]:text-white">
                 <Users className="w-4 h-4" />
                 <span className="text-xs sm:text-sm font-bold">Team</span>
               </TabsTrigger>
-              <TabsTrigger value="bonuses" className="flex flex-col sm:flex-row items-center space-y-1 sm:space-y-0 sm:space-x-2 py-3 data-[state=active]:bg-green-500 data-[state=active]:text-white">
+              <TabsTrigger value="bonuses" className="flex flex-col sm:flex-row items-center space-y-1 sm:space-y-0 sm:space-x-2 py-2 sm:py-3 data-[state=active]:bg-green-500 data-[state=active]:text-white">
                 <Trophy className="w-4 h-4" />
                 <span className="text-xs sm:text-sm font-bold">Bonuses</span>
               </TabsTrigger>
-              <TabsTrigger value="tools" className="flex flex-col sm:flex-row items-center space-y-1 sm:space-y-0 sm:space-x-2 py-3 data-[state=active]:bg-green-500 data-[state=active]:text-white">
+              <TabsTrigger value="tools" className="flex flex-col sm:flex-row items-center space-y-1 sm:space-y-0 sm:space-x-2 py-2 sm:py-3 data-[state=active]:bg-green-500 data-[state=active]:text-white">
                 <Download className="w-4 h-4" />
                 <span className="text-xs sm:text-sm font-bold">Tools</span>
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="overview" className="space-y-6">
+            <TabsContent value="overview" className="space-y-4 sm:space-y-6">
               <QuickStats ambassadorStats={ambassadorStats} />
               <ReferralCodeSharing userAccount={userAccount} />
             </TabsContent>
 
-            <TabsContent value="earnings" className="space-y-6">
+            <TabsContent value="earnings" className="space-y-4 sm:space-y-6">
               <EarningsOverview ambassadorStats={ambassadorStats} />
             </TabsContent>
 
-            <TabsContent value="referrals" className="space-y-6">
+            <TabsContent value="referrals" className="space-y-4 sm:space-y-6">
               <CountryDistribution countries={countries} />
               <RecentReferrals referrals={recentReferrals} />
             </TabsContent>
 
-            <TabsContent value="bonuses" className="space-y-6">
+            <TabsContent value="bonuses" className="space-y-4 sm:space-y-6">
               <BonusProgress ambassadorStats={ambassadorStats} />
               <CommissionTierStatus ambassadorStats={ambassadorStats} />
             </TabsContent>
 
-            <TabsContent value="tools" className="space-y-6">
+            <TabsContent value="tools" className="space-y-4 sm:space-y-6">
               <AmbassadorTools />
             </TabsContent>
           </Tabs>

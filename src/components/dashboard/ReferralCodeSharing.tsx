@@ -21,43 +21,43 @@ const ReferralCodeSharing = ({ userAccount }: ReferralCodeSharingProps) => {
   };
 
   const shareWhatsApp = () => {
-    const message = `🎉 Jiunge na Mizani Clinic Ambassador program! Start earning TSH 500+ per referral! Use my code: ${userAccount?.userReferralId}. Register here: ${window.location.origin}/register 💰🚀`;
+    const message = `🎉 Jiunge na Mizani Clinic Ambassador program! Start earning $0.20+ per referral! Use my code: ${userAccount?.userReferralId}. Register here: ${window.location.origin}/register 💰🚀`;
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
   };
 
   return (
     <Card className="border-0 bg-gradient-to-br from-green-100 via-emerald-50 to-teal-50 shadow-xl animate-slide-in">
-      <CardHeader>
-        <CardTitle className="flex items-center space-x-2 text-gray-800 text-xl font-black">
-          <Share2 className="w-6 h-6 text-green-600" />
-          <span>Share Your Magic Code! ✨</span>
+      <CardHeader className="px-4 sm:px-6">
+        <CardTitle className="flex items-center space-x-2 text-gray-800 text-lg sm:text-xl font-black">
+          <Share2 className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" />
+          <span>Share Your Magic Code!</span>
         </CardTitle>
-        <CardDescription className="font-semibold text-gray-600">
-          Earn TSH 500+ for each person who joins using your code 💰
+        <CardDescription className="font-semibold text-gray-600 text-sm sm:text-base">
+          Earn $0.20+ for each person who joins using your code
         </CardDescription>
       </CardHeader>
-      <CardContent>
-        <div className="flex flex-col lg:flex-row items-center space-y-4 lg:space-y-0 lg:space-x-4">
-          <Card className="flex-1 w-full p-6 bg-white border-4 border-dashed border-green-400 rounded-2xl shadow-lg">
-            <p className="text-sm text-gray-600 mb-2 font-bold">Your Ambassador Code:</p>
-            <p className="text-2xl sm:text-3xl font-mono font-black text-green-600 tracking-wider">{userAccount.userReferralId}</p>
+      <CardContent className="px-4 sm:px-6">
+        <div className="flex flex-col space-y-4">
+          <Card className="w-full p-4 sm:p-6 bg-white border-4 border-dashed border-green-400 rounded-2xl shadow-lg">
+            <p className="text-xs sm:text-sm text-gray-600 mb-2 font-bold">Your Ambassador Code:</p>
+            <p className="text-xl sm:text-2xl lg:text-3xl font-mono font-black text-green-600 tracking-wider break-all">{userAccount.userReferralId}</p>
           </Card>
-          <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 w-full lg:w-auto">
+          <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 w-full">
             <Button 
               onClick={copyReferralCode}
               variant="outline" 
-              className="border-2 border-green-500 text-green-600 hover:bg-green-500 hover:text-white rounded-xl font-bold"
+              className="flex-1 border-2 border-green-500 text-green-600 hover:bg-green-500 hover:text-white rounded-xl font-bold h-12"
             >
               <Copy className="w-4 h-4 mr-2" />
-              Copy 📋
+              Copy
             </Button>
             <Button 
               onClick={shareWhatsApp}
-              className="bg-green-500 hover:bg-green-600 text-white rounded-xl font-bold"
+              className="flex-1 bg-green-500 hover:bg-green-600 text-white rounded-xl font-bold h-12"
             >
               <Share2 className="w-4 h-4 mr-2" />
-              WhatsApp 📱
+              WhatsApp
             </Button>
           </div>
         </div>

@@ -11,33 +11,33 @@ interface BonusProgressProps {
 
 const BonusProgress = ({ ambassadorStats }: BonusProgressProps) => {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-fade-in">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 animate-fade-in">
       {/* Motorbike Bonus */}
       <Card className="border-0 bg-gradient-to-br from-orange-50 to-red-50 shadow-xl">
-        <CardHeader>
-          <CardTitle className="text-gray-800 text-xl font-black flex items-center">
-            <Bike className="w-6 h-6 mr-3 text-orange-500" />
-            Motorbike Bonus 🏍️
+        <CardHeader className="px-4 sm:px-6">
+          <CardTitle className="text-gray-800 text-lg sm:text-xl font-black flex items-center">
+            <Bike className="w-5 h-5 sm:w-6 sm:h-6 mr-3 text-orange-500" />
+            Motorbike Bonus
           </CardTitle>
-          <CardDescription className="font-semibold">
-            Team total: TSH 1,000 target
+          <CardDescription className="font-semibold text-sm sm:text-base">
+            Team total: $400 USD target
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-4 sm:px-6">
           <div className="space-y-4">
             <div className="text-center">
-              <div className="text-4xl font-black text-orange-600">
-                TSH {ambassadorStats.teamProgressLevel1}
+              <div className="text-2xl sm:text-4xl font-black text-orange-600">
+                ${(ambassadorStats.teamProgressLevel1 / 2500).toFixed(0)} USD
               </div>
-              <div className="text-sm text-gray-600 font-semibold">of TSH 1,000</div>
+              <div className="text-xs sm:text-sm text-gray-600 font-semibold">of $400 USD</div>
             </div>
-            <Progress value={(ambassadorStats.teamProgressLevel1/1000)*100} className="h-4" />
+            <Progress value={(ambassadorStats.teamProgressLevel1/1000)*100} className="h-3 sm:h-4" />
             <div className="text-center">
-              <Badge className="bg-orange-500 text-white font-bold">
+              <Badge className="bg-orange-500 text-white font-bold text-xs sm:text-sm">
                 {Math.round((ambassadorStats.teamProgressLevel1/1000)*100)}% Complete
               </Badge>
-              <p className="text-sm text-gray-600 mt-2 font-medium">
-                TSH {1000 - ambassadorStats.teamProgressLevel1} remaining
+              <p className="text-xs sm:text-sm text-gray-600 mt-2 font-medium">
+                ${(400 - (ambassadorStats.teamProgressLevel1 / 2500)).toFixed(0)} USD remaining
               </p>
             </div>
           </div>
@@ -46,30 +46,30 @@ const BonusProgress = ({ ambassadorStats }: BonusProgressProps) => {
 
       {/* Car Bonus */}
       <Card className="border-0 bg-gradient-to-br from-blue-50 to-cyan-50 shadow-xl">
-        <CardHeader>
-          <CardTitle className="text-gray-800 text-xl font-black flex items-center">
-            <Car className="w-6 h-6 mr-3 text-blue-500" />
-            Car Bonus 🚗
+        <CardHeader className="px-4 sm:px-6">
+          <CardTitle className="text-gray-800 text-lg sm:text-xl font-black flex items-center">
+            <Car className="w-5 h-5 sm:w-6 sm:h-6 mr-3 text-blue-500" />
+            Car Bonus
           </CardTitle>
-          <CardDescription className="font-semibold">
-            Monthly team target: TSH 6,000
+          <CardDescription className="font-semibold text-sm sm:text-base">
+            Monthly team target: $2,400 USD
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-4 sm:px-6">
           <div className="space-y-4">
             <div className="text-center">
-              <div className="text-4xl font-black text-blue-600">
-                TSH {ambassadorStats.teamProgressLevel2}
+              <div className="text-2xl sm:text-4xl font-black text-blue-600">
+                ${(ambassadorStats.teamProgressLevel2 / 2500).toFixed(0)} USD
               </div>
-              <div className="text-sm text-gray-600 font-semibold">of TSH 6,000 (This Month)</div>
+              <div className="text-xs sm:text-sm text-gray-600 font-semibold">of $2,400 USD (This Month)</div>
             </div>
-            <Progress value={(ambassadorStats.teamProgressLevel2/6000)*100} className="h-4" />
+            <Progress value={(ambassadorStats.teamProgressLevel2/6000)*100} className="h-3 sm:h-4" />
             <div className="text-center">
-              <Badge className="bg-blue-500 text-white font-bold">
+              <Badge className="bg-blue-500 text-white font-bold text-xs sm:text-sm">
                 {Math.round((ambassadorStats.teamProgressLevel2/6000)*100)}% Complete
               </Badge>
-              <p className="text-sm text-gray-600 mt-2 font-medium">
-                TSH {6000 - ambassadorStats.teamProgressLevel2} remaining this month
+              <p className="text-xs sm:text-sm text-gray-600 mt-2 font-medium">
+                ${(2400 - (ambassadorStats.teamProgressLevel2 / 2500)).toFixed(0)} USD remaining this month
               </p>
             </div>
           </div>

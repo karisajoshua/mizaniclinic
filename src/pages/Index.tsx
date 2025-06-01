@@ -7,110 +7,122 @@ import MobileHeader from "@/components/MobileHeader";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-yellow-50 to-orange-50 overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-tanzania-grey via-white to-tanzania-grey overflow-hidden">
       <MobileHeader />
 
-      {/* Floating Money Animation Elements */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-20 left-10 text-4xl animate-bounce" style={{animationDelay: '0s'}}>💰</div>
-        <div className="absolute top-32 right-16 text-3xl animate-bounce" style={{animationDelay: '1s'}}>🎯</div>
-        <div className="absolute bottom-40 left-20 text-4xl animate-bounce" style={{animationDelay: '2s'}}>🏆</div>
-        <div className="absolute top-60 right-8 text-3xl animate-bounce" style={{animationDelay: '3s'}}>💸</div>
-        <div className="absolute bottom-32 right-32 text-4xl animate-bounce" style={{animationDelay: '4s'}}>⭐</div>
-      </div>
+      {/* Hero Section - Brand Focused */}
+      <section className="relative px-4 py-8 sm:py-16 bg-gradient-to-br from-tanzania-navy via-blue-900 to-tanzania-navy">
+        <div className="container mx-auto max-w-6xl">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+            {/* Left Content */}
+            <div className="text-center lg:text-left space-y-6">
+              {/* Success Badge */}
+              <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-tanzania-green to-tanzania-green-light rounded-full text-white font-bold text-sm shadow-xl">
+                <Star className="w-5 h-5 mr-2" />
+                Join the Ambassador Family
+              </div>
 
-      {/* Hero Section - Super Engaging */}
-      <section className="relative px-4 py-8 sm:py-16">
-        <div className="container mx-auto max-w-4xl text-center">
-          {/* Success Badge */}
-          <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full text-white font-bold text-sm mb-6 shadow-xl animate-pulse">
-            <Star className="w-5 h-5 mr-2" />
-            Jiunge na Familia ya Ambassador! 🇹🇿
-          </div>
+              {/* Main Headline */}
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-tight">
+                Start Earning
+                <br />
+                <span className="text-5xl sm:text-6xl lg:text-7xl text-transparent bg-gradient-to-r from-tanzania-green to-tanzania-green-light bg-clip-text">
+                  Today!
+                </span>
+              </h1>
 
-          {/* Main Headline */}
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black text-transparent bg-gradient-to-r from-green-600 via-yellow-500 to-orange-500 bg-clip-text mb-6 animate-fade-in leading-tight">
-            Start Earning<br />
-            <span className="text-5xl sm:text-7xl lg:text-8xl">💰 TODAY! 💰</span>
-          </h1>
+              {/* Subtitle */}
+              <p className="text-xl sm:text-2xl text-blue-200 font-semibold">
+                Share your code → Earn $0.20+ → Win Motorbike & Car!
+              </p>
 
-          {/* Catchy Subtitle */}
-          <p className="text-xl sm:text-2xl text-gray-700 font-semibold mb-8 animate-slide-in">
-            Share your code ➜ Earn TSH 500+ ➜ Win Motorbike & Car! 🏍️🚗
-          </p>
+              {/* Earning Numbers */}
+              <div className="grid grid-cols-3 gap-4 max-w-lg mx-auto lg:mx-0">
+                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
+                  <div className="text-2xl sm:text-3xl font-black text-tanzania-green-light">$0.20</div>
+                  <div className="text-xs text-blue-200 font-semibold">Per Referral</div>
+                </div>
+                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
+                  <div className="text-2xl sm:text-3xl font-black text-tanzania-green-light">30%</div>
+                  <div className="text-xs text-blue-200 font-semibold">Commission</div>
+                </div>
+                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
+                  <div className="text-2xl sm:text-3xl font-black text-tanzania-green-light">5 Ways</div>
+                  <div className="text-xs text-blue-200 font-semibold">To Earn</div>
+                </div>
+              </div>
 
-          {/* Big Earning Numbers */}
-          <div className="grid grid-cols-3 gap-4 max-w-lg mx-auto mb-8 animate-scale-in">
-            <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-4 shadow-xl border-2 border-green-200">
-              <div className="text-2xl sm:text-3xl font-black text-green-600">TSH 500</div>
-              <div className="text-xs text-gray-600 font-semibold">Per Referral</div>
+              {/* Call to Action */}
+              <div className="space-y-4">
+                <Link to="/register">
+                  <Button 
+                    size="lg" 
+                    className="w-full max-w-md h-16 bg-gradient-to-r from-tanzania-green to-tanzania-green-light hover:from-tanzania-green-light hover:to-tanzania-green text-white text-xl font-black rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105 border-4 border-white/20"
+                  >
+                    START EARNING NOW
+                    <ArrowRight className="ml-3 w-6 h-6" />
+                  </Button>
+                </Link>
+                <p className="text-sm text-blue-200 font-medium">
+                  Join 10,000+ Tanzanians already earning
+                </p>
+              </div>
             </div>
-            <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-4 shadow-xl border-2 border-yellow-200">
-              <div className="text-2xl sm:text-3xl font-black text-yellow-600">30%</div>
-              <div className="text-xs text-gray-600 font-semibold">Commission</div>
-            </div>
-            <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-4 shadow-xl border-2 border-orange-200">
-              <div className="text-2xl sm:text-3xl font-black text-orange-600">5 Ways</div>
-              <div className="text-xs text-gray-600 font-semibold">To Earn</div>
-            </div>
-          </div>
 
-          {/* Call to Action */}
-          <div className="space-y-4 animate-fade-in">
-            <Link to="/register">
-              <Button 
-                size="lg" 
-                className="w-full max-w-md h-16 bg-gradient-to-r from-green-500 via-yellow-500 to-orange-500 hover:from-green-600 hover:via-yellow-600 hover:to-orange-600 text-white text-xl font-black rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105 animate-glow border-4 border-white"
-              >
-                🚀 START EARNING NOW! 🚀
-                <ArrowRight className="ml-3 w-6 h-6" />
-              </Button>
-            </Link>
-            <p className="text-sm text-gray-600 font-medium">
-              Join 10,000+ Tanzanians already earning! 🎉
-            </p>
+            {/* Right Image */}
+            <div className="flex justify-center lg:justify-end">
+              <div className="relative">
+                <img 
+                  src="https://lgtuwkhbucnucegkvirf.supabase.co/storage/v1/object/public/mizaniclinic//mobil_eapp_mizani-removebg-preview.png"
+                  alt="Mizani Clinic Mobile App"
+                  className="w-80 sm:w-96 lg:w-full max-w-md h-auto object-contain"
+                />
+                <div className="absolute -top-4 -right-4 w-20 h-20 bg-tanzania-green rounded-full flex items-center justify-center animate-pulse">
+                  <Phone className="w-10 h-10 text-white" />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Quick Benefits - Minimal but Powerful */}
-      <section className="py-12 px-4">
+      {/* Quick Benefits - Brand Colors */}
+      <section className="py-12 px-4 bg-white">
         <div className="container mx-auto max-w-4xl">
-          <h2 className="text-3xl sm:text-4xl font-black text-center text-gray-800 mb-8">
-            Ni Rahisi Sana! 😄
+          <h2 className="text-3xl sm:text-4xl font-black text-center text-tanzania-navy mb-8">
+            Simple Steps to Success
           </h2>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
               {
-                emoji: "📱",
+                icon: Phone,
                 title: "1. Register",
-                description: "Jaza form na referral code",
-                color: "from-blue-400 to-cyan-500"
+                description: "Complete form with referral code",
+                color: "from-tanzania-navy to-blue-800"
               },
               {
-                emoji: "💸",
+                icon: Coins,
                 title: "2. Share & Earn",
-                description: "Share code, earn TSH 500+",
-                color: "from-green-400 to-emerald-500"
+                description: "Share code, earn $0.20+ per referral",
+                color: "from-tanzania-green to-tanzania-green-light"
               },
               {
-                emoji: "🏆",
+                icon: Trophy,
                 title: "3. Win Big",
-                description: "Motorbike & Car bonuses!",
-                color: "from-yellow-400 to-orange-500"
+                description: "Motorbike & Car bonuses await",
+                color: "from-orange-500 to-red-500"
               }
             ].map((step, index) => (
               <Card 
                 key={index}
-                className="group relative overflow-hidden border-0 bg-white/90 backdrop-blur-sm hover:bg-white transition-all duration-300 hover:shadow-2xl animate-fade-in transform hover:scale-105"
-                style={{animationDelay: `${index * 0.2}s`}}
+                className="group relative overflow-hidden border-0 bg-white hover:bg-tanzania-grey transition-all duration-300 hover:shadow-2xl transform hover:scale-105 shadow-lg"
               >
                 <CardHeader className="text-center pb-4">
-                  <div className={`w-20 h-20 bg-gradient-to-br ${step.color} rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-xl group-hover:scale-110 transition-transform duration-300 text-4xl`}>
-                    {step.emoji}
+                  <div className={`w-20 h-20 bg-gradient-to-br ${step.color} rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-xl group-hover:scale-110 transition-transform duration-300`}>
+                    <step.icon className="w-10 h-10 text-white" />
                   </div>
-                  <CardTitle className="text-gray-800 text-xl font-black">{step.title}</CardTitle>
+                  <CardTitle className="text-tanzania-navy text-xl font-black">{step.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <CardDescription className="text-gray-600 text-center leading-relaxed font-semibold text-lg">
@@ -124,34 +136,33 @@ const Index = () => {
       </section>
 
       {/* Success Stories Ticker */}
-      <section className="py-8 bg-gradient-to-r from-green-500 to-emerald-600 text-white overflow-hidden">
+      <section className="py-8 bg-gradient-to-r from-tanzania-green to-tanzania-green-light text-white overflow-hidden">
         <div className="animate-scroll">
           <div className="flex space-x-8 text-lg font-bold whitespace-nowrap">
-            <span>🎉 John from Dar just earned TSH 2,500!</span>
-            <span>🏆 Sarah from Arusha won a Motorbike!</span>
-            <span>💰 David from Mwanza earned TSH 15,000 this month!</span>
-            <span>🚗 Grace from Dodoma qualified for Car bonus!</span>
-            <span>⭐ Michael from Mbeya reached Level 2!</span>
+            <span>John from Dar just earned $1.00!</span>
+            <span>Sarah from Arusha won a Motorbike!</span>
+            <span>David from Mwanza earned $6.00 this month!</span>
+            <span>Grace from Dodoma qualified for Car bonus!</span>
+            <span>Michael from Mbeya reached Level 2!</span>
           </div>
         </div>
       </section>
 
       {/* Final CTA */}
-      <section className="py-16 px-4 bg-gradient-to-br from-gray-900 via-green-900 to-emerald-900 text-white relative overflow-hidden">
-        <div className="absolute inset-0 opacity-30"></div>
+      <section className="py-16 px-4 bg-gradient-to-br from-tanzania-navy via-blue-900 to-tanzania-navy text-white relative overflow-hidden">
         <div className="relative container mx-auto max-w-4xl text-center">
-          <h2 className="text-4xl sm:text-5xl font-black mb-6 animate-fade-in">
-            Ready to Change Your Life? 🌟
+          <h2 className="text-4xl sm:text-5xl font-black mb-6">
+            Ready to Change Your Life?
           </h2>
           <p className="text-xl mb-8 opacity-90 font-semibold">
-            Thousands earning daily. Your turn now! 💪
+            Thousands earning daily. Your turn now!
           </p>
           <Link to="/register">
             <Button 
               size="lg" 
-              className="h-16 bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 hover:from-yellow-500 hover:via-orange-600 hover:to-red-600 text-black text-xl font-black px-12 rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-110 border-4 border-white"
+              className="h-16 bg-gradient-to-r from-tanzania-green to-tanzania-green-light hover:from-tanzania-green-light hover:to-tanzania-green text-white text-xl font-black px-12 rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-110 border-4 border-white/20"
             >
-              🔥 JOIN THE FAMILY NOW! 🔥
+              JOIN THE FAMILY NOW
               <ArrowRight className="ml-3 w-6 h-6" />
             </Button>
           </Link>
@@ -159,15 +170,15 @@ const Index = () => {
       </section>
 
       {/* Simple Footer */}
-      <footer className="bg-gray-900 text-white py-6 px-4">
+      <footer className="bg-tanzania-navy text-white py-6 px-4">
         <div className="container mx-auto text-center">
           <div className="flex justify-center items-center space-x-2 mb-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-green-400 to-emerald-500 rounded-xl flex items-center justify-center shadow-lg">
+            <div className="w-8 h-8 bg-gradient-to-br from-tanzania-green to-tanzania-green-light rounded-xl flex items-center justify-center shadow-lg">
               <Phone className="w-4 h-4 text-white" />
             </div>
             <span className="font-bold text-lg">Mizani Clinic Ambassador</span>
           </div>
-          <p className="text-gray-400 font-medium">Your Success, Our Mission! 🎯</p>
+          <p className="text-blue-200 font-medium">Your Success, Our Mission</p>
         </div>
       </footer>
     </div>
