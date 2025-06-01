@@ -42,7 +42,7 @@ const MobileHeader = () => {
     label: "Login",
     icon: User
   }, {
-    href: "/signup",
+    href: "/register",
     label: "Register",
     icon: Users
   }];
