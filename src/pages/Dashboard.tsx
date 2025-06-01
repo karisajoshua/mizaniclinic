@@ -16,29 +16,49 @@ import BonusProgress from "@/components/dashboard/BonusProgress";
 import CommissionTierStatus from "@/components/dashboard/CommissionTierStatus";
 import AmbassadorTools from "@/components/dashboard/AmbassadorTools";
 import type { UserAccount, AmbassadorStats, Country, Referral } from "@/types/dashboard";
+import { useAuth } from "@/hooks/useAuth";
 
 const Dashboard = () => {
   const [userAccount, setUserAccount] = useState<UserAccount | null>(null);
+  const { user, loading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    const account = localStorage.getItem('userAccount');
-    if (!account) {
-      navigate('/register');
+    if (!loading && !user) {
+      navigate('/signin');
       return;
     }
-    setUserAccount(JSON.parse(account));
-  }, [navigate]);
 
-  if (!userAccount) {
+    if (user) {
+      // For now, use mock data. In a real app, fetch from Supabase
+      const mockAccount: UserAccount = {
+        fullName: user.user_metadata?.full_name || "User",
+        region: "Dar es Salaam",
+        userReferralId: `MZ${user.id.slice(0, 8).toUpperCase()}`
+      };
+      setUserAccount(mockAccount);
+    }
+  }, [user, loading, navigate]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-emerald-50 px-4">
+        <Card className="p-6 sm:p-8 text-center border-0 bg-white/80 backdrop-blur-sm shadow-glass max-w-md w-full">
+          <CardTitle className="text-gray-800 mb-4">Loading...</CardTitle>
+        </Card>
+      </div>
+    );
+  }
+
+  if (!user || !userAccount) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-emerald-50 px-4">
         <Card className="p-6 sm:p-8 text-center border-0 bg-white/80 backdrop-blur-sm shadow-glass max-w-md w-full">
           <CardTitle className="text-gray-800 mb-4">Access Denied</CardTitle>
-          <CardDescription className="mb-4">Complete registration and payment first</CardDescription>
-          <Link to="/register">
+          <CardDescription className="mb-4">Please sign in to access your dashboard</CardDescription>
+          <Link to="/signin">
             <Button className="w-full bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-600 text-white">
-              Go to Registration
+              Sign In
             </Button>
           </Link>
         </Card>

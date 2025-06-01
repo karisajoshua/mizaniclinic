@@ -1,19 +1,68 @@
 
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, Phone, Users, Calendar, Settings, User } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Menu, Phone, Users, User, LogOut } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "@/hooks/use-toast";
 
 const MobileHeader = () => {
   const location = useLocation();
-  
-  const navItems = [
+  const navigate = useNavigate();
+  const { user, signOut, loading } = useAuth();
+
+  const handleSignOut = async () => {
+    const { error } = await signOut();
+    if (error) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Signed out",
+        description: "You have been signed out successfully.",
+      });
+      navigate("/");
+    }
+  };
+
+  // Navigation items for unauthenticated users
+  const unauthenticatedNavItems = [
     { href: "/", label: "Home", icon: Phone },
-    { href: "/dashboard", label: "Dashboard", icon: User },
-    { href: "/register", label: "Register", icon: Users },
+    { href: "/signin", label: "Sign In", icon: User },
+    { href: "/signup", label: "Sign Up", icon: Users },
   ];
 
+  // Navigation items for authenticated users
+  const authenticatedNavItems = [
+    { href: "/", label: "Home", icon: Phone },
+    { href: "/dashboard", label: "Dashboard", icon: User },
+  ];
+
+  const navItems = user ? authenticatedNavItems : unauthenticatedNavItems;
   const isActive = (path: string) => location.pathname === path;
+
+  if (loading) {
+    return (
+      <header className="sticky top-0 z-50 w-full bg-gradient-to-r from-tanzania-navy via-tanzania-navy to-blue-900 backdrop-blur-md border-b border-white/10 shadow-xl">
+        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+          <Link to="/" className="flex items-center space-x-2 group">
+            <div className="w-10 h-10 bg-gradient-to-br from-tanzania-green to-green-400 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-200">
+              <Phone className="w-5 h-5 text-white" />
+            </div>
+            <div className="hidden sm:block">
+              <h1 className="text-xl font-bold text-white">Mizani Clinic</h1>
+              <p className="text-xs text-blue-200 -mt-1">Referral System</p>
+            </div>
+          </Link>
+          <div className="text-white">Loading...</div>
+        </div>
+      </header>
+    );
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full bg-gradient-to-r from-tanzania-navy via-tanzania-navy to-blue-900 backdrop-blur-md border-b border-white/10 shadow-xl">
@@ -63,11 +112,21 @@ const MobileHeader = () => {
                   </Link>
                 );
               })}
+              
+              {user && (
+                <button
+                  onClick={handleSignOut}
+                  className="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 text-blue-100 hover:bg-white/10 hover:text-white w-full text-left"
+                >
+                  <LogOut className="w-5 h-5" />
+                  <span className="font-medium">Sign Out</span>
+                </button>
+              )}
             </nav>
 
             <div className="mt-8 p-4 bg-white/5 rounded-xl border border-white/10">
               <p className="text-blue-200 text-sm text-center">
-                Refer friends and earn TSH 500 per referral!
+                {user ? `Welcome back!` : "Refer friends and earn TSH 500 per referral!"}
               </p>
             </div>
           </SheetContent>
@@ -92,6 +151,23 @@ const MobileHeader = () => {
               </Link>
             );
           })}
+          
+          {user && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="text-blue-100 hover:bg-white/10 hover:text-white">
+                  <User className="w-4 h-4 mr-2" />
+                  Account
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="bg-white border-gray-200">
+                <DropdownMenuItem onClick={handleSignOut} className="text-red-600 hover:bg-red-50">
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Sign Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </nav>
       </div>
     </header>

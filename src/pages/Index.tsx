@@ -4,8 +4,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Users, Coins, Calendar, ArrowRight, CheckCircle, Phone, MapPin, Star, Shield, Clock, Trophy, Zap, Target, Gift } from "lucide-react";
 import { Link } from "react-router-dom";
 import MobileHeader from "@/components/MobileHeader";
+import { useAuth } from "@/hooks/useAuth";
 
 const Index = () => {
+  const { user } = useAuth();
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-tanzania-grey via-white to-tanzania-grey overflow-hidden">
       <MobileHeader />
@@ -54,17 +57,29 @@ const Index = () => {
 
               {/* Call to Action */}
               <div className="space-y-4">
-                <Link to="/register">
-                  <Button 
-                    size="lg" 
-                    className="w-full max-w-md h-16 bg-gradient-to-r from-tanzania-green to-tanzania-green-light hover:from-tanzania-green-light hover:to-tanzania-green text-white text-xl font-black rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105 border-4 border-white/20"
-                  >
-                    START EARNING NOW
-                    <ArrowRight className="ml-3 w-6 h-6" />
-                  </Button>
-                </Link>
+                {user ? (
+                  <Link to="/dashboard">
+                    <Button 
+                      size="lg" 
+                      className="w-full max-w-md h-16 bg-gradient-to-r from-tanzania-green to-tanzania-green-light hover:from-tanzania-green-light hover:to-tanzania-green text-white text-xl font-black rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105 border-4 border-white/20"
+                    >
+                      GO TO DASHBOARD
+                      <ArrowRight className="ml-3 w-6 h-6" />
+                    </Button>
+                  </Link>
+                ) : (
+                  <Link to="/signup">
+                    <Button 
+                      size="lg" 
+                      className="w-full max-w-md h-16 bg-gradient-to-r from-tanzania-green to-tanzania-green-light hover:from-tanzania-green-light hover:to-tanzania-green text-white text-xl font-black rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105 border-4 border-white/20"
+                    >
+                      START EARNING NOW
+                      <ArrowRight className="ml-3 w-6 h-6" />
+                    </Button>
+                  </Link>
+                )}
                 <p className="text-sm text-blue-200 font-medium">
-                  Join 10,000+ Tanzanians already earning
+                  {user ? "Welcome back! Check your dashboard" : "Join 10,000+ Tanzanians already earning"}
                 </p>
               </div>
             </div>
@@ -157,15 +172,27 @@ const Index = () => {
           <p className="text-xl mb-8 opacity-90 font-semibold">
             Thousands earning daily. Your turn now!
           </p>
-          <Link to="/register">
-            <Button 
-              size="lg" 
-              className="h-16 bg-gradient-to-r from-tanzania-green to-tanzania-green-light hover:from-tanzania-green-light hover:to-tanzania-green text-white text-xl font-black px-12 rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-110 border-4 border-white/20"
-            >
-              JOIN THE FAMILY NOW
-              <ArrowRight className="ml-3 w-6 h-6" />
-            </Button>
-          </Link>
+          {user ? (
+            <Link to="/dashboard">
+              <Button 
+                size="lg" 
+                className="h-16 bg-gradient-to-r from-tanzania-green to-tanzania-green-light hover:from-tanzania-green-light hover:to-tanzania-green text-white text-xl font-black px-12 rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-110 border-4 border-white/20"
+              >
+                VIEW YOUR DASHBOARD
+                <ArrowRight className="ml-3 w-6 h-6" />
+              </Button>
+            </Link>
+          ) : (
+            <Link to="/signup">
+              <Button 
+                size="lg" 
+                className="h-16 bg-gradient-to-r from-tanzania-green to-tanzania-green-light hover:from-tanzania-green-light hover:to-tanzania-green text-white text-xl font-black px-12 rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-110 border-4 border-white/20"
+              >
+                JOIN THE FAMILY NOW
+                <ArrowRight className="ml-3 w-6 h-6" />
+              </Button>
+            </Link>
+          )}
         </div>
       </section>
 
