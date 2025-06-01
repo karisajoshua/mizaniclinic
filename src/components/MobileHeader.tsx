@@ -80,7 +80,7 @@ const MobileHeader = () => {
           <img src="https://rpkttbmlvjshkbjrmnvo.supabase.co/storage/v1/object/public/mizaniclinic//Mizani%20(1).png" alt="Mizani Clinic Logo" className="w-10 h-10 object-contain group-hover:scale-105 transition-transform duration-200" />
           <div className="hidden sm:block">
             <h1 className="text-xl font-bold text-white">MIZANI CLINIC</h1>
-            <p className="text-xs text-blue-200 -mt-1">Referral System</p>
+            <p className="text-xs text-blue-200 -mt-1">Ambassador Program</p>
           </div>
         </Link>
 
