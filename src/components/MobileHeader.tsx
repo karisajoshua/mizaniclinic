@@ -39,11 +39,11 @@ const MobileHeader = () => {
     icon: Phone
   }, {
     href: "/signin",
-    label: "Sign In",
+    label: "Login",
     icon: User
   }, {
     href: "/signup",
-    label: "Sign Up",
+    label: "Register",
     icon: Users
   }];
 

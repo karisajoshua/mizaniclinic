@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -36,33 +35,24 @@ const Payment = () => {
       return;
     }
 
-    // Generate referral ID ONLY after payment confirmation
-    const userReferralId = generateReferralId(registrationData.region);
-
-    // Store payment info with newly generated referral ID
-    const userAccount = {
+    // Store application as pending review (not immediately activated)
+    const applicationData = {
       ...registrationData,
-      userReferralId,
-      paymentConfirmed: true,
       transactionCode,
-      paymentDate: new Date().toISOString(),
-      commissions: {
-        total: 0,
-        today: 0,
-        last7days: 0,
-        last30days: 0
-      },
-      referrals: []
+      paymentSubmitted: true,
+      status: 'pending_review',
+      submissionDate: new Date().toISOString(),
     };
 
-    localStorage.setItem('userAccount', JSON.stringify(userAccount));
+    localStorage.setItem('applicationData', JSON.stringify(applicationData));
     
     toast({
-      title: "Payment Confirmed!",
-      description: `Your Ambassador ID: ${userReferralId}. Welcome to Mizani Clinic!`,
+      title: "Payment Code Submitted!",
+      description: "Your application is being processed. A representative will contact you shortly.",
     });
 
-    navigate('/dashboard');
+    // Navigate to processing page instead of dashboard
+    navigate('/application-processing');
   };
 
   const copyToClipboard = (text: string) => {
@@ -146,7 +136,7 @@ const Payment = () => {
               </div>
               <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
                 <p className="text-sm text-yellow-800">
-                  <strong>Your Ambassador ID will be generated after payment confirmation.</strong>
+                  <strong>Your Ambassador ID will be generated after payment verification by our team.</strong>
                 </p>
               </div>
             </CardContent>
@@ -180,7 +170,7 @@ const Payment = () => {
                         <li>2. Select "Pay Bill" or "Lipa na Namba"</li>
                         <li>3. Enter the business number below</li>
                         <li>4. Enter account number below</li>
-                        <li>5. Enter amount: TSH 30,000</li>
+                        <li>5. Enter amount: TSH 66,000</li>
                         <li>6. Complete the payment</li>
                         <li>7. Enter the transaction code below</li>
                       </ol>
@@ -219,7 +209,7 @@ const Payment = () => {
                     
                     <div className="bg-white/70 rounded-xl p-4">
                       <p className="font-semibold text-tanzania-navy text-sm">Amount:</p>
-                      <p className="text-2xl font-bold text-tanzania-green">TSH 30,000</p>
+                      <p className="text-2xl font-bold text-tanzania-green">TSH 66,000</p>
                     </div>
                   </div>
                 </div>
@@ -248,31 +238,31 @@ const Payment = () => {
                   type="submit"
                   className="w-full h-12 bg-gradient-to-r from-tanzania-green to-green-500 hover:from-green-500 hover:to-tanzania-green text-white text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
                 >
-                  Verify Payment & Access Dashboard
+                  Submit for Verification
                 </Button>
               </form>
 
               <Card className="mt-6 bg-gradient-to-br from-blue-50 to-green-50 border-0 p-4">
                 <h3 className="font-semibold text-tanzania-navy mb-3 flex items-center">
                   <CheckCircle className="w-5 h-5 mr-2 text-tanzania-green" />
-                  After Payment Verification:
+                  After Payment Submission:
                 </h3>
                 <ul className="text-sm text-tanzania-text/70 space-y-2">
+                  <li className="flex items-center">
+                    <div className="w-2 h-2 bg-tanzania-green rounded-full mr-3"></div>
+                    Our team will verify your payment within 24 hours
+                  </li>
+                  <li className="flex items-center">
+                    <div className="w-2 h-2 bg-tanzania-green rounded-full mr-3"></div>
+                    A representative will contact you for confirmation
+                  </li>
                   <li className="flex items-center">
                     <div className="w-2 h-2 bg-tanzania-green rounded-full mr-3"></div>
                     Your unique Ambassador ID will be generated
                   </li>
                   <li className="flex items-center">
                     <div className="w-2 h-2 bg-tanzania-green rounded-full mr-3"></div>
-                    Your dashboard will be activated immediately
-                  </li>
-                  <li className="flex items-center">
-                    <div className="w-2 h-2 bg-tanzania-green rounded-full mr-3"></div>
-                    Start sharing your referral code and earn Tshs. 88,000/-
-                  </li>
-                  <li className="flex items-center">
-                    <div className="w-2 h-2 bg-tanzania-green rounded-full mr-3"></div>
-                    Book appointments with Mizani Clinic
+                    Dashboard access will be activated after verification
                   </li>
                 </ul>
               </Card>

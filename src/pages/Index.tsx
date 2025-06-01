@@ -35,7 +35,7 @@ const Index = () => {
               </h1>
 
               {/* Subtitle */}
-              <p className="text-xl sm:text-2xl text-blue-200 font-semibold">Earn up to Tshs 88,000/- per one referal + Bunuses</p>
+              <p className="text-xl sm:text-2xl text-blue-200 font-semibold">Earn up to Tshs 19,800/- per referral + Bonuses</p>
 
               {/* Earning Numbers */}
               <div className="grid grid-cols-3 gap-4 max-w-lg mx-auto lg:mx-0">
@@ -132,7 +132,7 @@ const Index = () => {
               {
                 icon: Coins,
                 title: "3. Earn",
-                description: "Tshs. 88,000/- per referral + bonuses",
+                description: "Tshs. 19,800/- per referral (30% of Tshs. 66,000/-)",
                 color: "from-orange-500 to-red-500"
               }
             ].map((step, index) => (
@@ -158,9 +158,9 @@ const Index = () => {
       <section className="py-8 bg-gradient-to-r from-tanzania-green to-tanzania-green-light text-white overflow-hidden">
         <div className="animate-scroll">
           <div className="flex space-x-8 text-lg font-bold whitespace-nowrap">
-            <span>John from Dar just earned Tshs. 88,000/-!</span>
+            <span>John from Dar just earned Tshs. 19,800/-!</span>
             <span>Sarah from Arusha won a Motorbike!</span>
-            <span>David from Mwanza earned Tshs. 528,000/- this month!</span>
+            <span>David from Mwanza earned Tshs. 118,800/- this month!</span>
             <span>Grace from Dodoma qualified for Car bonus!</span>
             <span>Michael from Mbeya reached Level 2!</span>
           </div>
