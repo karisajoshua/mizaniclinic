@@ -1,73 +1,103 @@
-# Welcome to your Lovable project
+# 🇹🇿 Mizani Clinic 
 
-## Project info
+A full-featured referral-based registration and healthcare booking platform tailored for Mizani Clinic Ambassadors across Tanzania and East Africa. This system enables users to register with referral codes, earn commissions through multiple earning channels, and schedule appointments with Dr. Mwaka — all through a clean, mobile-first web interface.
 
-**URL**: https://lovable.dev/projects/62972683-06d4-4bdf-8f46-f7787568457b
+---
 
-## How can I edit this code?
+## 🚀 Features
 
-There are several ways of editing your application.
+### 🎯 Ambassador User Features:
 
-**Use Lovable**
+* Register with a region-based referral code (e.g., `TDSM-AB1234`)
+* Make payments or upload receipts
+* Access unique **Ambassador ID**, training, and onboarding material
+* Track referral performance (people referred, earnings)
+* View and share personal referral code
+* Book appointments with Dr. Mwaka
+* Earn commissions through 5+ revenue streams
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/62972683-06d4-4bdf-8f46-f7787568457b) and start prompting.
+### 👨‍⚕️ Admin Dashboard (Dr. Mwaka):
 
-Changes made via Lovable will be committed automatically to this repo.
+* Manage availability and booking calendar
+* Track referrals, regional statistics, income, and ambassador performance
+* Manually or automatically confirm payments and process payouts
 
-**Use your preferred IDE**
+### 💸 Earning Model:
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+1. **30% Activation Pack Referral** (paid after 5 signups)
+2. **25% on Direct Sales/Service Referrals**
+3. **15% from Second-Level Referrals**
+4. **MPA Bonus (Motorbike at 1,000 MPA / Car at 6,000 MPA)**
+5. **Post-1,000 Ambassadors:** 70% commission + ability to onboard 100 others regionally
+6. **Enhanced Tiers:** Earn up to 75% on combined commissions
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+---
 
-Follow these steps:
+## 🧩 Tech Stack
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+* **Frontend:** React (Lovable low-code platform compatible), TailwindCSS
+* **Backend:** Firebase / Supabase / Node.js (customizable)
+* **Authentication:** OTP, Email/Password, Google/Facebook Sign-In
+* **Payments:** Mobile Money Integration (Mpesa, TigoPesa, etc.)
+* **Design:** Clean, mobile-first UI following Mizani brand guidelines
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+---
 
-# Step 3: Install the necessary dependencies.
-npm i
+## 📱 UI Overview
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+* Splash screen with animated gradient logo
+* Onboarding screens (Vyond-style illustrations)
+* Mobile dashboard for Ambassadors
+* Admin control panel
+* Booking calendar with availability logic
+* Commission tracking with visual progress meters
+
+---
+
+## 📂 Project Structure
+
+```
+📁 mizani-clinic-app/
+├── public/
+├── src/
+│   ├── assets/          # Icons, illustrations, logos
+│   ├── components/      # Reusable UI components
+│   ├── pages/           # Page views (Dashboard, Register, Book, Admin)
+│   ├── utils/           # Commission logic, referral code generator
+│   └── styles/          # Tailwind config + custom styles
+├── .env
+├── README.md
+└── package.json
+```
+
+---
+
+## 🛠 Setup Instructions
+
+1. **Clone Repo**
+
+```bash
+git clone https://github.com/yourusername/mizani-clinic-app.git
+cd mizani-clinic-app
+```
+
+2. **Install Dependencies**
+
+```bash
+npm install
+```
+
+3. **Configure Environment Variables**
+
+```env
+REACT_APP_FIREBASE_API_KEY=your-key
+REACT_APP_REGION_LIST=["Dar es Salaam", "Arusha", "Mwanza", ...]
+```
+
+4. **Start Local Dev Server**
+
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/62972683-06d4-4bdf-8f46-f7787568457b) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
