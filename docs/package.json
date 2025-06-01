@@ -1,0 +1,14 @@
+
+{
+  "name": "mizani-clinic-docs",
+  "version": "1.0.0",
+  "description": "Documentation for Mizani Clinic Ambassador platform",
+  "scripts": {
+    "docs:dev": "vitepress dev docs --port 4173",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs --port 4173"
+  },
+  "devDependencies": {
+    "vitepress": "^1.0.0"
+  }
+}
