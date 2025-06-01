@@ -1,16 +1,14 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Coins, Calendar, ArrowRight, CheckCircle, Phone, MapPin, Star, Shield, Clock, Trophy, Zap, Target, Gift } from "lucide-react";
 import { Link } from "react-router-dom";
 import MobileHeader from "@/components/MobileHeader";
 import { useAuth } from "@/hooks/useAuth";
-
 const Index = () => {
-  const { user } = useAuth();
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-tanzania-grey via-white to-tanzania-grey overflow-hidden">
+  const {
+    user
+  } = useAuth();
+  return <div className="min-h-screen bg-gradient-to-br from-tanzania-grey via-white to-tanzania-grey overflow-hidden">
       <MobileHeader />
 
       {/* Hero Section - Brand Focused */}
@@ -35,9 +33,7 @@ const Index = () => {
               </h1>
 
               {/* Subtitle */}
-              <p className="text-xl sm:text-2xl text-blue-200 font-semibold">
-                Share your code → Earn $0.20+ → Win Motorbike & Car!
-              </p>
+              <p className="text-xl sm:text-2xl text-blue-200 font-semibold">Earn up to Tshs 88,000/- per one referal + Bunuses</p>
 
               {/* Earning Numbers */}
               <div className="grid grid-cols-3 gap-4 max-w-lg mx-auto lg:mx-0">
@@ -57,27 +53,17 @@ const Index = () => {
 
               {/* Call to Action */}
               <div className="space-y-4">
-                {user ? (
-                  <Link to="/dashboard">
-                    <Button 
-                      size="lg" 
-                      className="w-full max-w-md h-16 bg-gradient-to-r from-tanzania-green to-tanzania-green-light hover:from-tanzania-green-light hover:to-tanzania-green text-white text-xl font-black rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105 border-4 border-white/20"
-                    >
+                {user ? <Link to="/dashboard">
+                    <Button size="lg" className="w-full max-w-md h-16 bg-gradient-to-r from-tanzania-green to-tanzania-green-light hover:from-tanzania-green-light hover:to-tanzania-green text-white text-xl font-black rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105 border-4 border-white/20">
                       GO TO DASHBOARD
                       <ArrowRight className="ml-3 w-6 h-6" />
                     </Button>
-                  </Link>
-                ) : (
-                  <Link to="/signup">
-                    <Button 
-                      size="lg" 
-                      className="w-full max-w-md h-16 bg-gradient-to-r from-tanzania-green to-tanzania-green-light hover:from-tanzania-green-light hover:to-tanzania-green text-white text-xl font-black rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105 border-4 border-white/20"
-                    >
+                  </Link> : <Link to="/signup">
+                    <Button size="lg" className="w-full max-w-md h-16 bg-gradient-to-r from-tanzania-green to-tanzania-green-light hover:from-tanzania-green-light hover:to-tanzania-green text-white text-xl font-black rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105 border-4 border-white/20">
                       START EARNING NOW
                       <ArrowRight className="ml-3 w-6 h-6" />
                     </Button>
-                  </Link>
-                )}
+                  </Link>}
                 <p className="text-sm text-blue-200 font-medium">
                   {user ? "Welcome back! Check your dashboard" : "Join 10,000+ Tanzanians already earning"}
                 </p>
@@ -85,11 +71,7 @@ const Index = () => {
 
               {/* Mobile Apps Coming Soon */}
               <div className="flex items-center justify-center lg:justify-start space-x-4 pt-4">
-                <img 
-                  src="https://rpkttbmlvjshkbjrmnvo.supabase.co/storage/v1/object/public/mizaniclinic//app_download-removebg-preview.png"
-                  alt="Mobile Apps Download"
-                  className="w-32 h-auto object-contain"
-                />
+                <img src="https://rpkttbmlvjshkbjrmnvo.supabase.co/storage/v1/object/public/mizaniclinic//app_download-removebg-preview.png" alt="Mobile Apps Download" className="w-32 h-auto object-contain" />
                 <div className="text-left">
                   <div className="text-lg font-bold text-white">Mobile apps</div>
                   <div className="text-sm text-blue-200">coming Soon</div>
@@ -100,11 +82,7 @@ const Index = () => {
             {/* Right Image */}
             <div className="flex justify-center lg:justify-end">
               <div className="relative">
-                <img 
-                  src="https://lgtuwkhbucnucegkvirf.supabase.co/storage/v1/object/public/mizaniclinic//mobil_eapp_mizani-removebg-preview.png"
-                  alt="Mizani Clinic Mobile App"
-                  className="w-80 sm:w-96 lg:w-full max-w-md h-auto object-contain"
-                />
+                <img src="https://lgtuwkhbucnucegkvirf.supabase.co/storage/v1/object/public/mizaniclinic//mobil_eapp_mizani-removebg-preview.png" alt="Mizani Clinic Mobile App" className="w-80 sm:w-96 lg:w-full max-w-md h-auto object-contain" />
                 <div className="absolute -top-4 -right-4 w-20 h-20 bg-tanzania-green rounded-full flex items-center justify-center animate-pulse">
                   <Phone className="w-10 h-10 text-white" />
                 </div>
@@ -122,30 +100,22 @@ const Index = () => {
           </h2>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              {
-                icon: Phone,
-                title: "1. Register",
-                description: "Complete form with referral code",
-                color: "from-tanzania-navy to-blue-800"
-              },
-              {
-                icon: Users,
-                title: "2. Refer",
-                description: "Share code, invite others to join",
-                color: "from-tanzania-green to-tanzania-green-light"
-              },
-              {
-                icon: Coins,
-                title: "3. Earn",
-                description: "$0.20+ per referral + bonuses",
-                color: "from-orange-500 to-red-500"
-              }
-            ].map((step, index) => (
-              <Card 
-                key={index}
-                className="group relative overflow-hidden border-0 bg-white hover:bg-tanzania-grey transition-all duration-300 hover:shadow-2xl transform hover:scale-105 shadow-lg"
-              >
+            {[{
+            icon: Phone,
+            title: "1. Register",
+            description: "Complete form with referral code",
+            color: "from-tanzania-navy to-blue-800"
+          }, {
+            icon: Users,
+            title: "2. Refer",
+            description: "Share code, invite others to join",
+            color: "from-tanzania-green to-tanzania-green-light"
+          }, {
+            icon: Coins,
+            title: "3. Earn",
+            description: "$0.20+ per referral + bonuses",
+            color: "from-orange-500 to-red-500"
+          }].map((step, index) => <Card key={index} className="group relative overflow-hidden border-0 bg-white hover:bg-tanzania-grey transition-all duration-300 hover:shadow-2xl transform hover:scale-105 shadow-lg">
                 <CardHeader className="text-center pb-4">
                   <div className={`w-20 h-20 bg-gradient-to-br ${step.color} rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-xl group-hover:scale-110 transition-transform duration-300`}>
                     <step.icon className="w-10 h-10 text-white" />
@@ -157,8 +127,7 @@ const Index = () => {
                     {step.description}
                   </CardDescription>
                 </CardContent>
-              </Card>
-            ))}
+              </Card>)}
           </div>
         </div>
       </section>
@@ -185,35 +154,21 @@ const Index = () => {
           <p className="text-xl mb-8 opacity-90 font-semibold">
             Thousands earning daily. Your turn now!
           </p>
-          {user ? (
-            <Link to="/dashboard">
-              <Button 
-                size="lg" 
-                className="h-16 bg-gradient-to-r from-tanzania-green to-tanzania-green-light hover:from-tanzania-green-light hover:to-tanzania-green text-white text-xl font-black px-12 rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-110 border-4 border-white/20"
-              >
+          {user ? <Link to="/dashboard">
+              <Button size="lg" className="h-16 bg-gradient-to-r from-tanzania-green to-tanzania-green-light hover:from-tanzania-green-light hover:to-tanzania-green text-white text-xl font-black px-12 rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-110 border-4 border-white/20">
                 VIEW YOUR DASHBOARD
                 <ArrowRight className="ml-3 w-6 h-6" />
               </Button>
-            </Link>
-          ) : (
-            <Link to="/signup">
-              <Button 
-                size="lg" 
-                className="h-16 bg-gradient-to-r from-tanzania-green to-tanzania-green-light hover:from-tanzania-green-light hover:to-tanzania-green text-white text-xl font-black px-12 rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-110 border-4 border-white/20"
-              >
+            </Link> : <Link to="/signup">
+              <Button size="lg" className="h-16 bg-gradient-to-r from-tanzania-green to-tanzania-green-light hover:from-tanzania-green-light hover:to-tanzania-green text-white text-xl font-black px-12 rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-110 border-4 border-white/20">
                 JOIN THE FAMILY NOW
                 <ArrowRight className="ml-3 w-6 h-6" />
               </Button>
-            </Link>
-          )}
+            </Link>}
 
           {/* Mobile Apps Coming Soon - Bottom Section */}
           <div className="flex flex-col items-center space-y-6 mt-12">
-            <img 
-              src="https://rpkttbmlvjshkbjrmnvo.supabase.co/storage/v1/object/public/mizaniclinic//app_download-removebg-preview.png"
-              alt="Mobile Apps Download"
-              className="w-64 h-auto object-contain"
-            />
+            <img src="https://rpkttbmlvjshkbjrmnvo.supabase.co/storage/v1/object/public/mizaniclinic//app_download-removebg-preview.png" alt="Mobile Apps Download" className="w-64 h-auto object-contain" />
             <div>
               <h3 className="text-3xl font-black text-white mb-2">Mobile apps coming Soon</h3>
               <p className="text-lg text-blue-200 font-semibold">Get ready for the ultimate mobile experience</p>
@@ -234,8 +189,6 @@ const Index = () => {
           <p className="text-blue-200 font-medium">Your Success, Our Mission</p>
         </div>
       </footer>
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
