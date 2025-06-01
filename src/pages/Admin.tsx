@@ -17,10 +17,13 @@ const Admin = () => {
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
 
   useEffect(() => {
+    console.log("Admin page - user:", user?.email);
     if (user?.email === "admin@mizaniclinic.com" || user?.email === "tessangelika@gmail.com") {
       setIsAdmin(true);
+      console.log("Admin access granted");
     } else {
       setIsAdmin(false);
+      console.log("Admin access denied");
     }
   }, [user]);
 
@@ -37,6 +40,7 @@ const Admin = () => {
   }
 
   if (!user || !isAdmin) {
+    console.log("Redirecting to home - user:", user?.email, "isAdmin:", isAdmin);
     return <Navigate to="/" replace />;
   }
 
