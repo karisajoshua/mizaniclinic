@@ -4,13 +4,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { DollarSign, Download, CheckCircle, Clock, XCircle, TrendingUp } from "lucide-react";
+import { DollarSign, Download, CheckCircle, Clock, AlertTriangle, TrendingUp, CreditCard, Banknote } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const AdminFinancialManagement = () => {
   const [payoutFilter, setPayoutFilter] = useState("all");
 
-  // Mock financial data
   const payouts = [
     {
       id: "1",
@@ -21,7 +20,8 @@ const AdminFinancialManagement = () => {
       status: "pending",
       type: "monthly",
       dueDate: "2024-02-01",
-      createdDate: "2024-01-25"
+      createdDate: "2024-01-25",
+      method: "bank_transfer"
     },
     {
       id: "2",
@@ -32,7 +32,8 @@ const AdminFinancialManagement = () => {
       status: "paid",
       type: "monthly",
       dueDate: "2024-02-01",
-      createdDate: "2024-01-25"
+      createdDate: "2024-01-25",
+      method: "mobile_money"
     },
     {
       id: "3",
@@ -43,15 +44,40 @@ const AdminFinancialManagement = () => {
       status: "pending",
       type: "monthly",
       dueDate: "2024-02-01",
-      createdDate: "2024-01-25"
+      createdDate: "2024-01-25",
+      method: "bank_transfer"
     }
   ];
 
-  const earningsBreakdown = [
-    { type: "Activation Pack", amount: 15750, percentage: 35, color: "bg-blue-500" },
-    { type: "Direct Sales", amount: 18900, percentage: 42, color: "bg-green-500" },
-    { type: "Second Level", amount: 6750, percentage: 15, color: "bg-purple-500" },
-    { type: "Team Bonuses", amount: 3600, percentage: 8, color: "bg-orange-500" }
+  const financialMetrics = [
+    {
+      title: "Total Platform Revenue",
+      value: "$125,450",
+      icon: DollarSign,
+      color: "bg-emerald-600",
+      change: "+18.2%"
+    },
+    {
+      title: "Pending Payouts",
+      value: "$12,250",
+      icon: Clock,
+      color: "bg-yellow-600",
+      change: "23 requests"
+    },
+    {
+      title: "Processed This Month",
+      value: "$45,750",
+      icon: CheckCircle,
+      color: "bg-blue-600",
+      change: "156 transactions"
+    },
+    {
+      title: "Average Commission",
+      value: "31.2%",
+      icon: TrendingUp,
+      color: "bg-purple-600",
+      change: "+2.1%"
+    }
   ];
 
   const filteredPayouts = payouts.filter(payout => 
@@ -60,117 +86,107 @@ const AdminFinancialManagement = () => {
 
   const handleProcessPayout = (payoutId: string) => {
     console.log(`Processing payout ${payoutId}`);
-    // In production, this would update the database and trigger payment processing
   };
 
   const handleBulkApproval = () => {
-    console.log("Processing bulk approval for pending payouts");
-    // In production, this would approve all pending payouts
+    console.log("Processing bulk payout approval");
   };
 
   return (
-    <div className="space-y-6">
-      {/* Financial Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="border-0 shadow-lg">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">$45,000</div>
-            <p className="text-xs text-muted-foreground">+20.1% from last month</p>
-          </CardContent>
-        </Card>
-        <Card className="border-0 shadow-lg">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending Payouts</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">$5,250</div>
-            <p className="text-xs text-muted-foreground">12 ambassadors</p>
-          </CardContent>
-        </Card>
-        <Card className="border-0 shadow-lg">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Paid This Month</CardTitle>
-            <CheckCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">$8,750</div>
-            <p className="text-xs text-muted-foreground">25 transactions</p>
-          </CardContent>
-        </Card>
-        <Card className="border-0 shadow-lg">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Commission Rate</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">31%</div>
-            <p className="text-xs text-muted-foreground">Average across all tiers</p>
-          </CardContent>
-        </Card>
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-white">Financial Operations</h2>
+          <p className="text-slate-400">Manage payouts, commissions, and financial reporting</p>
+        </div>
+        <div className="flex space-x-3">
+          <Button onClick={handleBulkApproval} className="bg-emerald-600 hover:bg-emerald-700">
+            <CheckCircle className="w-4 h-4 mr-2" />
+            Approve All Pending
+          </Button>
+          <Button variant="outline" className="border-slate-600 text-slate-300 hover:bg-slate-700">
+            <Download className="w-4 h-4 mr-2" />
+            Export Report
+          </Button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Earnings Breakdown */}
-        <Card className="border-0 shadow-lg">
+      {/* Financial Metrics */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {financialMetrics.map((metric, index) => (
+          <Card key={index} className="bg-slate-800 border-slate-700 shadow-xl">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-slate-300">{metric.title}</CardTitle>
+              <div className={`w-10 h-10 ${metric.color} rounded-lg flex items-center justify-center`}>
+                <metric.icon className="w-5 h-5 text-white" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-white">{metric.value}</div>
+              <p className="text-xs text-emerald-400 font-medium">{metric.change}</p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Revenue Breakdown */}
+        <Card className="lg:col-span-1 bg-slate-800 border-slate-700 shadow-xl">
           <CardHeader>
-            <CardTitle>Earnings Breakdown</CardTitle>
-            <CardDescription>Revenue distribution by earning type</CardDescription>
+            <CardTitle className="text-white">Revenue Sources</CardTitle>
+            <CardDescription className="text-slate-400">Monthly breakdown</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {earningsBreakdown.map((item, index) => (
-                <div key={index} className="flex items-center space-x-4">
-                  <div className={`w-4 h-4 ${item.color} rounded`}></div>
-                  <div className="flex-1">
-                    <div className="flex justify-between">
-                      <span className="text-sm font-medium">{item.type}</span>
-                      <span className="text-sm text-gray-600">${item.amount.toLocaleString()}</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2 mt-1">
-                      <div
-                        className={`${item.color} h-2 rounded-full`}
-                        style={{ width: `${item.percentage}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                  <span className="text-sm font-medium text-gray-600">{item.percentage}%</span>
+              <div className="flex items-center justify-between p-3 bg-slate-900/50 rounded-lg">
+                <div className="flex items-center space-x-3">
+                  <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                  <span className="text-sm text-slate-300">Activation Packs</span>
                 </div>
-              ))}
+                <span className="text-white font-semibold">$35,250</span>
+              </div>
+              <div className="flex items-center justify-between p-3 bg-slate-900/50 rounded-lg">
+                <div className="flex items-center space-x-3">
+                  <div className="w-3 h-3 bg-emerald-500 rounded-full"></div>
+                  <span className="text-sm text-slate-300">Direct Sales</span>
+                </div>
+                <span className="text-white font-semibold">$48,900</span>
+              </div>
+              <div className="flex items-center justify-between p-3 bg-slate-900/50 rounded-lg">
+                <div className="flex items-center space-x-3">
+                  <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
+                  <span className="text-sm text-slate-300">Team Bonuses</span>
+                </div>
+                <span className="text-white font-semibold">$12,750</span>
+              </div>
             </div>
           </CardContent>
         </Card>
 
         {/* Quick Actions */}
-        <Card className="border-0 shadow-lg">
+        <Card className="lg:col-span-2 bg-slate-800 border-slate-700 shadow-xl">
           <CardHeader>
-            <CardTitle>Financial Actions</CardTitle>
-            <CardDescription>Quick financial management tools</CardDescription>
+            <CardTitle className="text-white">Financial Controls</CardTitle>
+            <CardDescription className="text-slate-400">Administrative financial operations</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
-              <Button 
-                className="w-full justify-start" 
-                onClick={handleBulkApproval}
-              >
-                <CheckCircle className="w-4 h-4 mr-2" />
-                Approve All Pending Payouts
+            <div className="grid grid-cols-2 gap-4">
+              <Button variant="outline" className="h-20 flex flex-col space-y-2 border-slate-600 text-slate-300 hover:bg-slate-700">
+                <Banknote className="w-6 h-6" />
+                <span className="text-sm">Process Batch Payout</span>
               </Button>
-              <Button variant="outline" className="w-full justify-start">
-                <Download className="w-4 h-4 mr-2" />
-                Export Financial Report
+              <Button variant="outline" className="h-20 flex flex-col space-y-2 border-slate-600 text-slate-300 hover:bg-slate-700">
+                <CreditCard className="w-6 h-6" />
+                <span className="text-sm">Update Payment Methods</span>
               </Button>
-              <Button variant="outline" className="w-full justify-start">
-                <DollarSign className="w-4 h-4 mr-2" />
-                Update Commission Rates
+              <Button variant="outline" className="h-20 flex flex-col space-y-2 border-slate-600 text-slate-300 hover:bg-slate-700">
+                <TrendingUp className="w-6 h-6" />
+                <span className="text-sm">Commission Rate Config</span>
               </Button>
-              <Button variant="outline" className="w-full justify-start">
-                <TrendingUp className="w-4 h-4 mr-2" />
-                View Analytics Dashboard
+              <Button variant="outline" className="h-20 flex flex-col space-y-2 border-slate-600 text-slate-300 hover:bg-slate-700">
+                <Download className="w-6 h-6" />
+                <span className="text-sm">Financial Reports</span>
               </Button>
             </div>
           </CardContent>
@@ -178,66 +194,69 @@ const AdminFinancialManagement = () => {
       </div>
 
       {/* Payouts Management */}
-      <Card className="border-0 shadow-lg">
+      <Card className="bg-slate-800 border-slate-700 shadow-xl">
         <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            <span>Payout Management</span>
+          <CardTitle className="flex items-center justify-between text-white">
+            <span>Payout Queue Management</span>
             <div className="flex space-x-2">
               <Select value={payoutFilter} onValueChange={setPayoutFilter}>
-                <SelectTrigger className="w-40">
+                <SelectTrigger className="w-40 bg-slate-900 border-slate-600 text-white">
                   <SelectValue placeholder="Filter status" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-slate-900 border-slate-600">
                   <SelectItem value="all">All Payouts</SelectItem>
                   <SelectItem value="pending">Pending</SelectItem>
                   <SelectItem value="paid">Paid</SelectItem>
                   <SelectItem value="failed">Failed</SelectItem>
                 </SelectContent>
               </Select>
-              <Button>
-                <Download className="w-4 h-4 mr-2" />
-                Export
-              </Button>
             </div>
           </CardTitle>
-          <CardDescription>Manage ambassador payouts and commission payments</CardDescription>
+          <CardDescription className="text-slate-400">Review and process ambassador payout requests</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="border rounded-lg overflow-hidden">
+          <div className="border border-slate-700 rounded-lg overflow-hidden">
             <Table>
               <TableHeader>
-                <TableRow className="bg-gray-50">
-                  <TableHead>Ambassador</TableHead>
-                  <TableHead>Amount</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Due Date</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Actions</TableHead>
+                <TableRow className="bg-slate-900 border-slate-700 hover:bg-slate-900">
+                  <TableHead className="text-slate-300">Ambassador</TableHead>
+                  <TableHead className="text-slate-300">Amount</TableHead>
+                  <TableHead className="text-slate-300">Method</TableHead>
+                  <TableHead className="text-slate-300">Due Date</TableHead>
+                  <TableHead className="text-slate-300">Status</TableHead>
+                  <TableHead className="text-slate-300">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredPayouts.map((payout) => (
-                  <TableRow key={payout.id}>
+                  <TableRow key={payout.id} className="border-slate-700 hover:bg-slate-900/50">
                     <TableCell>
                       <div>
-                        <div className="font-medium">{payout.ambassadorName}</div>
-                        <div className="text-sm text-gray-500">{payout.ambassadorCode}</div>
+                        <div className="font-medium text-white">{payout.ambassadorName}</div>
+                        <div className="text-sm text-slate-400">{payout.ambassadorCode}</div>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div className="font-medium">${payout.amount.toFixed(2)}</div>
-                      <div className="text-sm text-gray-500">{payout.currency}</div>
+                      <div className="font-medium text-emerald-400">${payout.amount.toFixed(2)}</div>
+                      <div className="text-sm text-slate-400">{payout.currency}</div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline">{payout.type}</Badge>
+                      <Badge variant="outline" className="border-slate-600 text-slate-300">
+                        {payout.method.replace('_', ' ')}
+                      </Badge>
                     </TableCell>
-                    <TableCell>{payout.dueDate}</TableCell>
+                    <TableCell className="text-slate-300">{payout.dueDate}</TableCell>
                     <TableCell>
                       <Badge 
                         variant={
                           payout.status === 'paid' ? 'default' : 
                           payout.status === 'pending' ? 'secondary' : 
                           'destructive'
+                        }
+                        className={
+                          payout.status === 'paid' ? 'bg-emerald-600' :
+                          payout.status === 'pending' ? 'bg-yellow-600' :
+                          'bg-red-600'
                         }
                       >
                         {payout.status}
@@ -248,12 +267,13 @@ const AdminFinancialManagement = () => {
                         {payout.status === 'pending' && (
                           <Button 
                             size="sm"
+                            className="bg-emerald-600 hover:bg-emerald-700"
                             onClick={() => handleProcessPayout(payout.id)}
                           >
                             <CheckCircle className="w-4 h-4" />
                           </Button>
                         )}
-                        <Button size="sm" variant="outline">
+                        <Button size="sm" variant="outline" className="border-slate-600 text-slate-300 hover:bg-slate-700">
                           <Download className="w-4 h-4" />
                         </Button>
                       </div>

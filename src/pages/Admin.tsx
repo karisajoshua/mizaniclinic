@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Navigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, Users, DollarSign, MapPin, Settings, BarChart3, Bell } from "lucide-react";
+import { Loader2, Users, DollarSign, MapPin, Settings, BarChart3, Shield, Database, Activity } from "lucide-react";
 import AdminAmbassadorManagement from "@/components/admin/AdminAmbassadorManagement";
 import AdminFinancialManagement from "@/components/admin/AdminFinancialManagement";
 import AdminGeographicManagement from "@/components/admin/AdminGeographicManagement";
@@ -17,7 +17,6 @@ const Admin = () => {
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
 
   useEffect(() => {
-    // Simple admin check - in production, this should be based on database roles
     if (user?.email === "admin@mizaniclinic.com" || user?.email === "tessangelika@gmail.com") {
       setIsAdmin(true);
     } else {
@@ -27,11 +26,11 @@ const Admin = () => {
 
   if (loading || isAdmin === null) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Card className="p-6 text-center">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4" />
-          <CardTitle>Verifying Admin Access...</CardTitle>
-          <CardDescription>Please wait while we check your permissions</CardDescription>
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+        <Card className="p-8 text-center bg-slate-800 border-slate-700">
+          <Loader2 className="w-12 h-12 animate-spin mx-auto mb-6 text-blue-400" />
+          <CardTitle className="text-white text-xl mb-2">Verifying Admin Access...</CardTitle>
+          <CardDescription className="text-slate-400">Checking system permissions</CardDescription>
         </Card>
       </div>
     );
@@ -42,40 +41,107 @@ const Admin = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 text-white py-6 px-4">
-        <div className="container mx-auto">
-          <h1 className="text-3xl font-black">Mizani Clinic Admin Dashboard</h1>
-          <p className="text-gray-300 mt-2">Complete ambassador program management</p>
+    <div className="min-h-screen bg-slate-900">
+      {/* Admin Header */}
+      <div className="bg-gradient-to-r from-slate-800 via-slate-900 to-blue-900 border-b border-slate-700">
+        <div className="container mx-auto px-6 py-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="flex items-center space-x-3 mb-2">
+                <Shield className="w-8 h-8 text-blue-400" />
+                <h1 className="text-3xl font-black text-white">System Administration</h1>
+              </div>
+              <p className="text-slate-300">Mizani Clinic Ambassador Program Control Center</p>
+            </div>
+            <div className="flex items-center space-x-4">
+              <div className="text-right">
+                <div className="text-sm text-slate-400">Logged in as</div>
+                <div className="text-white font-semibold">{user.email}</div>
+              </div>
+              <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+                <Shield className="w-5 h-5 text-white" />
+              </div>
+            </div>
+          </div>
+          
+          {/* System Status Bar */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
+            <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
+              <div className="flex items-center space-x-2">
+                <Activity className="w-4 h-4 text-green-400" />
+                <span className="text-sm text-slate-300">System Status</span>
+              </div>
+              <div className="text-green-400 font-semibold">Online</div>
+            </div>
+            <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
+              <div className="flex items-center space-x-2">
+                <Database className="w-4 h-4 text-blue-400" />
+                <span className="text-sm text-slate-300">Database</span>
+              </div>
+              <div className="text-blue-400 font-semibold">Connected</div>
+            </div>
+            <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
+              <div className="flex items-center space-x-2">
+                <Users className="w-4 h-4 text-purple-400" />
+                <span className="text-sm text-slate-300">Active Users</span>
+              </div>
+              <div className="text-purple-400 font-semibold">1,247</div>
+            </div>
+            <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
+              <div className="flex items-center space-x-2">
+                <DollarSign className="w-4 h-4 text-yellow-400" />
+                <span className="text-sm text-slate-300">Pending Payouts</span>
+              </div>
+              <div className="text-yellow-400 font-semibold">$12,450</div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-6">
-        <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6 lg:w-auto lg:grid-cols-6">
-            <TabsTrigger value="overview" className="flex items-center space-x-2">
+      <div className="container mx-auto px-6 py-8">
+        <Tabs defaultValue="overview" className="space-y-8">
+          <TabsList className="bg-slate-800 border-slate-700 grid w-full grid-cols-6 lg:w-auto lg:grid-cols-6">
+            <TabsTrigger 
+              value="overview" 
+              className="flex items-center space-x-2 data-[state=active]:bg-blue-600 data-[state=active]:text-white text-slate-300"
+            >
               <BarChart3 className="w-4 h-4" />
               <span className="hidden sm:inline">Overview</span>
             </TabsTrigger>
-            <TabsTrigger value="ambassadors" className="flex items-center space-x-2">
+            <TabsTrigger 
+              value="ambassadors" 
+              className="flex items-center space-x-2 data-[state=active]:bg-blue-600 data-[state=active]:text-white text-slate-300"
+            >
               <Users className="w-4 h-4" />
-              <span className="hidden sm:inline">Ambassadors</span>
+              <span className="hidden sm:inline">Users</span>
             </TabsTrigger>
-            <TabsTrigger value="financial" className="flex items-center space-x-2">
+            <TabsTrigger 
+              value="financial" 
+              className="flex items-center space-x-2 data-[state=active]:bg-blue-600 data-[state=active]:text-white text-slate-300"
+            >
               <DollarSign className="w-4 h-4" />
-              <span className="hidden sm:inline">Financial</span>
+              <span className="hidden sm:inline">Finance</span>
             </TabsTrigger>
-            <TabsTrigger value="geographic" className="flex items-center space-x-2">
+            <TabsTrigger 
+              value="geographic" 
+              className="flex items-center space-x-2 data-[state=active]:bg-blue-600 data-[state=active]:text-white text-slate-300"
+            >
               <MapPin className="w-4 h-4" />
-              <span className="hidden sm:inline">Geographic</span>
+              <span className="hidden sm:inline">Regions</span>
             </TabsTrigger>
-            <TabsTrigger value="analytics" className="flex items-center space-x-2">
+            <TabsTrigger 
+              value="analytics" 
+              className="flex items-center space-x-2 data-[state=active]:bg-blue-600 data-[state=active]:text-white text-slate-300"
+            >
               <BarChart3 className="w-4 h-4" />
               <span className="hidden sm:inline">Analytics</span>
             </TabsTrigger>
-            <TabsTrigger value="settings" className="flex items-center space-x-2">
+            <TabsTrigger 
+              value="settings" 
+              className="flex items-center space-x-2 data-[state=active]:bg-blue-600 data-[state=active]:text-white text-slate-300"
+            >
               <Settings className="w-4 h-4" />
-              <span className="hidden sm:inline">Settings</span>
+              <span className="hidden sm:inline">Config</span>
             </TabsTrigger>
           </TabsList>
 
