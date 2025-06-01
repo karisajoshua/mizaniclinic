@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -124,7 +125,7 @@ const Dashboard = () => {
 
       {/* Celebration Header */}
       <div className="bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 text-white py-6 px-4 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\"60\" height=\"60\" viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cg fill=\"none\" fill-rule=\"evenodd\"%3E%3Cg fill=\"%23ffffff\" fill-opacity=\"0.1\"%3E%3Ccircle cx=\"30\" cy=\"30\" r=\"2\"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-30"></div>
+        <div className="absolute inset-0 opacity-30"></div>
         <div className="container mx-auto relative">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
             <div className="animate-fade-in">
@@ -416,12 +417,12 @@ const Dashboard = () => {
                       <Card key={index} className="border-0 bg-gradient-to-r from-white to-blue-50/50 hover:from-blue-50 hover:to-green-50 transition-all duration-300 p-4">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center space-x-4">
-                            <div className="w-12 h-12 bg-gradient-to-br from-tanzania-green to-green-500 rounded-2xl flex items-center justify-center shadow-lg">
+                            <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg">
                               <Users className="w-6 h-6 text-white" />
                             </div>
                             <div>
-                              <p className="font-semibold text-tanzania-navy text-lg">{referral.name}</p>
-                              <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 text-sm text-tanzania-text/70">
+                              <p className="font-semibold text-gray-800 text-lg">{referral.name}</p>
+                              <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 text-sm text-gray-600">
                                 <span className="flex items-center">
                                   <MapPin className="w-3 h-3 mr-1" />
                                   {referral.location}
@@ -439,7 +440,7 @@ const Dashboard = () => {
                               {referral.status}
                             </span>
                             {referral.status === 'Active' && (
-                              <p className="text-sm text-tanzania-green font-semibold mt-1">+TSH 500</p>
+                              <p className="text-sm text-green-600 font-semibold mt-1">+TSH 500</p>
                             )}
                           </div>
                         </div>

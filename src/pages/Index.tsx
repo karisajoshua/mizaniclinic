@@ -29,7 +29,7 @@ const Index = () => {
           </div>
 
           {/* Main Headline */}
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black text-transparent bg-gradient-to-r from-tanzania-green via-yellow-500 to-orange-500 bg-clip-text mb-6 animate-fade-in leading-tight">
+          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black text-transparent bg-gradient-to-r from-green-600 via-yellow-500 to-orange-500 bg-clip-text mb-6 animate-fade-in leading-tight">
             Start Earning<br />
             <span className="text-5xl sm:text-7xl lg:text-8xl">💰 TODAY! 💰</span>
           </h1>
@@ -138,7 +138,7 @@ const Index = () => {
 
       {/* Final CTA */}
       <section className="py-16 px-4 bg-gradient-to-br from-gray-900 via-green-900 to-emerald-900 text-white relative overflow-hidden">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\"60\" height=\"60\" viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cg fill=\"none\" fill-rule=\"evenodd\"%3E%3Cg fill=\"%23ffffff\" fill-opacity=\"0.1\"%3E%3Ccircle cx=\"30\" cy=\"30\" r=\"2\"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-30"></div>
+        <div className="absolute inset-0 opacity-30"></div>
         <div className="relative container mx-auto max-w-4xl text-center">
           <h2 className="text-4xl sm:text-5xl font-black mb-6 animate-fade-in">
             Ready to Change Your Life? 🌟
