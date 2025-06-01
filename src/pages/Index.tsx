@@ -1,184 +1,195 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, Coins, Calendar, ArrowRight, CheckCircle, Phone, MapPin, Star, Shield, Clock, Trophy, Zap, Target, Gift } from "lucide-react";
+import { Phone, Users, Coins, MapPin, ArrowRight, Star, CheckCircle, Shield, Clock } from "lucide-react";
 import { Link } from "react-router-dom";
 import MobileHeader from "@/components/MobileHeader";
+import { useAuth } from "@/hooks/useAuth";
 
 const Index = () => {
+  const { user } = useAuth();
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-tanzania-grey via-white to-tanzania-grey overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
       <MobileHeader />
+      
+      {/* Hero Section */}
+      <section className="relative py-12 sm:py-20 px-4 overflow-hidden">
+        {/* Background Elements */}
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute top-20 left-10 w-32 h-32 bg-tanzania-green rounded-full blur-3xl"></div>
+          <div className="absolute top-40 right-20 w-40 h-40 bg-blue-400 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-20 left-1/3 w-36 h-36 bg-yellow-400 rounded-full blur-3xl"></div>
+        </div>
+        
+        <div className="container mx-auto text-center relative">
+          <div className="animate-fade-in mb-8">
+            <div className="w-24 h-24 bg-gradient-to-br from-tanzania-green to-green-500 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl animate-bounce-gentle">
+              <Phone className="w-12 h-12 text-white" />
+            </div>
+            <h1 className="text-3xl sm:text-4xl lg:text-6xl font-black text-tanzania-navy mb-4 leading-tight">
+              Welcome to <span className="text-transparent bg-clip-text bg-gradient-to-r from-tanzania-green to-green-500">Mizani Clinic</span>
+            </h1>
+            <p className="text-lg sm:text-xl text-tanzania-text/80 mb-8 max-w-3xl mx-auto font-medium">
+              Book appointments with trusted healthcare professionals and earn money by referring friends. Join our referral network today!
+            </p>
+          </div>
 
-      {/* Hero Section - Brand Focused */}
-      <section className="relative px-4 py-8 sm:py-16 bg-gradient-to-br from-tanzania-navy via-blue-900 to-tanzania-navy">
-        <div className="container mx-auto max-w-6xl">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-            {/* Left Content */}
-            <div className="text-center lg:text-left space-y-6">
-              {/* Success Badge */}
-              <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-tanzania-green to-tanzania-green-light rounded-full text-white font-bold text-sm shadow-xl">
-                <Star className="w-5 h-5 mr-2" />
-                Join the Ambassador Family
-              </div>
-
-              {/* Main Headline */}
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-tight">
-                Start Earning
-                <br />
-                <span className="text-5xl sm:text-6xl lg:text-7xl text-transparent bg-gradient-to-r from-tanzania-green to-tanzania-green-light bg-clip-text">
-                  Today!
-                </span>
-              </h1>
-
-              {/* Subtitle */}
-              <p className="text-xl sm:text-2xl text-blue-200 font-semibold">
-                Share your code → Earn $0.20+ → Win Motorbike & Car!
-              </p>
-
-              {/* Earning Numbers */}
-              <div className="grid grid-cols-3 gap-4 max-w-lg mx-auto lg:mx-0">
-                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
-                  <div className="text-2xl sm:text-3xl font-black text-tanzania-green-light">$0.20</div>
-                  <div className="text-xs text-blue-200 font-semibold">Per Referral</div>
-                </div>
-                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
-                  <div className="text-2xl sm:text-3xl font-black text-tanzania-green-light">30%</div>
-                  <div className="text-xs text-blue-200 font-semibold">Commission</div>
-                </div>
-                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
-                  <div className="text-2xl sm:text-3xl font-black text-tanzania-green-light">5 Ways</div>
-                  <div className="text-xs text-blue-200 font-semibold">To Earn</div>
-                </div>
-              </div>
-
-              {/* Call to Action */}
-              <div className="space-y-4">
-                <Link to="/register">
-                  <Button 
-                    size="lg" 
-                    className="w-full max-w-md h-16 bg-gradient-to-r from-tanzania-green to-tanzania-green-light hover:from-tanzania-green-light hover:to-tanzania-green text-white text-xl font-black rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105 border-4 border-white/20"
-                  >
-                    START EARNING NOW
-                    <ArrowRight className="ml-3 w-6 h-6" />
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-slide-in mb-12">
+            {user ? (
+              <Link to="/dashboard">
+                <Button className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-tanzania-green to-green-500 hover:from-green-500 hover:to-tanzania-green text-white text-lg font-semibold rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+                  Go to Dashboard
+                  <ArrowRight className="ml-2 w-5 h-5" />
+                </Button>
+              </Link>
+            ) : (
+              <>
+                <Link to="/signin">
+                  <Button className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-tanzania-green to-green-500 hover:from-green-500 hover:to-tanzania-green text-white text-lg font-semibold rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+                    Sign In
+                    <ArrowRight className="ml-2 w-5 h-5" />
                   </Button>
                 </Link>
-                <p className="text-sm text-blue-200 font-medium">
-                  Join 10,000+ Tanzanians already earning
-                </p>
-              </div>
-            </div>
+                <Link to="/signup">
+                  <Button variant="outline" className="w-full sm:w-auto px-8 py-4 border-2 border-tanzania-green text-tanzania-green hover:bg-tanzania-green hover:text-white text-lg font-semibold rounded-xl transition-all duration-300 transform hover:scale-105">
+                    Create Account
+                  </Button>
+                </Link>
+              </>
+            )}
+            <Link to="/register">
+              <Button variant="outline" className="w-full sm:w-auto px-8 py-4 border-2 border-tanzania-navy text-tanzania-navy hover:bg-tanzania-navy hover:text-white text-lg font-semibold rounded-xl transition-all duration-300 transform hover:scale-105">
+                Become Ambassador
+              </Button>
+            </Link>
+          </div>
 
-            {/* Right Image */}
-            <div className="flex justify-center lg:justify-end">
-              <div className="relative">
-                <img 
-                  src="https://lgtuwkhbucnucegkvirf.supabase.co/storage/v1/object/public/mizaniclinic//mobil_eapp_mizani-removebg-preview.png"
-                  alt="Mizani Clinic Mobile App"
-                  className="w-80 sm:w-96 lg:w-full max-w-md h-auto object-contain"
-                />
-                <div className="absolute -top-4 -right-4 w-20 h-20 bg-tanzania-green rounded-full flex items-center justify-center animate-pulse">
-                  <Phone className="w-10 h-10 text-white" />
+          {/* Trust Indicators */}
+          <div className="flex flex-wrap justify-center items-center gap-8 text-tanzania-text/60 animate-fade-in">
+            <div className="flex items-center space-x-2">
+              <Shield className="w-5 h-5 text-tanzania-green" />
+              <span className="font-medium">Secure & Trusted</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Clock className="w-5 h-5 text-tanzania-green" />
+              <span className="font-medium">24/7 Support</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <CheckCircle className="w-5 h-5 text-tanzania-green" />
+              <span className="font-medium">Verified Doctors</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="py-16 sm:py-24 px-4 bg-white/50">
+        <div className="container mx-auto">
+          <div className="text-center mb-16 animate-fade-in">
+            <h2 className="text-3xl sm:text-4xl font-black text-tanzania-navy mb-4">
+              Why Choose Mizani Clinic?
+            </h2>
+            <p className="text-lg text-tanzania-text/70 max-w-2xl mx-auto">
+              Experience quality healthcare while earning money through our innovative referral system
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {/* Healthcare Services */}
+            <Card className="border-0 bg-white/80 backdrop-blur-sm shadow-glass hover:shadow-glass-hover transition-all duration-300 animate-scale-in">
+              <CardHeader className="text-center pb-6">
+                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                  <Phone className="w-8 h-8 text-white" />
                 </div>
-              </div>
-            </div>
+                <CardTitle className="text-xl font-bold text-tanzania-navy">Quality Healthcare</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription className="text-center">
+                  Book appointments with certified doctors and specialists. Get quality medical care when you need it most.
+                </CardDescription>
+              </CardContent>
+            </Card>
+
+            {/* Referral System */}
+            <Card className="border-0 bg-white/80 backdrop-blur-sm shadow-glass hover:shadow-glass-hover transition-all duration-300 animate-scale-in">
+              <CardHeader className="text-center pb-6">
+                <div className="w-16 h-16 bg-gradient-to-br from-tanzania-green to-green-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                  <Users className="w-8 h-8 text-white" />
+                </div>
+                <CardTitle className="text-xl font-bold text-tanzania-navy">Earn by Referring</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription className="text-center">
+                  Share your referral code and earn TSH 500 for every friend who joins. Build your network and increase your earnings.
+                </CardDescription>
+              </CardContent>
+            </Card>
+
+            {/* Easy Booking */}
+            <Card className="border-0 bg-white/80 backdrop-blur-sm shadow-glass hover:shadow-glass-hover transition-all duration-300 animate-scale-in">
+              <CardHeader className="text-center pb-6">
+                <div className="w-16 h-16 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                  <Coins className="w-8 h-8 text-white" />
+                </div>
+                <CardTitle className="text-xl font-bold text-tanzania-navy">Multiple Income Streams</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription className="text-center">
+                  Earn from activation packs, direct referrals, second-level commissions, and unlock bonus rewards.
+                </CardDescription>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
 
-      {/* Quick Benefits - Brand Colors */}
-      <section className="py-12 px-4 bg-white">
-        <div className="container mx-auto max-w-4xl">
-          <h2 className="text-3xl sm:text-4xl font-black text-center text-tanzania-navy mb-8">
-            Simple Steps to Success
-          </h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              {
-                icon: Phone,
-                title: "1. Register",
-                description: "Complete form with referral code",
-                color: "from-tanzania-navy to-blue-800"
-              },
-              {
-                icon: Coins,
-                title: "2. Share & Earn",
-                description: "Share code, earn $0.20+ per referral",
-                color: "from-tanzania-green to-tanzania-green-light"
-              },
-              {
-                icon: Trophy,
-                title: "3. Win Big",
-                description: "Motorbike & Car bonuses await",
-                color: "from-orange-500 to-red-500"
-              }
-            ].map((step, index) => (
-              <Card 
-                key={index}
-                className="group relative overflow-hidden border-0 bg-white hover:bg-tanzania-grey transition-all duration-300 hover:shadow-2xl transform hover:scale-105 shadow-lg"
-              >
-                <CardHeader className="text-center pb-4">
-                  <div className={`w-20 h-20 bg-gradient-to-br ${step.color} rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-xl group-hover:scale-110 transition-transform duration-300`}>
-                    <step.icon className="w-10 h-10 text-white" />
-                  </div>
-                  <CardTitle className="text-tanzania-navy text-xl font-black">{step.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription className="text-gray-600 text-center leading-relaxed font-semibold text-lg">
-                    {step.description}
-                  </CardDescription>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Success Stories Ticker */}
-      <section className="py-8 bg-gradient-to-r from-tanzania-green to-tanzania-green-light text-white overflow-hidden">
-        <div className="animate-scroll">
-          <div className="flex space-x-8 text-lg font-bold whitespace-nowrap">
-            <span>John from Dar just earned $1.00!</span>
-            <span>Sarah from Arusha won a Motorbike!</span>
-            <span>David from Mwanza earned $6.00 this month!</span>
-            <span>Grace from Dodoma qualified for Car bonus!</span>
-            <span>Michael from Mbeya reached Level 2!</span>
-          </div>
-        </div>
-      </section>
-
-      {/* Final CTA */}
-      <section className="py-16 px-4 bg-gradient-to-br from-tanzania-navy via-blue-900 to-tanzania-navy text-white relative overflow-hidden">
-        <div className="relative container mx-auto max-w-4xl text-center">
-          <h2 className="text-4xl sm:text-5xl font-black mb-6">
-            Ready to Change Your Life?
-          </h2>
-          <p className="text-xl mb-8 opacity-90 font-semibold">
-            Thousands earning daily. Your turn now!
-          </p>
-          <Link to="/register">
-            <Button 
-              size="lg" 
-              className="h-16 bg-gradient-to-r from-tanzania-green to-tanzania-green-light hover:from-tanzania-green-light hover:to-tanzania-green text-white text-xl font-black px-12 rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-110 border-4 border-white/20"
-            >
-              JOIN THE FAMILY NOW
-              <ArrowRight className="ml-3 w-6 h-6" />
-            </Button>
-          </Link>
-        </div>
-      </section>
-
-      {/* Simple Footer */}
-      <footer className="bg-tanzania-navy text-white py-6 px-4">
+      {/* CTA Section */}
+      <section className="py-16 sm:py-24 px-4 bg-gradient-to-r from-tanzania-green to-green-500">
         <div className="container mx-auto text-center">
-          <div className="flex justify-center items-center space-x-2 mb-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-tanzania-green to-tanzania-green-light rounded-xl flex items-center justify-center shadow-lg">
-              <Phone className="w-4 h-4 text-white" />
-            </div>
-            <span className="font-bold text-lg">Mizani Clinic Ambassador</span>
+          <div className="animate-fade-in">
+            <h2 className="text-3xl sm:text-4xl font-black text-white mb-6">
+              Ready to Get Started?
+            </h2>
+            <p className="text-xl text-green-100 mb-8 max-w-2xl mx-auto">
+              Join thousands of satisfied customers who trust Mizani Clinic for their healthcare needs.
+            </p>
+            
+            {!user && (
+              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                <Link to="/signup">
+                  <Button className="w-full sm:w-auto px-8 py-4 bg-white text-tanzania-green hover:bg-gray-100 text-lg font-semibold rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+                    Create Your Account
+                    <ArrowRight className="ml-2 w-5 h-5" />
+                  </Button>
+                </Link>
+                <Link to="/register">
+                  <Button variant="outline" className="w-full sm:w-auto px-8 py-4 border-2 border-white text-white hover:bg-white/10 text-lg font-semibold rounded-xl transition-all duration-300 transform hover:scale-105">
+                    Become an Ambassador
+                  </Button>
+                </Link>
+              </div>
+            )}
           </div>
-          <p className="text-blue-200 font-medium">Your Success, Our Mission</p>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="py-12 px-4 bg-tanzania-navy">
+        <div className="container mx-auto text-center">
+          <div className="flex items-center justify-center space-x-3 mb-6">
+            <div className="w-10 h-10 bg-gradient-to-br from-tanzania-green to-green-400 rounded-xl flex items-center justify-center shadow-lg">
+              <Phone className="w-5 h-5 text-white" />
+            </div>
+            <h3 className="text-xl font-bold text-white">Mizani Clinic</h3>
+          </div>
+          <p className="text-blue-200 mb-4">
+            Quality healthcare and earning opportunities for everyone
+          </p>
+          <div className="flex justify-center items-center space-x-2 text-blue-300">
+            <MapPin className="w-4 h-4" />
+            <span>Serving East Africa</span>
+          </div>
         </div>
       </footer>
     </div>
