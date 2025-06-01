@@ -9,6 +9,87 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      appointments: {
+        Row: {
+          amount: number
+          appointment_date: string
+          appointment_time: string
+          created_at: string
+          doctor_name: string
+          id: string
+          patient_notes: string | null
+          payment_status: string
+          status: string
+          stripe_session_id: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          amount?: number
+          appointment_date: string
+          appointment_time: string
+          created_at?: string
+          doctor_name?: string
+          id?: string
+          patient_notes?: string | null
+          payment_status?: string
+          status?: string
+          stripe_session_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          appointment_date?: string
+          appointment_time?: string
+          created_at?: string
+          doctor_name?: string
+          id?: string
+          patient_notes?: string | null
+          payment_status?: string
+          status?: string
+          stripe_session_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      doctor_availability: {
+        Row: {
+          available_date: string
+          created_at: string
+          doctor_name: string
+          end_time: string
+          id: string
+          is_available: boolean
+          max_bookings_per_slot: number
+          slot_duration: number
+          start_time: string
+        }
+        Insert: {
+          available_date: string
+          created_at?: string
+          doctor_name?: string
+          end_time: string
+          id?: string
+          is_available?: boolean
+          max_bookings_per_slot?: number
+          slot_duration?: number
+          start_time: string
+        }
+        Update: {
+          available_date?: string
+          created_at?: string
+          doctor_name?: string
+          end_time?: string
+          id?: string
+          is_available?: boolean
+          max_bookings_per_slot?: number
+          slot_duration?: number
+          start_time?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string | null

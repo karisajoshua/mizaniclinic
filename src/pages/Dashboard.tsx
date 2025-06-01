@@ -3,8 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { TrendingUp, Coins, Users, Trophy, Download } from "lucide-react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { TrendingUp, Coins, Users, Trophy, Download, Calendar } from "lucide-react";
 import MobileHeader from "@/components/MobileHeader";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import QuickStats from "@/components/dashboard/QuickStats";
@@ -15,13 +15,40 @@ import RecentReferrals from "@/components/dashboard/RecentReferrals";
 import BonusProgress from "@/components/dashboard/BonusProgress";
 import CommissionTierStatus from "@/components/dashboard/CommissionTierStatus";
 import AmbassadorTools from "@/components/dashboard/AmbassadorTools";
+import AppointmentBooking from "@/components/appointments/AppointmentBooking";
+import AppointmentsList from "@/components/appointments/AppointmentsList";
 import type { UserAccount, AmbassadorStats, Country, Referral } from "@/types/dashboard";
 import { useAuth } from "@/hooks/useAuth";
+import { toast } from "@/hooks/use-toast";
 
 const Dashboard = () => {
   const [userAccount, setUserAccount] = useState<UserAccount | null>(null);
+  const [activeTab, setActiveTab] = useState("overview");
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    // Check for appointment success/cancellation
+    if (searchParams.get('appointment_success') === 'true') {
+      toast({
+        title: "Payment Successful!",
+        description: "Your appointment has been confirmed. You'll receive a confirmation email shortly.",
+      });
+      setActiveTab("appointments");
+      // Clean up URL parameters
+      navigate('/dashboard', { replace: true });
+    } else if (searchParams.get('appointment_cancelled') === 'true') {
+      toast({
+        title: "Payment Cancelled",
+        description: "Your appointment booking was cancelled. You can try again anytime.",
+        variant: "destructive",
+      });
+      setActiveTab("appointments");
+      // Clean up URL parameters
+      navigate('/dashboard', { replace: true });
+    }
+  }, [searchParams, navigate]);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -112,8 +139,8 @@ const Dashboard = () => {
 
       <div className="px-3 sm:px-4 py-6 sm:py-8">
         <div className="container mx-auto max-w-6xl">
-          <Tabs defaultValue="overview" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-5 mb-6 sm:mb-8 bg-white/90 backdrop-blur-sm shadow-lg h-auto p-1">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-6 mb-6 sm:mb-8 bg-white/90 backdrop-blur-sm shadow-lg h-auto p-1">
               <TabsTrigger value="overview" className="flex flex-col sm:flex-row items-center space-y-1 sm:space-y-0 sm:space-x-2 py-2 sm:py-3 data-[state=active]:bg-green-500 data-[state=active]:text-white">
                 <TrendingUp className="w-4 h-4" />
                 <span className="text-xs sm:text-sm font-bold">Overview</span>
@@ -133,6 +160,10 @@ const Dashboard = () => {
               <TabsTrigger value="tools" className="flex flex-col sm:flex-row items-center space-y-1 sm:space-y-0 sm:space-x-2 py-2 sm:py-3 data-[state=active]:bg-green-500 data-[state=active]:text-white">
                 <Download className="w-4 h-4" />
                 <span className="text-xs sm:text-sm font-bold">Tools</span>
+              </TabsTrigger>
+              <TabsTrigger value="appointments" className="flex flex-col sm:flex-row items-center space-y-1 sm:space-y-0 sm:space-x-2 py-2 sm:py-3 data-[state=active]:bg-green-500 data-[state=active]:text-white">
+                <Calendar className="w-4 h-4" />
+                <span className="text-xs sm:text-sm font-bold">Appointments</span>
               </TabsTrigger>
             </TabsList>
 
@@ -157,6 +188,21 @@ const Dashboard = () => {
 
             <TabsContent value="tools" className="space-y-4 sm:space-y-6">
               <AmbassadorTools />
+            </TabsContent>
+
+            <TabsContent value="appointments" className="space-y-4 sm:space-y-6">
+              <Tabs defaultValue="book" className="w-full">
+                <TabsList className="grid w-full grid-cols-2 mb-6">
+                  <TabsTrigger value="book">Book New Appointment</TabsTrigger>
+                  <TabsTrigger value="manage">My Appointments</TabsTrigger>
+                </TabsList>
+                <TabsContent value="book">
+                  <AppointmentBooking />
+                </TabsContent>
+                <TabsContent value="manage">
+                  <AppointmentsList />
+                </TabsContent>
+              </Tabs>
             </TabsContent>
           </Tabs>
         </div>
