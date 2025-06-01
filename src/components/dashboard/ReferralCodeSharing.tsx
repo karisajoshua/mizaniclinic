@@ -1,8 +1,10 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Share2, Copy } from "lucide-react";
+import { Share2, Copy, QrCode } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { useState } from "react";
+import QRCodeGenerator from "@/components/QRCodeGenerator";
 import type { UserAccount } from "@/types/dashboard";
 
 interface ReferralCodeSharingProps {
@@ -10,6 +12,10 @@ interface ReferralCodeSharingProps {
 }
 
 const ReferralCodeSharing = ({ userAccount }: ReferralCodeSharingProps) => {
+  const [showQR, setShowQR] = useState(false);
+  
+  const referralLink = `${window.location.origin}/signup?ref=${userAccount?.userReferralId}`;
+
   const copyReferralCode = () => {
     if (userAccount?.userReferralId) {
       navigator.clipboard.writeText(userAccount.userReferralId);
@@ -21,7 +27,7 @@ const ReferralCodeSharing = ({ userAccount }: ReferralCodeSharingProps) => {
   };
 
   const shareWhatsApp = () => {
-    const message = `🎉 Jiunge na Mizani Clinic Ambassador program! Start earning $0.20+ per referral! Use my code: ${userAccount?.userReferralId}. Register here: ${window.location.origin}/register 💰🚀`;
+    const message = `🎉 Jiunge na Mizani Clinic Ambassador program! Start earning $0.20+ per referral! Use my code: ${userAccount?.userReferralId}. Register here: ${referralLink} 💰🚀`;
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
   };
@@ -43,6 +49,21 @@ const ReferralCodeSharing = ({ userAccount }: ReferralCodeSharingProps) => {
             <p className="text-xs sm:text-sm text-gray-600 mb-2 font-bold">Your Ambassador Code:</p>
             <p className="text-xl sm:text-2xl lg:text-3xl font-mono font-black text-green-600 tracking-wider break-all">{userAccount.userReferralId}</p>
           </Card>
+          
+          {showQR && (
+            <Card className="w-full p-4 bg-white border-2 border-green-400 rounded-2xl shadow-lg">
+              <div className="flex flex-col items-center space-y-3">
+                <p className="text-sm text-gray-600 font-bold">Scan to Register:</p>
+                <QRCodeGenerator 
+                  value={referralLink} 
+                  size={180} 
+                  className="mx-auto"
+                />
+                <p className="text-xs text-gray-500 text-center">Share this QR code for easy registration</p>
+              </div>
+            </Card>
+          )}
+          
           <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 w-full">
             <Button 
               onClick={copyReferralCode}
@@ -51,6 +72,14 @@ const ReferralCodeSharing = ({ userAccount }: ReferralCodeSharingProps) => {
             >
               <Copy className="w-4 h-4 mr-2" />
               Copy
+            </Button>
+            <Button 
+              onClick={() => setShowQR(!showQR)}
+              variant="outline" 
+              className="flex-1 border-2 border-green-500 text-green-600 hover:bg-green-500 hover:text-white rounded-xl font-bold h-12"
+            >
+              <QrCode className="w-4 h-4 mr-2" />
+              {showQR ? 'Hide' : 'QR Code'}
             </Button>
             <Button 
               onClick={shareWhatsApp}

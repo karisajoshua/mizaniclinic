@@ -1,7 +1,6 @@
-
 export const REGION_CODES: Record<string, string> = {
   "Arusha": "ARU",
-  "Dar es Salaam": "DAR", 
+  "Dar es Salaam": "DSM", 
   "Dodoma": "DOD",
   "Geita": "GEI",
   "Iringa": "IRI",
@@ -32,8 +31,22 @@ export const REGION_CODES: Record<string, string> = {
   "Unguja South": "UNS"
 };
 
+// Counter for sequential numbering (in a real app, this would be stored in database)
+let ambassadorCounter = 1;
+
+export const generateAmbassadorId = (region: string): string => {
+  const regionCode = REGION_CODES[region] || "DSM";
+  const memberNumber = ambassadorCounter.toString().padStart(4, '0');
+  ambassadorCounter++;
+  
+  // MCA25 = MIZANI CLINIC AMBASSADOR 2025
+  // T = TANZANIA (will change to KE for Kenya after 1000 members)
+  const countryCode = ambassadorCounter <= 1000 ? "T" : "KE";
+  
+  return `MCA25-${countryCode}${memberNumber}${regionCode}`;
+};
+
+// For backward compatibility, keep the old function name but use new format
 export const generateReferralId = (region: string): string => {
-  const regionCode = REGION_CODES[region] || "MC";
-  const randomCode = Math.random().toString(36).substr(2, 6).toUpperCase();
-  return `MC-${regionCode}-${randomCode}`;
+  return generateAmbassadorId(region);
 };

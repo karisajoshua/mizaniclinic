@@ -34,7 +34,7 @@ const DashboardHeader = ({ userAccount }: DashboardHeaderProps) => {
           <div className="animate-slide-in">
             <p className="text-xs sm:text-sm text-green-200 mb-2">Your Ambassador ID</p>
             <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-2">
-              <p className="font-mono font-black text-yellow-300 text-base sm:text-lg border-2 border-yellow-300 px-3 py-2 rounded-lg break-all flex-1">{userAccount.userReferralId}</p>
+              <p className="font-mono font-black text-white text-base sm:text-lg border-2 border-white px-3 py-2 rounded-lg break-all flex-1">{userAccount.userReferralId}</p>
               <Button
                 variant="ghost"
                 size="sm"

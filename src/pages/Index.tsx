@@ -130,15 +130,15 @@ const Index = () => {
                 color: "from-tanzania-navy to-blue-800"
               },
               {
-                icon: Coins,
-                title: "2. Share & Earn",
-                description: "Share code, earn $0.20+ per referral",
+                icon: Users,
+                title: "2. Refer",
+                description: "Share code, invite others to join",
                 color: "from-tanzania-green to-tanzania-green-light"
               },
               {
-                icon: Trophy,
-                title: "3. Win Big",
-                description: "Motorbike & Car bonuses await",
+                icon: Coins,
+                title: "3. Earn",
+                description: "$0.20+ per referral + bonuses",
                 color: "from-orange-500 to-red-500"
               }
             ].map((step, index) => (
