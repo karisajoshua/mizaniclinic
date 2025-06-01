@@ -1,0 +1,82 @@
+
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Bike, Car } from "lucide-react";
+import type { AmbassadorStats } from "@/types/dashboard";
+
+interface BonusProgressProps {
+  ambassadorStats: AmbassadorStats;
+}
+
+const BonusProgress = ({ ambassadorStats }: BonusProgressProps) => {
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-fade-in">
+      {/* Motorbike Bonus */}
+      <Card className="border-0 bg-gradient-to-br from-orange-50 to-red-50 shadow-xl">
+        <CardHeader>
+          <CardTitle className="text-gray-800 text-xl font-black flex items-center">
+            <Bike className="w-6 h-6 mr-3 text-orange-500" />
+            Motorbike Bonus 🏍️
+          </CardTitle>
+          <CardDescription className="font-semibold">
+            Team total: TSH 1,000 target
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="text-center">
+              <div className="text-4xl font-black text-orange-600">
+                TSH {ambassadorStats.teamProgressLevel1}
+              </div>
+              <div className="text-sm text-gray-600 font-semibold">of TSH 1,000</div>
+            </div>
+            <Progress value={(ambassadorStats.teamProgressLevel1/1000)*100} className="h-4" />
+            <div className="text-center">
+              <Badge className="bg-orange-500 text-white font-bold">
+                {Math.round((ambassadorStats.teamProgressLevel1/1000)*100)}% Complete
+              </Badge>
+              <p className="text-sm text-gray-600 mt-2 font-medium">
+                TSH {1000 - ambassadorStats.teamProgressLevel1} remaining
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Car Bonus */}
+      <Card className="border-0 bg-gradient-to-br from-blue-50 to-cyan-50 shadow-xl">
+        <CardHeader>
+          <CardTitle className="text-gray-800 text-xl font-black flex items-center">
+            <Car className="w-6 h-6 mr-3 text-blue-500" />
+            Car Bonus 🚗
+          </CardTitle>
+          <CardDescription className="font-semibold">
+            Monthly team target: TSH 6,000
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="text-center">
+              <div className="text-4xl font-black text-blue-600">
+                TSH {ambassadorStats.teamProgressLevel2}
+              </div>
+              <div className="text-sm text-gray-600 font-semibold">of TSH 6,000 (This Month)</div>
+            </div>
+            <Progress value={(ambassadorStats.teamProgressLevel2/6000)*100} className="h-4" />
+            <div className="text-center">
+              <Badge className="bg-blue-500 text-white font-bold">
+                {Math.round((ambassadorStats.teamProgressLevel2/6000)*100)}% Complete
+              </Badge>
+              <p className="text-sm text-gray-600 mt-2 font-medium">
+                TSH {6000 - ambassadorStats.teamProgressLevel2} remaining this month
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+export default BonusProgress;
