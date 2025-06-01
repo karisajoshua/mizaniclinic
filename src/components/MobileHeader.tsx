@@ -47,7 +47,7 @@ const MobileHeader = () => {
 
   if (loading) {
     return (
-      <header className="sticky top-0 z-50 w-full bg-gradient-to-r from-tanzania-navy via-tanzania-navy to-blue-900 backdrop-blur-md border-b border-white/10 shadow-xl">
+      <header className="sticky top-0 z-50 w-full bg-gradient-to-r from-tanzania-navy via-tanzania-navy to-tanzania-navy backdrop-blur-md border-b border-white/10 shadow-xl">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <Link to="/" className="flex items-center space-x-2 group">
             <div className="w-10 h-10 bg-gradient-to-br from-tanzania-green to-green-400 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-200">
@@ -65,7 +65,7 @@ const MobileHeader = () => {
   }
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-gradient-to-r from-tanzania-navy via-tanzania-navy to-blue-900 backdrop-blur-md border-b border-white/10 shadow-xl">
+    <header className="sticky top-0 z-50 w-full bg-gradient-to-r from-tanzania-navy via-tanzania-navy to-tanzania-navy backdrop-blur-md border-b border-white/10 shadow-xl">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex items-center space-x-2 group">
@@ -85,7 +85,7 @@ const MobileHeader = () => {
               <Menu className="w-6 h-6" />
             </Button>
           </SheetTrigger>
-          <SheetContent side="right" className="w-80 bg-gradient-to-b from-tanzania-navy to-blue-900 border-white/10">
+          <SheetContent side="right" className="w-80 bg-gradient-to-b from-tanzania-navy to-tanzania-navy border-white/10">
             <SheetHeader className="text-center border-b border-white/10 pb-4 mb-6">
               <div className="w-16 h-16 bg-gradient-to-br from-tanzania-green to-green-400 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-xl">
                 <Phone className="w-8 h-8 text-white" />

@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -68,7 +67,7 @@ export default {
 					ring: 'hsl(var(--sidebar-ring))'
 				},
 				// Mizani Clinic brand colors
-				'tanzania-navy': '#062048',
+				'tanzania-navy': '#00122D',
 				'tanzania-green': '#22AE0B',
 				'tanzania-green-light': '#45C43C',
 				'tanzania-grey': '#F4F6F8',

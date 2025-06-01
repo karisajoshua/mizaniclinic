@@ -4,15 +4,16 @@ import { Users, Coins, Calendar, ArrowRight, CheckCircle, Phone, MapPin, Star, S
 import { Link } from "react-router-dom";
 import MobileHeader from "@/components/MobileHeader";
 import { useAuth } from "@/hooks/useAuth";
+
 const Index = () => {
-  const {
-    user
-  } = useAuth();
-  return <div className="min-h-screen bg-gradient-to-br from-tanzania-grey via-white to-tanzania-grey overflow-hidden">
+  const { user } = useAuth();
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-tanzania-grey via-white to-tanzania-grey overflow-hidden">
       <MobileHeader />
 
       {/* Hero Section - Brand Focused */}
-      <section className="relative px-4 py-8 sm:py-16 bg-gradient-to-br from-tanzania-navy via-blue-900 to-tanzania-navy">
+      <section className="relative px-4 py-8 sm:py-16 bg-gradient-to-br from-tanzania-navy via-tanzania-navy to-blue-900">
         <div className="container mx-auto max-w-6xl">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             {/* Left Content */}
@@ -38,34 +39,38 @@ const Index = () => {
               {/* Earning Numbers */}
               <div className="grid grid-cols-3 gap-4 max-w-lg mx-auto lg:mx-0">
                 <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
-                  <div className="text-2xl sm:text-3xl font-black text-tanzania-green-light">$0.20</div>
-                  <div className="text-xs text-blue-200 font-semibold">Per Referral</div>
-                </div>
-                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
                   <div className="text-2xl sm:text-3xl font-black text-tanzania-green-light">30%</div>
-                  <div className="text-xs text-blue-200 font-semibold">Commission</div>
+                  <div className="text-xs text-blue-200 font-semibold">Activation Pack</div>
                 </div>
                 <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
-                  <div className="text-2xl sm:text-3xl font-black text-tanzania-green-light">5 Ways</div>
-                  <div className="text-xs text-blue-200 font-semibold">To Earn</div>
+                  <div className="text-2xl sm:text-3xl font-black text-tanzania-green-light">25%</div>
+                  <div className="text-xs text-blue-200 font-semibold">Direct Referral</div>
+                </div>
+                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
+                  <div className="text-2xl sm:text-3xl font-black text-tanzania-green-light">15%</div>
+                  <div className="text-xs text-blue-200 font-semibold">Second Level</div>
                 </div>
               </div>
 
               {/* Call to Action */}
               <div className="space-y-4">
-                {user ? <Link to="/dashboard">
+                {user ? (
+                  <Link to="/dashboard">
                     <Button size="lg" className="w-full max-w-md h-16 bg-gradient-to-r from-tanzania-green to-tanzania-green-light hover:from-tanzania-green-light hover:to-tanzania-green text-white text-xl font-black rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105 border-4 border-white/20">
                       GO TO DASHBOARD
                       <ArrowRight className="ml-3 w-6 h-6" />
                     </Button>
-                  </Link> : <Link to="/signup">
+                  </Link>
+                ) : (
+                  <Link to="/signup">
                     <Button size="lg" className="w-full max-w-md h-16 bg-gradient-to-r from-tanzania-green to-tanzania-green-light hover:from-tanzania-green-light hover:to-tanzania-green text-white text-xl font-black rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105 border-4 border-white/20">
-                      START EARNING NOW
+                      REGISTER NOW
                       <ArrowRight className="ml-3 w-6 h-6" />
                     </Button>
-                  </Link>}
+                  </Link>
+                )}
                 <p className="text-sm text-blue-200 font-medium">
-                  {user ? "Welcome back! Check your dashboard" : "Join 10,000+ Tanzanians already earning"}
+                  {user ? "Welcome back! Check your dashboard" : "Join hundreds of Tanzanians already earning"}
                 </p>
               </div>
 
@@ -100,22 +105,27 @@ const Index = () => {
           </h2>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[{
-            icon: Phone,
-            title: "1. Register",
-            description: "Complete form with referral code",
-            color: "from-tanzania-navy to-blue-800"
-          }, {
-            icon: Users,
-            title: "2. Refer",
-            description: "Share code, invite others to join",
-            color: "from-tanzania-green to-tanzania-green-light"
-          }, {
-            icon: Coins,
-            title: "3. Earn",
-            description: "$0.20+ per referral + bonuses",
-            color: "from-orange-500 to-red-500"
-          }].map((step, index) => <Card key={index} className="group relative overflow-hidden border-0 bg-white hover:bg-tanzania-grey transition-all duration-300 hover:shadow-2xl transform hover:scale-105 shadow-lg">
+            {[
+              {
+                icon: Phone,
+                title: "1. Register",
+                description: "Complete form with referral code",
+                color: "from-tanzania-navy to-blue-800"
+              },
+              {
+                icon: Users,
+                title: "2. Refer",
+                description: "Share code, invite others to join",
+                color: "from-tanzania-green to-tanzania-green-light"
+              },
+              {
+                icon: Coins,
+                title: "3. Earn",
+                description: "$0.20+ per referral + bonuses",
+                color: "from-orange-500 to-red-500"
+              }
+            ].map((step, index) => (
+              <Card key={index} className="group relative overflow-hidden border-0 bg-white hover:bg-tanzania-grey transition-all duration-300 hover:shadow-2xl transform hover:scale-105 shadow-lg">
                 <CardHeader className="text-center pb-4">
                   <div className={`w-20 h-20 bg-gradient-to-br ${step.color} rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-xl group-hover:scale-110 transition-transform duration-300`}>
                     <step.icon className="w-10 h-10 text-white" />
@@ -127,7 +137,8 @@ const Index = () => {
                     {step.description}
                   </CardDescription>
                 </CardContent>
-              </Card>)}
+              </Card>
+            ))}
           </div>
         </div>
       </section>
@@ -146,7 +157,7 @@ const Index = () => {
       </section>
 
       {/* Final CTA */}
-      <section className="py-16 px-4 bg-gradient-to-br from-tanzania-navy via-blue-900 to-tanzania-navy text-white relative overflow-hidden">
+      <section className="py-16 px-4 bg-gradient-to-br from-tanzania-navy via-tanzania-navy to-blue-900 text-white relative overflow-hidden">
         <div className="relative container mx-auto max-w-4xl text-center">
           <h2 className="text-4xl sm:text-5xl font-black mb-6">
             Ready to Change Your Life?
@@ -154,17 +165,21 @@ const Index = () => {
           <p className="text-xl mb-8 opacity-90 font-semibold">
             Thousands earning daily. Your turn now!
           </p>
-          {user ? <Link to="/dashboard">
+          {user ? (
+            <Link to="/dashboard">
               <Button size="lg" className="h-16 bg-gradient-to-r from-tanzania-green to-tanzania-green-light hover:from-tanzania-green-light hover:to-tanzania-green text-white text-xl font-black px-12 rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-110 border-4 border-white/20">
                 VIEW YOUR DASHBOARD
                 <ArrowRight className="ml-3 w-6 h-6" />
               </Button>
-            </Link> : <Link to="/signup">
+            </Link>
+          ) : (
+            <Link to="/signup">
               <Button size="lg" className="h-16 bg-gradient-to-r from-tanzania-green to-tanzania-green-light hover:from-tanzania-green-light hover:to-tanzania-green text-white text-xl font-black px-12 rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-110 border-4 border-white/20">
                 JOIN THE FAMILY NOW
                 <ArrowRight className="ml-3 w-6 h-6" />
               </Button>
-            </Link>}
+            </Link>
+          )}
 
           {/* Mobile Apps Coming Soon - Bottom Section */}
           <div className="flex flex-col items-center space-y-6 mt-12">
@@ -189,6 +204,8 @@ const Index = () => {
           <p className="text-blue-200 font-medium">Your Success, Our Mission</p>
         </div>
       </footer>
-    </div>;
+    </div>
+  );
 };
+
 export default Index;
