@@ -4,7 +4,7 @@ import { defineConfig } from 'vitepress'
 export default defineConfig({
   title: 'Mizani Clinic Ambassador',
   description: 'Complete documentation for the Mizani Clinic Ambassador referral and healthcare booking platform',
-  base: '/mizani-clinic-ambassador/', // Update this to match your GitHub repository name
+  base: '//mizaniclinic/', // Update this to match your GitHub repository name
   
   themeConfig: {
     logo: '/logo.png',
