@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Coins, Calendar, ArrowRight, CheckCircle, Phone, MapPin, Star, Shield, Clock, Trophy, Zap, Target, Gift } from "lucide-react";
@@ -13,7 +14,7 @@ const Index = () => {
       <MobileHeader />
 
       {/* Hero Section - Brand Focused */}
-      <section className="relative px-4 py-8 sm:py-16 bg-gradient-to-br from-tanzania-navy via-tanzania-navy to-blue-900">
+      <section className="relative px-4 py-8 sm:py-16 bg-gradient-to-br from-[#00122D] via-[#00122D] to-blue-900">
         <div className="container mx-auto max-w-6xl">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             {/* Left Content */}
@@ -21,7 +22,7 @@ const Index = () => {
               {/* Success Badge */}
               <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-tanzania-green to-tanzania-green-light rounded-full text-white font-bold text-sm shadow-xl">
                 <Star className="w-5 h-5 mr-2" />
-                Join the Ambassador Family
+                Join the Ambassadors Family
               </div>
 
               {/* Main Headline */}
@@ -62,12 +63,22 @@ const Index = () => {
                     </Button>
                   </Link>
                 ) : (
-                  <Link to="/signup">
-                    <Button size="lg" className="w-full max-w-md h-16 bg-gradient-to-r from-tanzania-green to-tanzania-green-light hover:from-tanzania-green-light hover:to-tanzania-green text-white text-xl font-black rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105 border-4 border-white/20">
-                      REGISTER NOW
-                      <ArrowRight className="ml-3 w-6 h-6" />
-                    </Button>
-                  </Link>
+                  <div className="space-y-3">
+                    <Link to="/register">
+                      <Button size="lg" className="w-full max-w-md h-16 bg-gradient-to-r from-tanzania-green to-tanzania-green-light hover:from-tanzania-green-light hover:to-tanzania-green text-white text-xl font-black rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105 border-4 border-white/20">
+                        REGISTER NOW
+                        <ArrowRight className="ml-3 w-6 h-6" />
+                      </Button>
+                    </Link>
+                    {/* Mobile Login Button */}
+                    <div className="block lg:hidden">
+                      <Link to="/signin">
+                        <Button variant="outline" size="lg" className="w-full max-w-md h-14 bg-white/10 backdrop-blur-sm border-2 border-white/30 text-white text-lg font-bold rounded-2xl hover:bg-white/20 transition-all duration-300">
+                          LOGIN
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
                 )}
                 <p className="text-sm text-blue-200 font-medium">
                   {user ? "Welcome back! Check your dashboard" : "Join hundreds of Tanzanians already earning"}
@@ -121,7 +132,7 @@ const Index = () => {
               {
                 icon: Coins,
                 title: "3. Earn",
-                description: "$0.20+ per referral + bonuses",
+                description: "Tshs. 88,000/- per referral + bonuses",
                 color: "from-orange-500 to-red-500"
               }
             ].map((step, index) => (
@@ -147,9 +158,9 @@ const Index = () => {
       <section className="py-8 bg-gradient-to-r from-tanzania-green to-tanzania-green-light text-white overflow-hidden">
         <div className="animate-scroll">
           <div className="flex space-x-8 text-lg font-bold whitespace-nowrap">
-            <span>John from Dar just earned $1.00!</span>
+            <span>John from Dar just earned Tshs. 88,000/-!</span>
             <span>Sarah from Arusha won a Motorbike!</span>
-            <span>David from Mwanza earned $6.00 this month!</span>
+            <span>David from Mwanza earned Tshs. 528,000/- this month!</span>
             <span>Grace from Dodoma qualified for Car bonus!</span>
             <span>Michael from Mbeya reached Level 2!</span>
           </div>
@@ -157,7 +168,7 @@ const Index = () => {
       </section>
 
       {/* Final CTA */}
-      <section className="py-16 px-4 bg-gradient-to-br from-tanzania-navy via-tanzania-navy to-blue-900 text-white relative overflow-hidden">
+      <section className="py-16 px-4 bg-gradient-to-br from-[#00122D] via-[#00122D] to-blue-900 text-white relative overflow-hidden">
         <div className="relative container mx-auto max-w-4xl text-center">
           <h2 className="text-4xl sm:text-5xl font-black mb-6">
             Ready to Change Your Life?
@@ -173,7 +184,7 @@ const Index = () => {
               </Button>
             </Link>
           ) : (
-            <Link to="/signup">
+            <Link to="/register">
               <Button size="lg" className="h-16 bg-gradient-to-r from-tanzania-green to-tanzania-green-light hover:from-tanzania-green-light hover:to-tanzania-green text-white text-xl font-black px-12 rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-110 border-4 border-white/20">
                 JOIN THE FAMILY NOW
                 <ArrowRight className="ml-3 w-6 h-6" />
@@ -193,13 +204,11 @@ const Index = () => {
       </section>
 
       {/* Simple Footer */}
-      <footer className="bg-tanzania-navy text-white py-6 px-4">
+      <footer className="bg-[#00122D] text-white py-6 px-4">
         <div className="container mx-auto text-center">
           <div className="flex justify-center items-center space-x-2 mb-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-tanzania-green to-tanzania-green-light rounded-xl flex items-center justify-center shadow-lg">
-              <Phone className="w-4 h-4 text-white" />
-            </div>
-            <span className="font-bold text-lg">Mizani Clinic Ambassador</span>
+            <img src="https://rpkttbmlvjshkbjrmnvo.supabase.co/storage/v1/object/public/mizaniclinic//Mizani%20(1).png" alt="Mizani Clinic Logo" className="w-8 h-8 object-contain" />
+            <span className="font-bold text-lg">MIZANI CLINIC</span>
           </div>
           <p className="text-blue-200 font-medium">Your Success, Our Mission</p>
         </div>

@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -5,16 +6,18 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, User, MapPin, Key, Phone, CheckCircle, ArrowRight } from "lucide-react";
+import { ArrowLeft, User, MapPin, Key, Phone, CheckCircle, ArrowRight, Globe } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import MobileHeader from "@/components/MobileHeader";
 
 const Register = () => {
   const [formData, setFormData] = useState({
-    fullName: "",
+    name: "",
+    city: "",
+    country: "Tanzania",
+    phone: "",
     referralCode: "",
-    region: "",
-    phone: ""
+    region: ""
   });
   const navigate = useNavigate();
 
@@ -29,10 +32,21 @@ const Register = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.fullName || !formData.referralCode || !formData.region || !formData.phone) {
+    if (!formData.name || !formData.city || !formData.country || !formData.phone || !formData.referralCode || !formData.region) {
       toast({
         title: "Error",
         description: "Please fill in all required fields",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Validate referral code format (MCA25-T0001DSM)
+    const referralCodeRegex = /^MCA25-T\d{4}[A-Z]{3}$/;
+    if (!referralCodeRegex.test(formData.referralCode)) {
+      toast({
+        title: "Invalid Referral Code",
+        description: "Referral code must be in format: MCA25-T0001DSM",
         variant: "destructive"
       });
       return;
@@ -93,17 +107,46 @@ const Register = () => {
             <CardContent className="space-y-6">
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="space-y-3">
-                  <Label htmlFor="fullName" className="text-tanzania-navy font-medium flex items-center">
+                  <Label htmlFor="name" className="text-tanzania-navy font-medium flex items-center">
                     <User className="w-4 h-4 mr-2 text-tanzania-green" />
-                    Full Name *
+                    Name *
                   </Label>
                   <Input
-                    id="fullName"
-                    placeholder="Enter your full name"
-                    value={formData.fullName}
-                    onChange={(e) => setFormData(prev => ({ ...prev, fullName: e.target.value }))}
+                    id="name"
+                    placeholder="Enter your name"
+                    value={formData.name}
+                    onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                     className="h-12 border-2 border-tanzania-grey/50 focus:border-tanzania-green rounded-xl transition-all duration-300"
                   />
+                </div>
+
+                <div className="space-y-3">
+                  <Label htmlFor="city" className="text-tanzania-navy font-medium flex items-center">
+                    <MapPin className="w-4 h-4 mr-2 text-tanzania-green" />
+                    City *
+                  </Label>
+                  <Input
+                    id="city"
+                    placeholder="Enter your city"
+                    value={formData.city}
+                    onChange={(e) => setFormData(prev => ({ ...prev, city: e.target.value }))}
+                    className="h-12 border-2 border-tanzania-grey/50 focus:border-tanzania-green rounded-xl transition-all duration-300"
+                  />
+                </div>
+
+                <div className="space-y-3">
+                  <Label htmlFor="country" className="text-tanzania-navy font-medium flex items-center">
+                    <Globe className="w-4 h-4 mr-2 text-tanzania-green" />
+                    Country *
+                  </Label>
+                  <Select value={formData.country} onValueChange={(value) => setFormData(prev => ({ ...prev, country: value }))}>
+                    <SelectTrigger className="h-12 border-2 border-tanzania-grey/50 focus:border-tanzania-green rounded-xl transition-all duration-300">
+                      <SelectValue placeholder="Select your country" />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-60 bg-white/95 backdrop-blur-sm">
+                      <SelectItem value="Tanzania">Tanzania</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="space-y-3">
@@ -127,21 +170,21 @@ const Register = () => {
                   </Label>
                   <Input
                     id="referralCode"
-                    placeholder="MC-DAR-AB1234"
+                    placeholder="MCA25-T0001DSM"
                     value={formData.referralCode}
                     onChange={(e) => setFormData(prev => ({ ...prev, referralCode: e.target.value.toUpperCase() }))}
                     className="h-12 border-2 border-tanzania-grey/50 focus:border-tanzania-green rounded-xl transition-all duration-300 font-mono"
                   />
                   <p className="text-sm text-tanzania-text/60 flex items-center">
                     <CheckCircle className="w-3 h-3 mr-1 text-tanzania-green" />
-                    Format: MC-REGION-XXXXXX
+                    Format: MCA25-T0001DSM
                   </p>
                 </div>
 
                 <div className="space-y-3">
                   <Label htmlFor="region" className="text-tanzania-navy font-medium flex items-center">
                     <MapPin className="w-4 h-4 mr-2 text-tanzania-green" />
-                    Region/City *
+                    Region *
                   </Label>
                   <Select value={formData.region} onValueChange={(value) => setFormData(prev => ({ ...prev, region: value }))}>
                     <SelectTrigger className="h-12 border-2 border-tanzania-grey/50 focus:border-tanzania-green rounded-xl transition-all duration-300">
@@ -174,11 +217,11 @@ const Register = () => {
                 <ul className="text-sm text-tanzania-text/70 space-y-2">
                   <li className="flex items-center">
                     <div className="w-2 h-2 bg-tanzania-green rounded-full mr-3"></div>
-                    Your unique referral ID will be generated after payment
+                    You'll receive payment instructions via paybill
                   </li>
                   <li className="flex items-center">
                     <div className="w-2 h-2 bg-tanzania-green rounded-full mr-3"></div>
-                    Complete payment to activate your account
+                    Enter your transaction code for verification
                   </li>
                   <li className="flex items-center">
                     <div className="w-2 h-2 bg-tanzania-green rounded-full mr-3"></div>
@@ -186,7 +229,7 @@ const Register = () => {
                   </li>
                   <li className="flex items-center">
                     <div className="w-2 h-2 bg-tanzania-green rounded-full mr-3"></div>
-                    Start earning TSH 500 per referral!
+                    Start earning Tshs. 88,000/- per referral!
                   </li>
                 </ul>
               </Card>

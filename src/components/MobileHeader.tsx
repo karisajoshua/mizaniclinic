@@ -47,14 +47,12 @@ const MobileHeader = () => {
 
   if (loading) {
     return (
-      <header className="sticky top-0 z-50 w-full bg-gradient-to-r from-tanzania-navy via-tanzania-navy to-tanzania-navy backdrop-blur-md border-b border-white/10 shadow-xl">
+      <header className="sticky top-0 z-50 w-full bg-gradient-to-r from-[#00122D] via-[#00122D] to-[#00122D] backdrop-blur-md border-b border-white/10 shadow-xl">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <Link to="/" className="flex items-center space-x-2 group">
-            <div className="w-10 h-10 bg-gradient-to-br from-tanzania-green to-green-400 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-200">
-              <Phone className="w-5 h-5 text-white" />
-            </div>
+            <img src="https://rpkttbmlvjshkbjrmnvo.supabase.co/storage/v1/object/public/mizaniclinic//Mizani%20(1).png" alt="Mizani Clinic Logo" className="w-10 h-10 object-contain group-hover:scale-105 transition-transform duration-200" />
             <div className="hidden sm:block">
-              <h1 className="text-xl font-bold text-white">Mizani Clinic</h1>
+              <h1 className="text-xl font-bold text-white">MIZANI CLINIC</h1>
               <p className="text-xs text-blue-200 -mt-1">Referral System</p>
             </div>
           </Link>
@@ -65,15 +63,13 @@ const MobileHeader = () => {
   }
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-gradient-to-r from-tanzania-navy via-tanzania-navy to-tanzania-navy backdrop-blur-md border-b border-white/10 shadow-xl">
+    <header className="sticky top-0 z-50 w-full bg-gradient-to-r from-[#00122D] via-[#00122D] to-[#00122D] backdrop-blur-md border-b border-white/10 shadow-xl">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex items-center space-x-2 group">
-          <div className="w-10 h-10 bg-gradient-to-br from-tanzania-green to-green-400 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-200">
-            <Phone className="w-5 h-5 text-white" />
-          </div>
+          <img src="https://rpkttbmlvjshkbjrmnvo.supabase.co/storage/v1/object/public/mizaniclinic//Mizani%20(1).png" alt="Mizani Clinic Logo" className="w-10 h-10 object-contain group-hover:scale-105 transition-transform duration-200" />
           <div className="hidden sm:block">
-            <h1 className="text-xl font-bold text-white">Mizani Clinic</h1>
+            <h1 className="text-xl font-bold text-white">MIZANI CLINIC</h1>
             <p className="text-xs text-blue-200 -mt-1">Referral System</p>
           </div>
         </Link>
@@ -85,12 +81,10 @@ const MobileHeader = () => {
               <Menu className="w-6 h-6" />
             </Button>
           </SheetTrigger>
-          <SheetContent side="right" className="w-80 bg-gradient-to-b from-tanzania-navy to-tanzania-navy border-white/10">
+          <SheetContent side="right" className="w-80 bg-gradient-to-b from-[#00122D] to-[#00122D] border-white/10">
             <SheetHeader className="text-center border-b border-white/10 pb-4 mb-6">
-              <div className="w-16 h-16 bg-gradient-to-br from-tanzania-green to-green-400 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-xl">
-                <Phone className="w-8 h-8 text-white" />
-              </div>
-              <SheetTitle className="text-2xl font-bold text-white">Mizani Clinic</SheetTitle>
+              <img src="https://rpkttbmlvjshkbjrmnvo.supabase.co/storage/v1/object/public/mizaniclinic//Mizani%20(1).png" alt="Mizani Clinic Logo" className="w-16 h-16 object-contain mx-auto mb-3" />
+              <SheetTitle className="text-2xl font-bold text-white">MIZANI CLINIC</SheetTitle>
               <p className="text-blue-200">Referral & Booking System</p>
             </SheetHeader>
             
@@ -126,7 +120,7 @@ const MobileHeader = () => {
 
             <div className="mt-8 p-4 bg-white/5 rounded-xl border border-white/10">
               <p className="text-blue-200 text-sm text-center">
-                {user ? `Welcome back!` : "Refer friends and earn TSH 500 per referral!"}
+                {user ? `Welcome back!` : "Refer friends and earn Tshs. 88,000/- per referral!"}
               </p>
             </div>
           </SheetContent>
