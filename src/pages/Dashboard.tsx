@@ -7,17 +7,12 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { TrendingUp, Coins, Users, Trophy, Download, Calendar } from "lucide-react";
 import MobileHeader from "@/components/MobileHeader";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
-import QuickStats from "@/components/dashboard/QuickStats";
 import ReferralCodeSharing from "@/components/dashboard/ReferralCodeSharing";
-import EarningsOverview from "@/components/dashboard/EarningsOverview";
-import CountryDistribution from "@/components/dashboard/CountryDistribution";
-import RecentReferrals from "@/components/dashboard/RecentReferrals";
-import BonusProgress from "@/components/dashboard/BonusProgress";
-import CommissionTierStatus from "@/components/dashboard/CommissionTierStatus";
 import AmbassadorTools from "@/components/dashboard/AmbassadorTools";
 import AppointmentBooking from "@/components/appointments/AppointmentBooking";
 import AppointmentsList from "@/components/appointments/AppointmentsList";
-import type { UserAccount, AmbassadorStats, Country, Referral } from "@/types/dashboard";
+import RealTimeStats from "@/components/dashboard/RealTimeStats";
+import type { UserAccount } from "@/types/dashboard";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
 
@@ -93,45 +88,6 @@ const Dashboard = () => {
     );
   }
 
-  // Mock data for demonstration (converted to USD)
-  const ambassadorStats: AmbassadorStats = {
-    totalEarnings: 15750,
-    activationPackEarnings: 4500,
-    directReferralEarnings: 7250,
-    secondLevelEarnings: 3200,
-    teamProgressLevel1: 750, // out of 1000 for motorbike
-    teamProgressLevel2: 2100, // out of 6000 for car (monthly)
-    totalReferrals: 31,
-    activeReferrals: 29,
-    pendingReferrals: 2,
-    referralsByCountry: {
-      Tanzania: 18,
-      Kenya: 7,
-      Uganda: 4,
-      Rwanda: 2,
-      Burundi: 0,
-      DRC: 0
-    },
-    ambassadorLimit: 856, // out of 1000
-    currentCommissionTier: "Standard",
-    nextPayoutDate: "2024-02-01"
-  };
-
-  const countries: Country[] = [
-    { name: "Tanzania", flag: "🇹🇿", count: ambassadorStats.referralsByCountry.Tanzania, limit: 100 },
-    { name: "Kenya", flag: "🇰🇪", count: ambassadorStats.referralsByCountry.Kenya, limit: 100 },
-    { name: "Uganda", flag: "🇺🇬", count: ambassadorStats.referralsByCountry.Uganda, limit: 100 },
-    { name: "Rwanda", flag: "🇷🇼", count: ambassadorStats.referralsByCountry.Rwanda, limit: 100 },
-    { name: "Burundi", flag: "🇧🇮", count: ambassadorStats.referralsByCountry.Burundi, limit: 100 },
-    { name: "DRC", flag: "🇨🇩", count: ambassadorStats.referralsByCountry.DRC, limit: 100 }
-  ];
-
-  const recentReferrals: Referral[] = [
-    { name: "John Mkwawa", joinDate: "2024-01-15", location: "Dar es Salaam", status: "Active" },
-    { name: "Sarah Mwalimu", joinDate: "2024-01-20", location: "Arusha", status: "Active" },
-    { name: "David Kimario", joinDate: "2024-01-25", location: "Mwanza", status: "Pending" }
-  ];
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-yellow-50 to-orange-50">
       <MobileHeader />
@@ -168,22 +124,20 @@ const Dashboard = () => {
             </TabsList>
 
             <TabsContent value="overview" className="space-y-4 sm:space-y-6">
-              <QuickStats ambassadorStats={ambassadorStats} />
+              <RealTimeStats activeTab="overview" />
               <ReferralCodeSharing userAccount={userAccount} />
             </TabsContent>
 
             <TabsContent value="earnings" className="space-y-4 sm:space-y-6">
-              <EarningsOverview ambassadorStats={ambassadorStats} />
+              <RealTimeStats activeTab="earnings" />
             </TabsContent>
 
             <TabsContent value="referrals" className="space-y-4 sm:space-y-6">
-              <CountryDistribution countries={countries} />
-              <RecentReferrals referrals={recentReferrals} />
+              <RealTimeStats activeTab="referrals" />
             </TabsContent>
 
             <TabsContent value="bonuses" className="space-y-4 sm:space-y-6">
-              <BonusProgress ambassadorStats={ambassadorStats} />
-              <CommissionTierStatus ambassadorStats={ambassadorStats} />
+              <RealTimeStats activeTab="bonuses" />
             </TabsContent>
 
             <TabsContent value="tools" className="space-y-4 sm:space-y-6">
