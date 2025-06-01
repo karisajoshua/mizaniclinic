@@ -82,6 +82,19 @@ const Index = () => {
                   {user ? "Welcome back! Check your dashboard" : "Join 10,000+ Tanzanians already earning"}
                 </p>
               </div>
+
+              {/* Mobile Apps Coming Soon */}
+              <div className="flex items-center justify-center lg:justify-start space-x-4 pt-4">
+                <img 
+                  src="https://rpkttbmlvjshkbjrmnvo.supabase.co/storage/v1/object/public/mizaniclinic//app_download-removebg-preview.png"
+                  alt="Mobile Apps Download"
+                  className="w-32 h-auto object-contain"
+                />
+                <div className="text-left">
+                  <div className="text-lg font-bold text-white">Mobile apps</div>
+                  <div className="text-sm text-blue-200">coming Soon</div>
+                </div>
+              </div>
             </div>
 
             {/* Right Image */}
@@ -193,6 +206,23 @@ const Index = () => {
               </Button>
             </Link>
           )}
+        </div>
+      </section>
+
+      {/* Mobile Apps Coming Soon - Bottom Section */}
+      <section className="py-12 px-4 bg-white">
+        <div className="container mx-auto max-w-4xl text-center">
+          <div className="flex flex-col items-center space-y-6">
+            <img 
+              src="https://rpkttbmlvjshkbjrmnvo.supabase.co/storage/v1/object/public/mizaniclinic//app_download-removebg-preview.png"
+              alt="Mobile Apps Download"
+              className="w-64 h-auto object-contain"
+            />
+            <div>
+              <h3 className="text-3xl font-black text-tanzania-navy mb-2">Mobile apps coming Soon</h3>
+              <p className="text-lg text-gray-600 font-semibold">Get ready for the ultimate mobile experience</p>
+            </div>
+          </div>
         </div>
       </section>
 
