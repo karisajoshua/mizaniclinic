@@ -1,53 +1,19 @@
 
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, Phone, Users, Calendar, Settings, User, LogIn, UserPlus, LogOut } from "lucide-react";
+import { Menu, Phone, Users, Calendar, Settings, User } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
 
 const MobileHeader = () => {
   const location = useLocation();
-  const { user, signOut, loading } = useAuth();
   
-  // Navigation items for unauthenticated users
-  const publicNavItems = [
-    { href: "/", label: "Home", icon: Phone },
-    { href: "/signin", label: "Sign In", icon: LogIn },
-    { href: "/signup", label: "Sign Up", icon: UserPlus },
-  ];
-
-  // Navigation items for authenticated users
-  const privateNavItems = [
+  const navItems = [
     { href: "/", label: "Home", icon: Phone },
     { href: "/dashboard", label: "Dashboard", icon: User },
+    { href: "/register", label: "Register", icon: Users },
   ];
 
-  const navItems = user ? privateNavItems : publicNavItems;
-
   const isActive = (path: string) => location.pathname === path;
-
-  const handleSignOut = async () => {
-    await signOut();
-  };
-
-  if (loading) {
-    return (
-      <header className="sticky top-0 z-50 w-full bg-gradient-to-r from-tanzania-navy via-tanzania-navy to-blue-900 backdrop-blur-md border-b border-white/10 shadow-xl">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <Link to="/" className="flex items-center space-x-2 group">
-            <div className="w-10 h-10 bg-gradient-to-br from-tanzania-green to-green-400 rounded-xl flex items-center justify-center shadow-lg">
-              <Phone className="w-5 h-5 text-white" />
-            </div>
-            <div className="hidden sm:block">
-              <h1 className="text-xl font-bold text-white">Mizani Clinic</h1>
-              <p className="text-xs text-blue-200 -mt-1">Referral System</p>
-            </div>
-          </Link>
-          <div className="text-white">Loading...</div>
-        </div>
-      </header>
-    );
-  }
 
   return (
     <header className="sticky top-0 z-50 w-full bg-gradient-to-r from-tanzania-navy via-tanzania-navy to-blue-900 backdrop-blur-md border-b border-white/10 shadow-xl">
@@ -97,21 +63,11 @@ const MobileHeader = () => {
                   </Link>
                 );
               })}
-              
-              {user && (
-                <button
-                  onClick={handleSignOut}
-                  className="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 text-blue-100 hover:bg-white/10 hover:text-white w-full text-left"
-                >
-                  <LogOut className="w-5 h-5" />
-                  <span className="font-medium">Sign Out</span>
-                </button>
-              )}
             </nav>
 
             <div className="mt-8 p-4 bg-white/5 rounded-xl border border-white/10">
               <p className="text-blue-200 text-sm text-center">
-                {user ? "Welcome back! Start referring friends today." : "Refer friends and earn TSH 500 per referral!"}
+                Refer friends and earn TSH 500 per referral!
               </p>
             </div>
           </SheetContent>
@@ -136,16 +92,6 @@ const MobileHeader = () => {
               </Link>
             );
           })}
-          
-          {user && (
-            <button
-              onClick={handleSignOut}
-              className="flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200 text-blue-100 hover:bg-white/10 hover:text-white"
-            >
-              <LogOut className="w-4 h-4" />
-              <span className="font-medium">Sign Out</span>
-            </button>
-          )}
         </nav>
       </div>
     </header>
