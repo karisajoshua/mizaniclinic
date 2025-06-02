@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -76,11 +75,26 @@ const Payment = () => {
         .single();
 
       if (receiptError || !receiptData) {
-        toast({
-          title: "Invalid Receipt Code",
-          description: "The receipt code is invalid or has already been used",
-          variant: "destructive"
-        });
+        // Check if the code exists but is already used
+        const { data: usedReceiptData, error: usedReceiptError } = await supabase
+          .from('receipt_codes')
+          .select('*')
+          .eq('code', receiptCode.toUpperCase())
+          .single();
+
+        if (usedReceiptError || !usedReceiptData) {
+          toast({
+            title: "Invalid Receipt Code",
+            description: "Sorry, the receipt number does not exist",
+            variant: "destructive"
+          });
+        } else {
+          toast({
+            title: "Receipt Code Already Used",
+            description: "This receipt code has already been used",
+            variant: "destructive"
+          });
+        }
         setLoading(false);
         return;
       }
