@@ -124,7 +124,7 @@ const Index = () => {
             }, {
               icon: Coins,
               title: "3. Earn",
-              description: "Earn upto Tshs. 88,000/-",
+              description: "Earn upto Tshs. 88,000/- per referral",
               color: "from-orange-500 to-red-500"
             }].map((step, index) => (
               <Card key={index} className="group relative overflow-hidden border-0 bg-white hover:bg-tanzania-grey transition-all duration-300 hover:shadow-2xl transform hover:scale-105 shadow-lg">
