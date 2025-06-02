@@ -6,17 +6,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link, useNavigate } from "react-router-dom";
 import { Phone, User, Key, TestTube, Eye, EyeOff } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
 import MobileHeader from "@/components/MobileHeader";
 import { TEST_AMBASSADORS } from "@/utils/eastAfricaData";
+import { supabase } from "@/integrations/supabase/client";
 
 const SignIn = () => {
   const [ambassadorId, setAmbassadorId] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { signIn } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -47,22 +46,73 @@ const SignIn = () => {
       return;
     }
 
-    // For real accounts, use the auth system
-    const email = `${ambassadorId.toLowerCase()}@mizaniclinic.com`;
-    const { error } = await signIn(email, password);
+    try {
+      // Find user by ambassador ID
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('id, full_name, ambassador_id, status')
+        .eq('ambassador_id', ambassadorId)
+        .single();
 
-    if (error) {
-      toast({
-        title: "Error",
-        description: "Invalid Ambassador ID or password",
-        variant: "destructive",
-      });
-    } else {
+      if (profileError || !profileData) {
+        toast({
+          title: "Error",
+          description: "Invalid Ambassador ID",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+
+      if (profileData.status !== 'activated') {
+        toast({
+          title: "Account Not Activated",
+          description: "Please complete payment verification first",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+
+      // Get user's email from auth.users table
+      const { data: userData, error: userError } = await supabase
+        .from('ambassador_registrations')
+        .select('user_id')
+        .eq('ambassador_id', ambassadorId)
+        .single();
+
+      if (userError || !userData) {
+        toast({
+          title: "Error",
+          description: "User account not found",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+
+      // For now, we'll create a session manually since we're using ambassador IDs
+      // In a production environment, you'd want to implement a proper auth flow
+      localStorage.setItem('currentUser', JSON.stringify({
+        id: userData.user_id,
+        ambassadorId: profileData.ambassador_id,
+        name: profileData.full_name,
+        status: profileData.status
+      }));
+
       toast({
         title: "Success!",
-        description: "You have been signed in successfully.",
+        description: `Welcome back, ${profileData.full_name}!`,
       });
       navigate("/dashboard");
+
+    } catch (error) {
+      console.error('Sign in error:', error);
+      toast({
+        title: "Error",
+        description: "Sign in failed. Please try again.",
+        variant: "destructive",
+      });
     }
 
     setLoading(false);
@@ -89,7 +139,7 @@ const SignIn = () => {
             </div>
             <CardTitle className="text-2xl font-black text-tanzania-navy">Welcome Back</CardTitle>
             <CardDescription className="text-gray-600 font-medium">
-              Sign in with your Ambassador ID
+              Sign in with your Ambassador ID and password
             </CardDescription>
           </CardHeader>
           

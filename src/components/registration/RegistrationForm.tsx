@@ -5,18 +5,24 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { User, MapPin, Key, Phone, CheckCircle, ArrowRight, Globe } from "lucide-react";
+import { User, MapPin, Key, Phone, CheckCircle, ArrowRight, Globe, Lock } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { EAST_AFRICAN_COUNTRIES, COUNTRY_REGIONS } from "@/utils/eastAfricaData";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 
 const RegistrationForm = () => {
   const [formData, setFormData] = useState({
     name: "",
     country: "Tanzania",
     phone: "+255 ",
+    password: "",
+    confirmPassword: "",
     referralCode: "",
     region: ""
   });
+  const [loading, setLoading] = useState(false);
+  const { signUp } = useAuth();
   const navigate = useNavigate();
 
   // Update phone code when country changes
@@ -33,15 +39,51 @@ const RegistrationForm = () => {
 
   const availableRegions = COUNTRY_REGIONS[formData.country] || [];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const generateAmbassadorId = async (region: string, country: string) => {
+    const { data, error } = await supabase.rpc('generate_ambassador_id', {
+      p_region: region,
+      p_country: country
+    });
+
+    if (error) {
+      console.error('Error generating ambassador ID:', error);
+      throw error;
+    }
+
+    return data;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!formData.name || !formData.country || !formData.phone || !formData.referralCode || !formData.region) {
+    setLoading(true);
+
+    if (!formData.name || !formData.country || !formData.phone || !formData.password || !formData.confirmPassword || !formData.referralCode || !formData.region) {
       toast({
         title: "Error",
         description: "Please fill in all required fields",
         variant: "destructive"
       });
+      setLoading(false);
+      return;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      toast({
+        title: "Error",
+        description: "Passwords do not match",
+        variant: "destructive"
+      });
+      setLoading(false);
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      toast({
+        title: "Error",
+        description: "Password must be at least 6 characters long",
+        variant: "destructive"
+      });
+      setLoading(false);
       return;
     }
 
@@ -53,6 +95,7 @@ const RegistrationForm = () => {
         description: "Please enter your phone number after the country code",
         variant: "destructive"
       });
+      setLoading(false);
       return;
     }
 
@@ -64,22 +107,99 @@ const RegistrationForm = () => {
         description: "Referral code must be in format: MCA25-T0001DSM",
         variant: "destructive"
       });
+      setLoading(false);
       return;
     }
 
-    // Store registration data WITHOUT generating referral ID
-    localStorage.setItem('registrationData', JSON.stringify({
-      ...formData,
-      registrationDate: new Date().toISOString()
-    }));
+    try {
+      // Create user account with Supabase Auth
+      const email = `${Date.now()}@mizaniclinic.temp`; // Temporary email since we're using ambassador ID for login
+      const { error: signUpError } = await signUp(email, formData.password, formData.name);
 
-    toast({
-      title: "Registration Successful!",
-      description: "Please proceed to payment to activate your account",
-    });
+      if (signUpError) {
+        toast({
+          title: "Error",
+          description: signUpError.message,
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
 
-    // Navigate to payment page
-    navigate('/payment');
+      // Get the current user
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast({
+          title: "Error",
+          description: "Failed to create user account",
+          variant: "destructive"
+        });
+        setLoading(false);
+        return;
+      }
+
+      // Generate ambassador ID
+      const ambassadorId = await generateAmbassadorId(formData.region, formData.country);
+
+      // Create ambassador registration record
+      const { error: registrationError } = await supabase
+        .from('ambassador_registrations')
+        .insert({
+          user_id: user.id,
+          ambassador_id: ambassadorId,
+          region: formData.region,
+          country: formData.country,
+          referral_code: formData.referralCode,
+          status: 'pending'
+        });
+
+      if (registrationError) {
+        console.error('Registration error:', registrationError);
+        toast({
+          title: "Error",
+          description: "Failed to complete registration",
+          variant: "destructive"
+        });
+        setLoading(false);
+        return;
+      }
+
+      // Update profile with ambassador ID and additional info
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({
+          ambassador_id: ambassadorId,
+          phone: formData.phone,
+          region: formData.region,
+          country: formData.country,
+          referral_code: formData.referralCode,
+          status: 'pending'
+        })
+        .eq('id', user.id);
+
+      if (profileError) {
+        console.error('Profile update error:', profileError);
+      }
+
+      toast({
+        title: "Registration Successful!",
+        description: `Your Ambassador ID: ${ambassadorId}. Please proceed to payment.`,
+      });
+
+      // Navigate to payment page
+      navigate('/payment');
+
+    } catch (error) {
+      console.error('Registration error:', error);
+      toast({
+        title: "Error",
+        description: "Registration failed. Please try again.",
+        variant: "destructive"
+      });
+    }
+
+    setLoading(false);
   };
 
   return (
@@ -135,6 +255,36 @@ const RegistrationForm = () => {
       </div>
 
       <div className="space-y-3">
+        <Label htmlFor="password" className="text-tanzania-navy font-medium flex items-center">
+          <Lock className="w-4 h-4 mr-2 text-tanzania-green" />
+          Password *
+        </Label>
+        <Input
+          id="password"
+          type="password"
+          placeholder="Create a password"
+          value={formData.password}
+          onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
+          className="h-12 border-2 border-tanzania-grey/50 focus:border-tanzania-green rounded-xl transition-all duration-300"
+        />
+      </div>
+
+      <div className="space-y-3">
+        <Label htmlFor="confirmPassword" className="text-tanzania-navy font-medium flex items-center">
+          <Lock className="w-4 h-4 mr-2 text-tanzania-green" />
+          Confirm Password *
+        </Label>
+        <Input
+          id="confirmPassword"
+          type="password"
+          placeholder="Confirm your password"
+          value={formData.confirmPassword}
+          onChange={(e) => setFormData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+          className="h-12 border-2 border-tanzania-grey/50 focus:border-tanzania-green rounded-xl transition-all duration-300"
+        />
+      </div>
+
+      <div className="space-y-3">
         <Label htmlFor="referralCode" className="text-tanzania-navy font-medium flex items-center">
           <Key className="w-4 h-4 mr-2 text-tanzania-green" />
           Referral Code *
@@ -174,8 +324,9 @@ const RegistrationForm = () => {
       <Button 
         type="submit"
         className="w-full h-12 bg-gradient-to-r from-tanzania-green to-green-500 hover:from-green-500 hover:to-tanzania-green text-white text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+        disabled={loading}
       >
-        Complete Registration
+        {loading ? "Creating Account..." : "Complete Registration"}
         <ArrowRight className="ml-2 w-5 h-5" />
       </Button>
     </form>

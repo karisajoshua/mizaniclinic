@@ -25,6 +25,21 @@ export const useAuth = () => {
       setLoading(false);
     });
 
+    // Check for manually stored user (for ambassador ID login)
+    const storedUser = localStorage.getItem('currentUser');
+    if (storedUser && !session) {
+      const userData = JSON.parse(storedUser);
+      // Create a mock user object for compatibility
+      setUser({
+        id: userData.id,
+        email: `${userData.ambassadorId}@mizaniclinic.com`,
+        user_metadata: {
+          ambassador_id: userData.ambassadorId,
+          full_name: userData.name
+        }
+      } as User);
+    }
+
     return () => subscription.unsubscribe();
   }, []);
 
@@ -53,7 +68,16 @@ export const useAuth = () => {
   };
 
   const signOut = async () => {
+    // Clear stored user data
+    localStorage.removeItem('currentUser');
+    localStorage.removeItem('testUser');
+    
     const { error } = await supabase.auth.signOut();
+    
+    // Reset state
+    setUser(null);
+    setSession(null);
+    
     return { error };
   };
 

@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -6,61 +7,158 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, Receipt, CheckCircle, Phone, Copy, CreditCard } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-import { generateReferralId } from "@/utils/regionCodes";
 import MobileHeader from "@/components/MobileHeader";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 const Payment = () => {
-  const [transactionCode, setTransactionCode] = useState("");
+  const [receiptCode, setReceiptCode] = useState("");
+  const [loading, setLoading] = useState(false);
   const [registrationData, setRegistrationData] = useState<any>(null);
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    const data = localStorage.getItem('registrationData');
-    if (!data) {
+    if (!user) {
       navigate('/register');
       return;
     }
-    setRegistrationData(JSON.parse(data));
-  }, [navigate]);
 
-  const handleTransactionVerification = (e: React.FormEvent) => {
+    const fetchRegistrationData = async () => {
+      const { data, error } = await supabase
+        .from('ambassador_registrations')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
+
+      if (error || !data) {
+        console.error('Error fetching registration data:', error);
+        navigate('/register');
+        return;
+      }
+
+      setRegistrationData(data);
+    };
+
+    fetchRegistrationData();
+  }, [user, navigate]);
+
+  const handleReceiptVerification = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!transactionCode) {
+    if (!receiptCode) {
       toast({
         title: "Error",
-        description: "Please enter your transaction code",
+        description: "Please enter your receipt code",
         variant: "destructive"
       });
       return;
     }
 
-    // Store application as pending review (not immediately activated)
-    const applicationData = {
-      ...registrationData,
-      transactionCode,
-      paymentSubmitted: true,
-      status: 'pending_review',
-      submissionDate: new Date().toISOString(),
-    };
+    if (!user || !registrationData) {
+      toast({
+        title: "Error",
+        description: "Registration data not found",
+        variant: "destructive"
+      });
+      return;
+    }
 
-    localStorage.setItem('applicationData', JSON.stringify(applicationData));
-    
-    toast({
-      title: "Payment Code Submitted!",
-      description: "Your application is being processed. A representative will contact you shortly.",
-    });
+    setLoading(true);
 
-    // Navigate to processing page instead of dashboard
-    navigate('/application-processing');
-  };
+    try {
+      // Check if receipt code exists and is available
+      const { data: receiptData, error: receiptError } = await supabase
+        .from('receipt_codes')
+        .select('*')
+        .eq('code', receiptCode.toUpperCase())
+        .eq('status', 'available')
+        .single();
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    toast({
-      title: "Copied!",
-      description: "Account number copied to clipboard",
-    });
+      if (receiptError || !receiptData) {
+        toast({
+          title: "Invalid Receipt Code",
+          description: "The receipt code is invalid or has already been used",
+          variant: "destructive"
+        });
+        setLoading(false);
+        return;
+      }
+
+      // Mark receipt code as used
+      const { error: updateReceiptError } = await supabase
+        .from('receipt_codes')
+        .update({
+          status: 'used',
+          used_by: user.id,
+          used_at: new Date().toISOString()
+        })
+        .eq('code', receiptCode.toUpperCase());
+
+      if (updateReceiptError) {
+        console.error('Error updating receipt code:', updateReceiptError);
+        toast({
+          title: "Error",
+          description: "Failed to process payment verification",
+          variant: "destructive"
+        });
+        setLoading(false);
+        return;
+      }
+
+      // Update ambassador registration status
+      const { error: updateRegistrationError } = await supabase
+        .from('ambassador_registrations')
+        .update({
+          status: 'activated',
+          receipt_code: receiptCode.toUpperCase(),
+          payment_verified_at: new Date().toISOString(),
+          activated_at: new Date().toISOString()
+        })
+        .eq('user_id', user.id);
+
+      if (updateRegistrationError) {
+        console.error('Error updating registration:', updateRegistrationError);
+        toast({
+          title: "Error",
+          description: "Failed to activate account",
+          variant: "destructive"
+        });
+        setLoading(false);
+        return;
+      }
+
+      // Update profile status
+      const { error: updateProfileError } = await supabase
+        .from('profiles')
+        .update({
+          status: 'activated',
+          payment_status: 'confirmed'
+        })
+        .eq('id', user.id);
+
+      if (updateProfileError) {
+        console.error('Error updating profile:', updateProfileError);
+      }
+
+      toast({
+        title: "Payment Confirmed!",
+        description: `Welcome to Mizani Clinic! Your Ambassador ID: ${registrationData.ambassador_id}`,
+      });
+
+      // Navigate to dashboard
+      navigate('/dashboard');
+
+    } catch (error) {
+      console.error('Payment verification error:', error);
+      toast({
+        title: "Error",
+        description: "Payment verification failed. Please try again.",
+        variant: "destructive"
+      });
+    }
+
+    setLoading(false);
   };
 
   if (!registrationData) {
@@ -103,166 +201,118 @@ const Payment = () => {
                 </div>
                 <div>
                   <CardTitle className="text-tanzania-navy text-xl">Registration Successful!</CardTitle>
-                  <CardDescription>Your Mizani Clinic account has been created</CardDescription>
+                  <CardDescription>Your Ambassador ID has been generated</CardDescription>
                 </div>
               </div>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                 <div className="space-y-1">
-                  <span className="font-semibold text-tanzania-navy">Name:</span>
-                  <p className="text-tanzania-text">{registrationData.name}</p>
-                </div>
-                <div className="space-y-1">
-                  <span className="font-semibold text-tanzania-navy">City:</span>
-                  <p className="text-tanzania-text">{registrationData.city}</p>
-                </div>
-                <div className="space-y-1">
-                  <span className="font-semibold text-tanzania-navy">Country:</span>
-                  <p className="text-tanzania-text">{registrationData.country}</p>
+                  <span className="font-semibold text-tanzania-navy">Ambassador ID:</span>
+                  <p className="text-tanzania-text font-mono text-lg font-bold">{registrationData.ambassador_id}</p>
                 </div>
                 <div className="space-y-1">
                   <span className="font-semibold text-tanzania-navy">Region:</span>
                   <p className="text-tanzania-text">{registrationData.region}</p>
                 </div>
                 <div className="space-y-1">
-                  <span className="font-semibold text-tanzania-navy">Phone:</span>
-                  <p className="text-tanzania-text">{registrationData.phone}</p>
+                  <span className="font-semibold text-tanzania-navy">Country:</span>
+                  <p className="text-tanzania-text">{registrationData.country}</p>
                 </div>
                 <div className="space-y-1">
-                  <span className="font-semibold text-tanzania-navy">Used Code:</span>
-                  <p className="text-tanzania-text font-mono">{registrationData.referralCode}</p>
+                  <span className="font-semibold text-tanzania-navy">Used Referral:</span>
+                  <p className="text-tanzania-text font-mono">{registrationData.referral_code}</p>
                 </div>
-              </div>
-              <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                <p className="text-sm text-yellow-800">
-                  <strong>Your Ambassador ID will be generated after payment verification by our team.</strong>
-                </p>
               </div>
             </CardContent>
           </Card>
 
-          {/* Payment Instructions */}
+          {/* Payment Verification */}
           <Card className="border-0 bg-white/80 backdrop-blur-sm shadow-glass hover:shadow-glass-hover transition-all duration-300 animate-scale-in">
             <CardHeader className="text-center">
               <div className="w-20 h-20 bg-gradient-to-br from-tanzania-green to-green-500 rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-xl animate-bounce-gentle">
-                <CreditCard className="w-10 h-10 text-white" />
+                <Receipt className="w-10 h-10 text-white" />
               </div>
-              <CardTitle className="text-2xl sm:text-3xl text-tanzania-navy font-bold">Complete Payment</CardTitle>
+              <CardTitle className="text-2xl sm:text-3xl text-tanzania-navy font-bold">Verify Payment</CardTitle>
               <CardDescription className="text-tanzania-text/70">
-                Pay using Paybill and enter your transaction code below
+                Enter your receipt code to activate your account
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* Paybill Instructions */}
+              {/* Receipt Code Instructions */}
               <Card className="bg-gradient-to-br from-blue-50 to-green-50 border-0 p-6">
                 <div className="text-center">
-                  <div className="w-16 h-16 bg-gradient-to-br from-tanzania-green to-green-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                    <Phone className="w-8 h-8 text-white" />
-                  </div>
                   <h3 className="font-semibold text-tanzania-navy mb-4 text-lg">Payment Instructions</h3>
-                  
-                  <div className="space-y-4">
-                    <div className="bg-white/70 rounded-xl p-4">
-                      <h4 className="font-bold text-tanzania-navy mb-2">How to Pay:</h4>
-                      <ol className="text-left text-sm text-tanzania-text space-y-1">
-                        <li>1. Go to M-Pesa, Tigo Pesa, or Airtel Money</li>
-                        <li>2. Select "Pay Bill" or "Lipa na Namba"</li>
-                        <li>3. Enter the business number below</li>
-                        <li>4. Enter account number below</li>
-                        <li>5. Enter amount: TSH 66,000</li>
-                        <li>6. Complete the payment</li>
-                        <li>7. Enter the transaction code below</li>
-                      </ol>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="bg-white/70 rounded-xl p-4">
-                        <p className="font-semibold text-tanzania-navy text-sm">Business Number:</p>
-                        <div className="flex items-center justify-between">
-                          <p className="text-xl font-bold text-tanzania-green">400200</p>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => copyToClipboard("400200")}
-                            className="h-8"
-                          >
-                            <Copy className="w-3 h-3" />
-                          </Button>
-                        </div>
-                      </div>
-                      <div className="bg-white/70 rounded-xl p-4">
-                        <p className="font-semibold text-tanzania-navy text-sm">Account Number:</p>
-                        <div className="flex items-center justify-between">
-                          <p className="text-xl font-bold text-tanzania-green">MC{registrationData.phone?.slice(-4) || "1234"}</p>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => copyToClipboard(`MC${registrationData.phone?.slice(-4) || "1234"}`)}
-                            className="h-8"
-                          >
-                            <Copy className="w-3 h-3" />
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="bg-white/70 rounded-xl p-4">
-                      <p className="font-semibold text-tanzania-navy text-sm">Amount:</p>
-                      <p className="text-2xl font-bold text-tanzania-green">TSH 66,000</p>
-                    </div>
+                  <p className="text-sm text-tanzania-text mb-4">
+                    Use one of the valid receipt codes below to activate your account:
+                  </p>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs font-mono bg-white/70 rounded-xl p-4 max-h-40 overflow-y-auto">
+                    {["A1F9ZQ", "B3KT82", "C8L5RX", "D4M7VA", "E7Q6PW", "F9A1ZT", "G2X8KY", "H6N0CJ"].map((code) => (
+                      <button
+                        key={code}
+                        onClick={() => setReceiptCode(code)}
+                        className="p-2 bg-tanzania-green/10 hover:bg-tanzania-green/20 rounded-md transition-colors cursor-pointer"
+                      >
+                        {code}
+                      </button>
+                    ))}
                   </div>
+                  <p className="text-xs text-tanzania-text/60 mt-2">
+                    Click any code above to use it, or enter manually below
+                  </p>
                 </div>
               </Card>
 
-              {/* Transaction Code Verification */}
-              <form onSubmit={handleTransactionVerification} className="space-y-6">
+              {/* Receipt Code Form */}
+              <form onSubmit={handleReceiptVerification} className="space-y-6">
                 <div className="space-y-3">
-                  <Label htmlFor="transactionCode" className="text-tanzania-navy font-medium flex items-center">
+                  <Label htmlFor="receiptCode" className="text-tanzania-navy font-medium flex items-center">
                     <Receipt className="w-4 h-4 mr-2 text-tanzania-green" />
-                    Transaction Code *
+                    Receipt Code *
                   </Label>
                   <Input
-                    id="transactionCode"
-                    placeholder="Enter M-Pesa/Tigo/Airtel transaction code"
-                    value={transactionCode}
-                    onChange={(e) => setTransactionCode(e.target.value.toUpperCase())}
-                    className="h-12 border-2 border-tanzania-grey/50 focus:border-tanzania-green rounded-xl transition-all duration-300 font-mono"
+                    id="receiptCode"
+                    placeholder="Enter receipt code (e.g., A1F9ZQ)"
+                    value={receiptCode}
+                    onChange={(e) => setReceiptCode(e.target.value.toUpperCase())}
+                    className="h-12 border-2 border-tanzania-grey/50 focus:border-tanzania-green rounded-xl transition-all duration-300 font-mono text-center text-lg"
+                    maxLength={6}
                   />
                   <p className="text-sm text-tanzania-text/60">
-                    Enter the transaction code you received after making the payment
+                    Enter a valid 6-character receipt code to activate your account
                   </p>
                 </div>
 
                 <Button 
                   type="submit"
                   className="w-full h-12 bg-gradient-to-r from-tanzania-green to-green-500 hover:from-green-500 hover:to-tanzania-green text-white text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                  disabled={loading}
                 >
-                  Submit for Verification
+                  {loading ? "Verifying..." : "Verify Payment & Activate Account"}
                 </Button>
               </form>
 
               <Card className="mt-6 bg-gradient-to-br from-blue-50 to-green-50 border-0 p-4">
                 <h3 className="font-semibold text-tanzania-navy mb-3 flex items-center">
                   <CheckCircle className="w-5 h-5 mr-2 text-tanzania-green" />
-                  After Payment Submission:
+                  After Verification:
                 </h3>
                 <ul className="text-sm text-tanzania-text/70 space-y-2">
                   <li className="flex items-center">
                     <div className="w-2 h-2 bg-tanzania-green rounded-full mr-3"></div>
-                    Our team will verify your payment within 24 hours
+                    Your account will be immediately activated
                   </li>
                   <li className="flex items-center">
                     <div className="w-2 h-2 bg-tanzania-green rounded-full mr-3"></div>
-                    A representative will contact you for confirmation
+                    You can log in using your Ambassador ID and password
                   </li>
                   <li className="flex items-center">
                     <div className="w-2 h-2 bg-tanzania-green rounded-full mr-3"></div>
-                    Your unique Ambassador ID will be generated
+                    Access your dashboard and start earning
                   </li>
                   <li className="flex items-center">
                     <div className="w-2 h-2 bg-tanzania-green rounded-full mr-3"></div>
-                    Dashboard access will be activated after verification
+                    Begin sharing your referral code with others
                   </li>
                 </ul>
               </Card>

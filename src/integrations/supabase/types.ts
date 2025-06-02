@@ -9,6 +9,62 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      ambassador_registrations: {
+        Row: {
+          activated_at: string | null
+          ambassador_id: string
+          country: string
+          created_at: string
+          id: string
+          payment_verified_at: string | null
+          receipt_code: string | null
+          referral_code: string | null
+          region: string
+          registration_date: string
+          status: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          activated_at?: string | null
+          ambassador_id: string
+          country: string
+          created_at?: string
+          id?: string
+          payment_verified_at?: string | null
+          receipt_code?: string | null
+          referral_code?: string | null
+          region: string
+          registration_date?: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          activated_at?: string | null
+          ambassador_id?: string
+          country?: string
+          created_at?: string
+          id?: string
+          payment_verified_at?: string | null
+          receipt_code?: string | null
+          referral_code?: string | null
+          region?: string
+          registration_date?: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ambassador_registrations_receipt_code_fkey"
+            columns: ["receipt_code"]
+            isOneToOne: false
+            referencedRelation: "receipt_codes"
+            referencedColumns: ["code"]
+          },
+        ]
+      }
       ambassador_stats: {
         Row: {
           activation_pack_earnings_usd: number
@@ -359,8 +415,9 @@ export type Database = {
       }
       profiles: {
         Row: {
+          ambassador_id: string | null
+          country: string | null
           created_at: string | null
-          email: string | null
           full_name: string | null
           id: string
           payment_status: string | null
@@ -368,12 +425,14 @@ export type Database = {
           referral_code: string | null
           region: string | null
           registration_date: string | null
+          status: string | null
           updated_at: string | null
           user_referral_id: string | null
         }
         Insert: {
+          ambassador_id?: string | null
+          country?: string | null
           created_at?: string | null
-          email?: string | null
           full_name?: string | null
           id: string
           payment_status?: string | null
@@ -381,12 +440,14 @@ export type Database = {
           referral_code?: string | null
           region?: string | null
           registration_date?: string | null
+          status?: string | null
           updated_at?: string | null
           user_referral_id?: string | null
         }
         Update: {
+          ambassador_id?: string | null
+          country?: string | null
           created_at?: string | null
-          email?: string | null
           full_name?: string | null
           id?: string
           payment_status?: string | null
@@ -394,8 +455,36 @@ export type Database = {
           referral_code?: string | null
           region?: string | null
           registration_date?: string | null
+          status?: string | null
           updated_at?: string | null
           user_referral_id?: string | null
+        }
+        Relationships: []
+      }
+      receipt_codes: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          status: string
+          used_at: string | null
+          used_by: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          status?: string
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          status?: string
+          used_at?: string | null
+          used_by?: string | null
         }
         Relationships: []
       }
@@ -584,6 +673,10 @@ export type Database = {
       calculate_ambassador_stats: {
         Args: { target_user_id: string }
         Returns: undefined
+      }
+      generate_ambassador_id: {
+        Args: { p_region: string; p_country: string }
+        Returns: string
       }
     }
     Enums: {
