@@ -251,7 +251,7 @@ const SignUp = () => {
                   </li>
                   <li className="flex items-center">
                     <div className="w-2 h-2 bg-tanzania-green rounded-full mr-3"></div>
-                    Start earning TSH 500 per referral!
+                    Start earning upto TSH 88000 per referral!
                   </li>
                 </ul>
               </Card>
