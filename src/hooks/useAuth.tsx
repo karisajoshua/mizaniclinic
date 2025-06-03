@@ -12,6 +12,7 @@ export const useAuth = () => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        console.log('Auth state changed:', event, session?.user?.id);
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
@@ -20,6 +21,7 @@ export const useAuth = () => {
 
     // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('Initial session:', session?.user?.id);
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
@@ -37,19 +39,43 @@ export const useAuth = () => {
   };
 
   const signUp = async (email: string, password: string, fullName: string) => {
-    const redirectUrl = `${window.location.origin}/`;
+    console.log('Starting signup process...');
     
-    const { error } = await supabase.auth.signUp({
+    // Sign up without email confirmation
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: redirectUrl,
         data: {
           full_name: fullName,
         },
+        // Skip email confirmation
+        emailRedirectTo: undefined,
       },
     });
-    return { error };
+
+    if (error) {
+      console.error('Signup error:', error);
+      return { error };
+    }
+
+    console.log('Signup successful:', data.user?.id);
+
+    // If user is created but not confirmed, we need to sign them in manually
+    if (data.user && !data.session) {
+      console.log('User created but not confirmed, signing in manually...');
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      
+      if (signInError) {
+        console.error('Auto sign-in error:', signInError);
+        return { error: signInError };
+      }
+    }
+
+    return { error: null };
   };
 
   const signOut = async () => {

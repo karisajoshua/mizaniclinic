@@ -58,6 +58,8 @@ const RegistrationForm = () => {
     e.preventDefault();
     setLoading(true);
 
+    console.log('Registration form submitted with data:', { ...formData, password: '[REDACTED]' });
+
     if (!formData.name || !formData.country || !formData.phone || !formData.password || !formData.confirmPassword || !formData.referralCode || !formData.region) {
       toast({
         title: "Error",
@@ -113,13 +115,15 @@ const RegistrationForm = () => {
     }
 
     try {
+      console.log('Creating user account...');
       // Create user account with Supabase Auth
       const email = `${Date.now()}@mizaniclinic.temp`; // Temporary email since we're using ambassador ID for login
       const { error: signUpError } = await signUp(email, formData.password, formData.name);
 
       if (signUpError) {
+        console.error('Signup error:', signUpError);
         toast({
-          title: "Error",
+          title: "Registration Error",
           description: signUpError.message,
           variant: "destructive",
         });
@@ -127,22 +131,32 @@ const RegistrationForm = () => {
         return;
       }
 
+      console.log('Signup successful, getting current user...');
+      
+      // Wait a moment for auth state to update
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
       // Get the current user
       const { data: { user } } = await supabase.auth.getUser();
+      console.log('Current user after signup:', user?.id);
       
       if (!user) {
+        console.error('No user found after signup');
         toast({
           title: "Error",
-          description: "Failed to create user account",
+          description: "Failed to create user account. Please try again.",
           variant: "destructive"
         });
         setLoading(false);
         return;
       }
 
+      console.log('Generating ambassador ID...');
       // Generate ambassador ID
       const ambassadorId = await generateAmbassadorId(formData.region, formData.country);
+      console.log('Generated ambassador ID:', ambassadorId);
 
+      console.log('Creating ambassador registration record...');
       // Create ambassador registration record
       const { error: registrationError } = await supabase
         .from('ambassador_registrations')
@@ -159,13 +173,14 @@ const RegistrationForm = () => {
         console.error('Registration error:', registrationError);
         toast({
           title: "Error",
-          description: "Failed to complete registration",
+          description: "Failed to complete registration. Please try again.",
           variant: "destructive"
         });
         setLoading(false);
         return;
       }
 
+      console.log('Updating profile...');
       // Update profile with ambassador ID and additional info
       const { error: profileError } = await supabase
         .from('profiles')
@@ -183,6 +198,8 @@ const RegistrationForm = () => {
         console.error('Profile update error:', profileError);
       }
 
+      console.log('Registration completed successfully, navigating to payment...');
+      
       toast({
         title: "Registration Successful!",
         description: `Your Ambassador ID: ${ambassadorId}. Please proceed to payment.`,
