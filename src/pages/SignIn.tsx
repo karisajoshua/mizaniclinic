@@ -5,9 +5,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link, useNavigate } from "react-router-dom";
-import { Phone, User, Key, Eye, EyeOff } from "lucide-react";
+import { Phone, User, Key, TestTube, Eye, EyeOff } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import MobileHeader from "@/components/MobileHeader";
+import { TEST_AMBASSADORS } from "@/utils/eastAfricaData";
 import { supabase } from "@/integrations/supabase/client";
 
 const SignIn = () => {
@@ -17,65 +18,28 @@ const SignIn = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // Real ambassador accounts
-  const REAL_AMBASSADORS = [
-    {
-      ambassadorId: "TO001DSM",
-      password: "Juma427",
-      name: "Juma Mwaka Juma",
-      phone: "+255744100100",
-      region: "Dar es Salaam",
-      country: "Tanzania"
-    },
-    {
-      ambassadorId: "TO002DSM",
-      password: "Margareth839",
-      name: "Margareth Alex Tendwa", 
-      phone: "+255763800300",
-      region: "Dar es Salaam",
-      country: "Tanzania"
-    },
-    {
-      ambassadorId: "TO003DSM",
-      password: "Hussein692",
-      name: "Hussein Kyakalaba",
-      phone: "+255654830826", 
-      region: "Mbezi Luis",
-      country: "Tanzania"
-    },
-    {
-      ambassadorId: "TO004DSM",
-      password: "Mapigano315",
-      name: "Mapigano Hellon Lisso",
-      phone: "+255766580600",
-      region: "Kimara Suka", 
-      country: "Tanzania"
-    }
-  ];
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
-    // Check if it's one of the real ambassador accounts
-    const realAccount = REAL_AMBASSADORS.find(
+    // Check if it's a test account first
+    const testAccount = TEST_AMBASSADORS.find(
       account => account.ambassadorId === ambassadorId && account.password === password
     );
 
-    if (realAccount) {
-      // Store real user data in localStorage for dashboard access
-      localStorage.setItem('currentUser', JSON.stringify({
-        ambassadorId: realAccount.ambassadorId,
-        name: realAccount.name,
-        phone: realAccount.phone,
-        region: realAccount.region,
-        country: realAccount.country,
-        isRealAccount: true
+    if (testAccount) {
+      // Store test user data in localStorage for dashboard access
+      localStorage.setItem('testUser', JSON.stringify({
+        ambassadorId: testAccount.ambassadorId,
+        name: testAccount.name,
+        region: testAccount.region,
+        country: testAccount.country,
+        isTestAccount: true
       }));
 
       toast({
-        title: "Login Successful!",
-        description: `Welcome back, ${realAccount.name}!`,
+        title: "Test Login Successful!",
+        description: `Welcome ${testAccount.name}! You are using a test account.`,
       });
       navigate("/dashboard");
       setLoading(false);
@@ -83,7 +47,7 @@ const SignIn = () => {
     }
 
     try {
-      // Check database for other registered users
+      // Find user by ambassador ID
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('id, full_name, ambassador_id, status')
@@ -93,7 +57,7 @@ const SignIn = () => {
       if (profileError || !profileData) {
         toast({
           title: "Error",
-          description: "Invalid Ambassador ID or password",
+          description: "Invalid Ambassador ID",
           variant: "destructive",
         });
         setLoading(false);
@@ -110,9 +74,27 @@ const SignIn = () => {
         return;
       }
 
-      // Store user data for dashboard access
+      // Get user's email from auth.users table
+      const { data: userData, error: userError } = await supabase
+        .from('ambassador_registrations')
+        .select('user_id')
+        .eq('ambassador_id', ambassadorId)
+        .single();
+
+      if (userError || !userData) {
+        toast({
+          title: "Error",
+          description: "User account not found",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+
+      // For now, we'll create a session manually since we're using ambassador IDs
+      // In a production environment, you'd want to implement a proper auth flow
       localStorage.setItem('currentUser', JSON.stringify({
-        id: profileData.id,
+        id: userData.user_id,
         ambassadorId: profileData.ambassador_id,
         name: profileData.full_name,
         status: profileData.status
@@ -134,6 +116,11 @@ const SignIn = () => {
     }
 
     setLoading(false);
+  };
+
+  const handleTestLogin = (testAccount: typeof TEST_AMBASSADORS[0]) => {
+    setAmbassadorId(testAccount.ambassadorId);
+    setPassword(testAccount.password);
   };
 
   const togglePasswordVisibility = () => {
@@ -166,7 +153,7 @@ const SignIn = () => {
                 <Input
                   id="ambassadorId"
                   type="text"
-                  placeholder="TO001DSM"
+                  placeholder="MCA25-T0001DSM"
                   value={ambassadorId}
                   onChange={(e) => setAmbassadorId(e.target.value.toUpperCase())}
                   required
@@ -211,6 +198,33 @@ const SignIn = () => {
                 {loading ? "Signing In..." : "Sign In"}
               </Button>
             </form>
+
+            {/* Test Accounts Section */}
+            <Card className="bg-gradient-to-br from-blue-50 to-green-50 border-0 p-4">
+              <h3 className="font-bold text-tanzania-navy mb-3 flex items-center">
+                <TestTube className="w-5 h-5 mr-2 text-tanzania-green" />
+                Test Accounts (For Development)
+              </h3>
+              <div className="space-y-2">
+                {TEST_AMBASSADORS.map((account, index) => (
+                  <Button
+                    key={index}
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleTestLogin(account)}
+                    className="w-full text-left justify-start hover:bg-tanzania-green/10 border-tanzania-green/30"
+                  >
+                    <div className="text-left">
+                      <div className="font-semibold text-xs">{account.ambassadorId}</div>
+                      <div className="text-xs text-gray-600">{account.name} - {account.country}</div>
+                    </div>
+                  </Button>
+                ))}
+              </div>
+              <p className="text-xs text-gray-500 mt-2">
+                Click any test account to auto-fill login credentials
+              </p>
+            </Card>
             
             <div className="text-center">
               <p className="text-gray-600">
