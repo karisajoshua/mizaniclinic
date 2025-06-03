@@ -48,28 +48,3 @@ export const COUNTRY_REGIONS: Record<string, string[]> = {
     "Asmara", "Assab", "Keren", "Massawa", "Mendefera", "Barentu"
   ]
 };
-
-// Test ambassador accounts
-export const TEST_AMBASSADORS = [
-  {
-    ambassadorId: "MCA25-T0001DSM",
-    password: "test123",
-    name: "John Mwalimu",
-    region: "Dar es Salaam",
-    country: "Tanzania"
-  },
-  {
-    ambassadorId: "MCA25-K0001NAI", 
-    password: "test123",
-    name: "Grace Wanjiku",
-    region: "Nairobi",
-    country: "Kenya"
-  },
-  {
-    ambassadorId: "MCA25-U0001KAM",
-    password: "test123", 
-    name: "David Mukasa",
-    region: "Kampala",
-    country: "Uganda"
-  }
-];

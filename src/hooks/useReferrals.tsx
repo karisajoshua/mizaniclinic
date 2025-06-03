@@ -7,8 +7,46 @@ export const useReferrals = () => {
   return useQuery({
     queryKey: ['referrals'],
     queryFn: async (): Promise<Referral[]> => {
+      // Check if user is logged in via localStorage (for real ambassadors)
+      const currentUser = localStorage.getItem('currentUser');
+      if (currentUser) {
+        const userData = JSON.parse(currentUser);
+        
+        // For real ambassador accounts, return mock referral data based on their relationships
+        if (userData.isRealAccount) {
+          if (userData.ambassadorId === 'TO001DSM') {
+            return [
+              {
+                name: 'Margareth Alex Tendwa',
+                joinDate: new Date().toISOString().split('T')[0],
+                location: 'Dar es Salaam',
+                status: 'Active'
+              },
+              {
+                name: 'Hussein Kyakalaba', 
+                joinDate: new Date().toISOString().split('T')[0],
+                location: 'Mbezi Luis',
+                status: 'Active'
+              }
+            ];
+          } else if (userData.ambassadorId === 'TO003DSM') {
+            return [
+              {
+                name: 'Mapigano Hellon Lisso',
+                joinDate: new Date().toISOString().split('T')[0], 
+                location: 'Kimara Suka',
+                status: 'Active'
+              }
+            ];
+          } else {
+            return [];
+          }
+        }
+      }
+
+      // Original Supabase logic for other authenticated users
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
+      if (!user) return [];
 
       const { data: referrals, error } = await supabase
         .from('referrals')
