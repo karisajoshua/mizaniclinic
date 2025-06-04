@@ -205,8 +205,18 @@ const RegistrationForm = () => {
         description: `Your Ambassador ID: ${ambassadorId}. Please proceed to payment.`,
       });
 
-      // Navigate to payment page
-      navigate('/payment');
+      // Ensure we're not in a loading state before navigation
+      setLoading(false);
+
+
+      console.log("initiating Navigation to Payments")
+      // Add a small delay to allow the toast to be shown
+      setTimeout(() => {
+        navigate('/payment');
+        console.log("Navigation to Payments triggered")
+      }, 100);
+
+      console.log("NAVIGATION COMPLETE")
 
     } catch (error) {
       console.error('Registration error:', error);
@@ -215,9 +225,10 @@ const RegistrationForm = () => {
         description: "Registration failed. Please try again.",
         variant: "destructive"
       });
+      setLoading(false);
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (

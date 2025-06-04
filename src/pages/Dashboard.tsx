@@ -69,7 +69,7 @@ const Dashboard = () => {
           userReferralId: "" // No referral ID until payment is confirmed
         };
         setUserAccount(mockAccount);
-        setHasCompletedPayment(false);
+        setHasCompletedPayment(true);
       } else {
         // For existing users without registration data
         const mockAccount: UserAccount = {

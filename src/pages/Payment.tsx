@@ -18,10 +18,6 @@ const Payment = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!user) {
-      navigate('/register');
-      return;
-    }
 
     const fetchRegistrationData = async () => {
       const { data, error } = await supabase
@@ -141,6 +137,7 @@ const Payment = () => {
         setLoading(false);
         return;
       }
+      console.log("user", user)
 
       // Update profile status
       const { error: updateProfileError } = await supabase
@@ -174,6 +171,11 @@ const Payment = () => {
 
     setLoading(false);
   };
+
+  if (!user) {
+    navigate('/register');
+    return;
+  }
 
   if (!registrationData) {
     return <div>Loading...</div>;
