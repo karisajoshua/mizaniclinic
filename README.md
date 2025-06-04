@@ -6,7 +6,7 @@ A full-featured referral-based registration and healthcare booking platform tail
 
 ## 🚀 Features
 
-### 🎯 Ambassador User Features:
+### 🎯 Ambassadors User Features:
 
 * Register with a region-based referral code (e.g., `TDSM-AB1234`)
 * Make payments or upload receipts
