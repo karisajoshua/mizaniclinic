@@ -31,19 +31,11 @@ export const REGION_CODES: Record<string, string> = {
   "Unguja South": "UNS"
 };
 
-// Counter for sequential numbering (in a real app, this would be stored in database)
-let ambassadorCounter = 1;
-
+// This function is kept for backward compatibility but now uses the database function
 export const generateAmbassadorId = (region: string): string => {
-  const regionCode = REGION_CODES[region] || "DSM";
-  const memberNumber = ambassadorCounter.toString().padStart(4, '0');
-  ambassadorCounter++;
-  
-  // MCA25 = MIZANI CLINIC AMBASSADOR 2025
-  // T = TANZANIA (will change to KE for Kenya after 1000 members)
-  const countryCode = ambassadorCounter <= 1000 ? "T" : "KE";
-  
-  return `MCA25-${countryCode}${memberNumber}${regionCode}`;
+  // This will be handled by the database function during registration
+  // Returning a placeholder that will be replaced by the actual database-generated ID
+  return "MCA25-000000";
 };
 
 // For backward compatibility, keep the old function name but use new format

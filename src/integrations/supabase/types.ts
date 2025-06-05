@@ -678,6 +678,10 @@ export type Database = {
         Args: { p_region: string; p_country: string }
         Returns: string
       }
+      generate_progressive_ambassador_id: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never

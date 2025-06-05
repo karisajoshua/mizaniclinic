@@ -27,7 +27,7 @@ const ReferralCodeSharing = ({ userAccount }: ReferralCodeSharingProps) => {
   };
 
   const shareWhatsApp = () => {
-    const message = `🎉 Jiunge na Mizani Clinic Ambassador program! Start earning $0.20+ per referral! Use my code: ${userAccount?.userReferralId}. Register here: ${referralLink} 💰🚀`;
+    const message = `🎉 Jiunge na Mizani Clinic Ambassador program! Earn upto Tsh 88,000+ per referral! Use my code: ${userAccount?.userReferralId}. Register here: ${referralLink} 💰🚀`;
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
   };
@@ -40,7 +40,7 @@ const ReferralCodeSharing = ({ userAccount }: ReferralCodeSharingProps) => {
           <span>Share Your Magic Code!</span>
         </CardTitle>
         <CardDescription className="font-semibold text-gray-600 text-sm sm:text-base">
-          Earn $0.20+ for each person who joins using your code
+          Earn upto Tsh 88,000+ for each person who joins using your code
         </CardDescription>
       </CardHeader>
       <CardContent className="px-4 sm:px-6">

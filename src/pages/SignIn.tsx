@@ -1,241 +1,160 @@
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Phone, User, Key, TestTube, Eye, EyeOff } from "lucide-react";
+import { LogIn, Eye, EyeOff, UserCheck } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import MobileHeader from "@/components/MobileHeader";
-import { TEST_AMBASSADORS } from "@/utils/eastAfricaData";
-import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 const SignIn = () => {
-  const [ambassadorId, setAmbassadorId] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
+  const [formData, setFormData] = useState({
+    ambassadorId: "",
+    password: ""
+  });
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const { signIn } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
-    // Check if it's a test account first
-    const testAccount = TEST_AMBASSADORS.find(
-      account => account.ambassadorId === ambassadorId && account.password === password
-    );
-
-    if (testAccount) {
-      // Store test user data in localStorage for dashboard access
-      localStorage.setItem('testUser', JSON.stringify({
-        ambassadorId: testAccount.ambassadorId,
-        name: testAccount.name,
-        region: testAccount.region,
-        country: testAccount.country,
-        isTestAccount: true
-      }));
-
+    if (!formData.ambassadorId || !formData.password) {
       toast({
-        title: "Test Login Successful!",
-        description: `Welcome ${testAccount.name}! You are using a test account.`,
+        title: "Error",
+        description: "Please fill in all fields",
+        variant: "destructive"
       });
-      navigate("/dashboard");
       setLoading(false);
       return;
     }
 
     try {
-      // Find user by ambassador ID
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('id, full_name, ambassador_id, status')
-        .eq('ambassador_id', ambassadorId)
-        .single();
+      // For now, use a temporary email format until proper ambassador ID login is implemented
+      const email = `${formData.ambassadorId.toLowerCase()}@mizaniclinic.temp`;
+      
+      const { error } = await signIn(email, formData.password);
 
-      if (profileError || !profileData) {
+      if (error) {
         toast({
-          title: "Error",
-          description: "Invalid Ambassador ID",
+          title: "Sign In Failed",
+          description: "Invalid Ambassador ID or password. Please check your credentials.",
           variant: "destructive",
         });
         setLoading(false);
         return;
       }
-
-      if (profileData.status !== 'activated') {
-        toast({
-          title: "Account Not Activated",
-          description: "Please complete payment verification first",
-          variant: "destructive",
-        });
-        setLoading(false);
-        return;
-      }
-
-      // Get user's email from auth.users table
-      const { data: userData, error: userError } = await supabase
-        .from('ambassador_registrations')
-        .select('user_id')
-        .eq('ambassador_id', ambassadorId)
-        .single();
-
-      if (userError || !userData) {
-        toast({
-          title: "Error",
-          description: "User account not found",
-          variant: "destructive",
-        });
-        setLoading(false);
-        return;
-      }
-
-      // For now, we'll create a session manually since we're using ambassador IDs
-      // In a production environment, you'd want to implement a proper auth flow
-      localStorage.setItem('currentUser', JSON.stringify({
-        id: userData.user_id,
-        ambassadorId: profileData.ambassador_id,
-        name: profileData.full_name,
-        status: profileData.status
-      }));
 
       toast({
-        title: "Success!",
-        description: `Welcome back, ${profileData.full_name}!`,
+        title: "Welcome Back! 🎉",
+        description: "Successfully signed in to your ambassador dashboard",
       });
-      navigate("/dashboard");
 
+      navigate('/dashboard');
     } catch (error) {
       console.error('Sign in error:', error);
       toast({
         title: "Error",
         description: "Sign in failed. Please try again.",
-        variant: "destructive",
+        variant: "destructive"
       });
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
-  };
-
-  const handleTestLogin = (testAccount: typeof TEST_AMBASSADORS[0]) => {
-    setAmbassadorId(testAccount.ambassadorId);
-    setPassword(testAccount.password);
-  };
-
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-tanzania-grey via-white to-tanzania-grey">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-yellow-50 to-orange-50">
       <MobileHeader />
-      
-      <div className="container mx-auto px-4 py-8 max-w-md">
-        <Card className="border-0 shadow-2xl bg-white/90 backdrop-blur-sm">
-          <CardHeader className="text-center space-y-4">
-            <div className="w-16 h-16 bg-gradient-to-br from-tanzania-green to-tanzania-green-light rounded-2xl flex items-center justify-center mx-auto shadow-xl">
-              <Phone className="w-8 h-8 text-white" />
-            </div>
-            <CardTitle className="text-2xl font-black text-tanzania-navy">Welcome Back</CardTitle>
-            <CardDescription className="text-gray-600 font-medium">
-              Sign in with your Ambassador ID and password
-            </CardDescription>
-          </CardHeader>
-          
-          <CardContent className="space-y-6">
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="ambassadorId" className="text-tanzania-navy font-semibold flex items-center">
-                  <User className="w-4 h-4 mr-2 text-tanzania-green" />
-                  Ambassador ID
-                </Label>
-                <Input
-                  id="ambassadorId"
-                  type="text"
-                  placeholder="MCA25-T0001DSM"
-                  value={ambassadorId}
-                  onChange={(e) => setAmbassadorId(e.target.value.toUpperCase())}
-                  required
-                  className="border-2 border-gray-200 focus:border-tanzania-green font-mono"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="password" className="text-tanzania-navy font-semibold flex items-center">
-                  <Key className="w-4 h-4 mr-2 text-tanzania-green" />
-                  Password
-                </Label>
-                <div className="relative">
-                  <Input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    className="border-2 border-gray-200 focus:border-tanzania-green pr-10"
-                  />
-                  <button
-                    type="button"
-                    onClick={togglePasswordVisibility}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-tanzania-green transition-colors"
-                    aria-label={showPassword ? "Hide password" : "Show password"}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="w-4 h-4" />
-                    ) : (
-                      <Eye className="w-4 h-4" />
-                    )}
-                  </button>
-                </div>
-              </div>
-              
-              <Button
-                type="submit"
-                className="w-full bg-gradient-to-r from-tanzania-green to-tanzania-green-light hover:from-tanzania-green-light hover:to-tanzania-green text-white font-bold py-3 rounded-xl shadow-lg"
-                disabled={loading}
-              >
-                {loading ? "Signing In..." : "Sign In"}
-              </Button>
-            </form>
 
-            {/* Test Accounts Section */}
-            <Card className="bg-gradient-to-br from-blue-50 to-green-50 border-0 p-4">
-              <h3 className="font-bold text-tanzania-navy mb-3 flex items-center">
-                <TestTube className="w-5 h-5 mr-2 text-tanzania-green" />
-                Test Accounts (For Development)
-              </h3>
-              <div className="space-y-2">
-                {TEST_AMBASSADORS.map((account, index) => (
-                  <Button
-                    key={index}
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleTestLogin(account)}
-                    className="w-full text-left justify-start hover:bg-tanzania-green/10 border-tanzania-green/30"
-                  >
-                    <div className="text-left">
-                      <div className="font-semibold text-xs">{account.ambassadorId}</div>
-                      <div className="text-xs text-gray-600">{account.name} - {account.country}</div>
-                    </div>
-                  </Button>
-                ))}
+      <div className="px-4 py-8">
+        <div className="container mx-auto max-w-md">
+          <Card className="border-0 bg-white/80 backdrop-blur-sm shadow-glass hover:shadow-glass-hover transition-all duration-300 animate-scale-in">
+            <CardHeader className="text-center pb-6">
+              <div className="w-20 h-20 bg-gradient-to-br from-tanzania-green to-green-500 rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-xl animate-bounce-gentle">
+                <LogIn className="w-10 h-10 text-white" />
               </div>
-              <p className="text-xs text-gray-500 mt-2">
-                Click any test account to auto-fill login credentials
-              </p>
-            </Card>
-            
-            <div className="text-center">
-              <p className="text-gray-600">
-                Don't have an account?{" "}
-                <Link to="/register" className="text-tanzania-green font-semibold hover:underline">
-                  Register here
+              <CardTitle className="text-2xl sm:text-3xl text-tanzania-navy font-bold">Welcome Back</CardTitle>
+              <CardDescription className="text-tanzania-text/70">
+                Sign in to your ambassador dashboard
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="space-y-3">
+                  <Label htmlFor="ambassadorId" className="text-tanzania-navy font-medium flex items-center">
+                    <UserCheck className="w-4 h-4 mr-2 text-tanzania-green" />
+                    Ambassador ID *
+                  </Label>
+                  <Input
+                    id="ambassadorId"
+                    placeholder="MCA25-000001"
+                    value={formData.ambassadorId}
+                    onChange={(e) => setFormData(prev => ({ ...prev, ambassadorId: e.target.value.toUpperCase() }))}
+                    className="h-12 border-2 border-tanzania-grey/50 focus:border-tanzania-green rounded-xl transition-all duration-300 font-mono"
+                  />
+                </div>
+
+                <div className="space-y-3">
+                  <Label htmlFor="password" className="text-tanzania-navy font-medium flex items-center">
+                    <div className="w-4 h-4 mr-2 bg-tanzania-green rounded-full"></div>
+                    Password *
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="Enter your password"
+                      value={formData.password}
+                      onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
+                      className="h-12 border-2 border-tanzania-grey/50 focus:border-tanzania-green rounded-xl transition-all duration-300 pr-12"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-tanzania-grey hover:text-tanzania-green transition-colors"
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="w-5 h-5" />
+                      ) : (
+                        <Eye className="w-5 h-5" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                <Button 
+                  type="submit"
+                  className="w-full h-12 bg-gradient-to-r from-tanzania-green to-green-500 hover:from-green-500 hover:to-tanzania-green text-white text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                  disabled={loading}
+                >
+                  {loading ? "Signing In..." : "Sign In"}
+                  <LogIn className="ml-2 w-5 h-5" />
+                </Button>
+              </form>
+
+              <div className="text-center space-y-4">
+                <p className="text-sm text-tanzania-text/60">
+                  Don't have an account?
+                </p>
+                <Link to="/register">
+                  <Button 
+                    variant="outline" 
+                    className="w-full h-12 border-2 border-tanzania-green text-tanzania-green hover:bg-tanzania-green hover:text-white rounded-xl font-semibold transition-all duration-300"
+                  >
+                    Create Ambassador Account
+                  </Button>
                 </Link>
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
