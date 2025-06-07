@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { CreditCard, CheckCircle, Receipt, ArrowLeft, User, MapPin, Key } from "lucide-react";
+import { CreditCard, CheckCircle, Receipt, ArrowLeft, User, MapPin } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import MobileHeader from "@/components/MobileHeader";
 import ProgressIndicator from "@/components/registration/ProgressIndicator";
@@ -233,7 +233,7 @@ const Payment = () => {
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-tanzania-text/70 flex items-center">
-                        <Key className="w-4 h-4 mr-2 text-tanzania-green" />
+                        <CheckCircle className="w-4 h-4 mr-2 text-tanzania-green" />
                         Referral Code Used:
                       </span>
                       <span className="font-mono font-semibold text-tanzania-green">{registrationData.referralCode}</span>
@@ -244,12 +244,6 @@ const Payment = () => {
                         Region:
                       </span>
                       <span className="font-semibold text-tanzania-navy">{registrationData.region}, {registrationData.country}</span>
-                    </div>
-                    <div className="border-t border-tanzania-green/20 pt-3 mt-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-tanzania-text/70 font-medium">Your Ambassador ID:</span>
-                        <span className="font-mono font-bold text-lg text-tanzania-green">{registrationData.ambassadorId}</span>
-                      </div>
                     </div>
                   </div>
                 </Card>
