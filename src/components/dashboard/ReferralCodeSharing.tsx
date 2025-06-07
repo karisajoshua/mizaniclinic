@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Share2, Copy, QrCode } from "lucide-react";
@@ -14,7 +13,7 @@ interface ReferralCodeSharingProps {
 const ReferralCodeSharing = ({ userAccount }: ReferralCodeSharingProps) => {
   const [showQR, setShowQR] = useState(false);
   
-  const referralLink = `${window.location.origin}/signup?ref=${userAccount?.userReferralId}`;
+  const referralLink = `${window.location.origin}/register?ref=${userAccount?.userReferralId}`;
 
   const copyReferralCode = () => {
     if (userAccount?.userReferralId) {
