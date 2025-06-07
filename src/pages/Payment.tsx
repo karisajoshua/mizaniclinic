@@ -58,7 +58,7 @@ const Payment = () => {
       }
 
       if (profile && profile.registration_data) {
-        setRegistrationData(profile.registration_data as RegistrationData);
+        setRegistrationData(profile.registration_data as unknown as RegistrationData);
       }
     } catch (error) {
       console.error('Error:', error);

@@ -59,7 +59,7 @@ const RegistrationForm = () => {
 
     try {
       // First create the user account
-      const { data: authData, error: authError } = await signUp(formData.email, formData.password, formData.fullName);
+      const { error: authError } = await signUp(formData.email, formData.password, formData.fullName);
 
       if (authError) {
         toast({
@@ -71,7 +71,10 @@ const RegistrationForm = () => {
         return;
       }
 
-      if (authData.user) {
+      // Get current user after signup
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (user) {
         // Generate ambassador ID using the database function
         const { data: ambassadorIdResult, error: idError } = await supabase
           .rpc('generate_ambassador_id', {
@@ -96,7 +99,7 @@ const RegistrationForm = () => {
         const { error: regError } = await supabase
           .from('ambassador_registrations')
           .insert({
-            user_id: authData.user.id,
+            user_id: user.id,
             ambassador_id: ambassadorId,
             region: formData.region,
             country: formData.country,
@@ -124,7 +127,7 @@ const RegistrationForm = () => {
               registrationDate: new Date().toISOString()
             }
           })
-          .eq('id', authData.user.id);
+          .eq('id', user.id);
 
         if (profileError) {
           console.error('Error updating profile:', profileError);
@@ -134,7 +137,7 @@ const RegistrationForm = () => {
         const registrationData = {
           ...formData,
           ambassadorId,
-          userId: authData.user.id,
+          userId: user.id,
           registrationDate: new Date().toISOString()
         };
         

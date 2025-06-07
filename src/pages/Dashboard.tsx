@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -81,7 +82,7 @@ const Dashboard = () => {
         };
 
         setUserAccount(accountData);
-        setHasCompletedPayment(profile.payment_status === 'confirmed' && profile.ambassador_id);
+        setHasCompletedPayment(profile.payment_status === 'confirmed' && Boolean(profile.ambassador_id));
 
         // Update localStorage with current data
         localStorage.setItem('userAccount', JSON.stringify({
