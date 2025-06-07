@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -269,8 +268,8 @@ const RegistrationForm = () => {
           </SelectTrigger>
           <SelectContent className="max-h-60 bg-white/95 backdrop-blur-sm">
             {EAST_AFRICAN_COUNTRIES.map((country) => (
-              <SelectItem key={country} value={country} className="hover:bg-tanzania-green/10">
-                {country}
+              <SelectItem key={country.name} value={country.name} className="hover:bg-tanzania-green/10">
+                {country.name}
               </SelectItem>
             ))}
           </SelectContent>
