@@ -1,66 +1,53 @@
+
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { User, MapPin, Key, Phone, CheckCircle, ArrowRight, Globe, Lock, Eye, EyeOff } from "lucide-react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { User, MapPin, Key, Phone, CheckCircle, ArrowRight, Eye, EyeOff } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-import { EAST_AFRICAN_COUNTRIES, COUNTRY_REGIONS } from "@/utils/eastAfricaData";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { EAST_AFRICAN_COUNTRIES, COUNTRY_REGIONS } from "@/utils/eastAfricaData";
 
 const RegistrationForm = () => {
   const [formData, setFormData] = useState({
-    name: "",
-    country: "Tanzania",
-    phone: "+255 ",
+    fullName: "",
+    email: "",
     password: "",
-    confirmPassword: "",
     referralCode: "",
-    region: ""
+    region: "",
+    country: "Tanzania",
+    phone: ""
   });
-  const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
   const { signUp } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
-  // Update phone code when country changes
-  useEffect(() => {
-    const selectedCountry = EAST_AFRICAN_COUNTRIES.find(c => c.name === formData.country);
-    if (selectedCountry) {
-      setFormData(prev => ({ 
-        ...prev, 
-        phone: `${selectedCountry.phoneCode} `,
-        region: "" // Reset region when country changes
-      }));
+  // Pre-fill referral code from URL if available
+  useState(() => {
+    const refCode = searchParams.get('ref');
+    if (refCode) {
+      setFormData(prev => ({ ...prev, referralCode: refCode }));
     }
-  }, [formData.country]);
+  });
 
-  const availableRegions = COUNTRY_REGIONS[formData.country] || [];
-
-  const generateAmbassadorId = async (region: string, country: string) => {
-    const { data, error } = await supabase.rpc('generate_ambassador_id', {
-      p_region: region,
-      p_country: country
-    });
-
-    if (error) {
-      console.error('Error generating ambassador ID:', error);
-      throw error;
-    }
-
-    return data;
+  const handleCountryChange = (country: string) => {
+    setFormData(prev => ({ 
+      ...prev, 
+      country, 
+      region: "" // Reset region when country changes
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
-    console.log('Registration form submitted with data:', { ...formData, password: '[REDACTED]' });
-
-    if (!formData.name || !formData.country || !formData.phone || !formData.password || !formData.confirmPassword || !formData.referralCode || !formData.region) {
+    if (!formData.fullName || !formData.email || !formData.password || !formData.referralCode || !formData.region || !formData.phone) {
       toast({
         title: "Error",
         description: "Please fill in all required fields",
@@ -70,154 +57,97 @@ const RegistrationForm = () => {
       return;
     }
 
-    if (formData.password !== formData.confirmPassword) {
-      toast({
-        title: "Error",
-        description: "Passwords do not match",
-        variant: "destructive"
-      });
-      setLoading(false);
-      return;
-    }
-
-    if (formData.password.length < 6) {
-      toast({
-        title: "Error",
-        description: "Password must be at least 6 characters long",
-        variant: "destructive"
-      });
-      setLoading(false);
-      return;
-    }
-
-    // Validate phone number has more than just country code
-    const selectedCountry = EAST_AFRICAN_COUNTRIES.find(c => c.name === formData.country);
-    if (selectedCountry && formData.phone.trim() === selectedCountry.phoneCode.trim()) {
-      toast({
-        title: "Error",
-        description: "Please enter your phone number after the country code",
-        variant: "destructive"
-      });
-      setLoading(false);
-      return;
-    }
-
-    // Validate referral code format (MCA25-T0001DSM)
-    const referralCodeRegex = /^MCA25-[A-Z]\d{4}[A-Z]{3}$/;
-    if (!referralCodeRegex.test(formData.referralCode)) {
-      toast({
-        title: "Invalid Referral Code",
-        description: "Referral code must be in format: MCA25-T0001DSM",
-        variant: "destructive"
-      });
-      setLoading(false);
-      return;
-    }
-
     try {
-      console.log('Creating user account...');
-      // Create user account with Supabase Auth
-      const email = `${Date.now()}@mizaniclinic.temp`; // Temporary email since we're using ambassador ID for login
-      const { error: signUpError } = await signUp(email, formData.password, formData.name);
+      // First create the user account
+      const { data: authData, error: authError } = await signUp(formData.email, formData.password, formData.fullName);
 
-      if (signUpError) {
-        console.error('Signup error:', signUpError);
+      if (authError) {
         toast({
-          title: "Registration Error",
-          description: signUpError.message,
+          title: "Error",
+          description: authError.message,
           variant: "destructive",
         });
         setLoading(false);
         return;
       }
 
-      console.log('Signup successful, getting current user...');
-      
-      // Wait a moment for auth state to update
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Get the current user
-      const { data: { user } } = await supabase.auth.getUser();
-      console.log('Current user after signup:', user?.id);
-      
-      if (!user) {
-        console.error('No user found after signup');
+      if (authData.user) {
+        // Generate ambassador ID using the database function
+        const { data: ambassadorIdResult, error: idError } = await supabase
+          .rpc('generate_ambassador_id', {
+            p_region: formData.region,
+            p_country: formData.country
+          });
+
+        if (idError) {
+          console.error('Error generating ambassador ID:', idError);
+          toast({
+            title: "Error",
+            description: "Failed to generate ambassador ID. Please try again.",
+            variant: "destructive"
+          });
+          setLoading(false);
+          return;
+        }
+
+        const ambassadorId = ambassadorIdResult;
+
+        // Create ambassador registration record
+        const { error: regError } = await supabase
+          .from('ambassador_registrations')
+          .insert({
+            user_id: authData.user.id,
+            ambassador_id: ambassadorId,
+            region: formData.region,
+            country: formData.country,
+            referral_code: formData.referralCode,
+            status: 'pending'
+          });
+
+        if (regError) {
+          console.error('Error creating registration:', regError);
+        }
+
+        // Update user profile
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .update({
+            full_name: formData.fullName,
+            phone: formData.phone,
+            region: formData.region,
+            country: formData.country,
+            ambassador_id: ambassadorId,
+            referral_code: formData.referralCode,
+            registration_data: {
+              ...formData,
+              ambassadorId,
+              registrationDate: new Date().toISOString()
+            }
+          })
+          .eq('id', authData.user.id);
+
+        if (profileError) {
+          console.error('Error updating profile:', profileError);
+        }
+
+        // Store registration data for the payment page
+        const registrationData = {
+          ...formData,
+          ambassadorId,
+          userId: authData.user.id,
+          registrationDate: new Date().toISOString()
+        };
+        
+        localStorage.setItem('registrationData', JSON.stringify(registrationData));
+
         toast({
-          title: "Error",
-          description: "Failed to create user account. Please try again.",
-          variant: "destructive"
-        });
-        setLoading(false);
-        return;
-      }
-
-      console.log('Generating ambassador ID...');
-      // Generate ambassador ID
-      const ambassadorId = await generateAmbassadorId(formData.region, formData.country);
-      console.log('Generated ambassador ID:', ambassadorId);
-
-      console.log('Creating ambassador registration record...');
-      // Create ambassador registration record
-      const { error: registrationError } = await supabase
-        .from('ambassador_registrations')
-        .insert({
-          user_id: user.id,
-          ambassador_id: ambassadorId,
-          region: formData.region,
-          country: formData.country,
-          referral_code: formData.referralCode,
-          status: 'pending'
+          title: "Registration Successful!",
+          description: `Your Ambassador ID: ${ambassadorId}. Please complete payment to activate your account.`,
         });
 
-      if (registrationError) {
-        console.error('Registration error:', registrationError);
-        toast({
-          title: "Error",
-          description: "Failed to complete registration. Please try again.",
-          variant: "destructive"
-        });
-        setLoading(false);
-        return;
-      }
-
-      console.log('Updating profile...');
-      // Update profile with ambassador ID and additional info
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .update({
-          ambassador_id: ambassadorId,
-          phone: formData.phone,
-          region: formData.region,
-          country: formData.country,
-          referral_code: formData.referralCode,
-          status: 'pending'
-        })
-        .eq('id', user.id);
-
-      if (profileError) {
-        console.error('Profile update error:', profileError);
-      }
-
-      console.log('Registration completed successfully, navigating to payment...');
-      
-      toast({
-        title: "Registration Successful!",
-        description: `Your Ambassador ID: ${ambassadorId}. Please proceed to payment.`,
-      });
-
-      // Ensure we're not in a loading state before navigation
-      setLoading(false);
-
-
-      console.log("initiating Navigation to Payments")
-      // Add a small delay to allow the toast to be shown
-      setTimeout(() => {
+        // Navigate to payment page
         navigate('/payment');
-        console.log("Navigation to Payments triggered")
-      }, 100);
-
-      console.log("NAVIGATION COMPLETE")
-
+      }
     } catch (error) {
       console.error('Registration error:', error);
       toast({
@@ -225,67 +155,47 @@ const RegistrationForm = () => {
         description: "Registration failed. Please try again.",
         variant: "destructive"
       });
-      setLoading(false);
     } finally {
       setLoading(false);
     }
   };
 
+  const availableRegions = COUNTRY_REGIONS[formData.country] || [];
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-3">
-        <Label htmlFor="name" className="text-tanzania-navy font-medium flex items-center">
+        <Label htmlFor="fullName" className="text-tanzania-navy font-medium flex items-center">
           <User className="w-4 h-4 mr-2 text-tanzania-green" />
-          Name *
+          Full Name *
         </Label>
         <Input
-          id="name"
-          placeholder="Enter your name"
-          value={formData.name}
-          onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+          id="fullName"
+          placeholder="Enter your full name"
+          value={formData.fullName}
+          onChange={(e) => setFormData(prev => ({ ...prev, fullName: e.target.value }))}
           className="h-12 border-2 border-tanzania-grey/50 focus:border-tanzania-green rounded-xl transition-all duration-300"
         />
       </div>
 
       <div className="space-y-3">
-        <Label htmlFor="country" className="text-tanzania-navy font-medium flex items-center">
-          <Globe className="w-4 h-4 mr-2 text-tanzania-green" />
-          Country *
-        </Label>
-        <Select value={formData.country} onValueChange={(value) => setFormData(prev => ({ ...prev, country: value }))}>
-          <SelectTrigger className="h-12 border-2 border-tanzania-grey/50 focus:border-tanzania-green rounded-xl transition-all duration-300">
-            <SelectValue placeholder="Select your country" />
-          </SelectTrigger>
-          <SelectContent className="max-h-60 bg-white/95 backdrop-blur-sm">
-            {EAST_AFRICAN_COUNTRIES.map((country) => (
-              <SelectItem key={country.code} value={country.name} className="hover:bg-tanzania-green/10">
-                {country.name} ({country.phoneCode})
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="space-y-3">
-        <Label htmlFor="phone" className="text-tanzania-navy font-medium flex items-center">
+        <Label htmlFor="email" className="text-tanzania-navy font-medium flex items-center">
           <Phone className="w-4 h-4 mr-2 text-tanzania-green" />
-          Phone Number *
+          Email *
         </Label>
         <Input
-          id="phone"
-          placeholder="XXX XXX XXX"
-          value={formData.phone}
-          onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+          id="email"
+          type="email"
+          placeholder="Enter your email"
+          value={formData.email}
+          onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
           className="h-12 border-2 border-tanzania-grey/50 focus:border-tanzania-green rounded-xl transition-all duration-300"
         />
-        <p className="text-sm text-tanzania-text/60">
-          Country code is automatically added based on your selected country
-        </p>
       </div>
 
       <div className="space-y-3">
         <Label htmlFor="password" className="text-tanzania-navy font-medium flex items-center">
-          <Lock className="w-4 h-4 mr-2 text-tanzania-green" />
+          <Key className="w-4 h-4 mr-2 text-tanzania-green" />
           Password *
         </Label>
         <div className="relative">
@@ -295,6 +205,7 @@ const RegistrationForm = () => {
             placeholder="Create a password"
             value={formData.password}
             onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
+            minLength={6}
             className="h-12 border-2 border-tanzania-grey/50 focus:border-tanzania-green rounded-xl transition-all duration-300 pr-12"
           />
           <button
@@ -313,32 +224,17 @@ const RegistrationForm = () => {
       </div>
 
       <div className="space-y-3">
-        <Label htmlFor="confirmPassword" className="text-tanzania-navy font-medium flex items-center">
-          <Lock className="w-4 h-4 mr-2 text-tanzania-green" />
-          Confirm Password *
+        <Label htmlFor="phone" className="text-tanzania-navy font-medium flex items-center">
+          <Phone className="w-4 h-4 mr-2 text-tanzania-green" />
+          Phone Number *
         </Label>
-        <div className="relative">
-          <Input
-            id="confirmPassword"
-            type={showConfirmPassword ? "text" : "password"}
-            placeholder="Confirm your password"
-            value={formData.confirmPassword}
-            onChange={(e) => setFormData(prev => ({ ...prev, confirmPassword: e.target.value }))}
-            className="h-12 border-2 border-tanzania-grey/50 focus:border-tanzania-green rounded-xl transition-all duration-300 pr-12"
-          />
-          <button
-            type="button"
-            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-            className="absolute inset-y-0 right-0 pr-3 flex items-center text-tanzania-grey hover:text-tanzania-green transition-colors"
-            aria-label={showConfirmPassword ? "Hide password" : "Show password"}
-          >
-            {showConfirmPassword ? (
-              <EyeOff className="w-5 h-5" />
-            ) : (
-              <Eye className="w-5 h-5" />
-            )}
-          </button>
-        </div>
+        <Input
+          id="phone"
+          placeholder="+255 XXX XXX XXX"
+          value={formData.phone}
+          onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+          className="h-12 border-2 border-tanzania-grey/50 focus:border-tanzania-green rounded-xl transition-all duration-300"
+        />
       </div>
 
       <div className="space-y-3">
@@ -360,9 +256,28 @@ const RegistrationForm = () => {
       </div>
 
       <div className="space-y-3">
+        <Label htmlFor="country" className="text-tanzania-navy font-medium flex items-center">
+          <MapPin className="w-4 h-4 mr-2 text-tanzania-green" />
+          Country *
+        </Label>
+        <Select value={formData.country} onValueChange={handleCountryChange}>
+          <SelectTrigger className="h-12 border-2 border-tanzania-grey/50 focus:border-tanzania-green rounded-xl transition-all duration-300">
+            <SelectValue placeholder="Select your country" />
+          </SelectTrigger>
+          <SelectContent className="max-h-60 bg-white/95 backdrop-blur-sm">
+            {EAST_AFRICAN_COUNTRIES.map((country) => (
+              <SelectItem key={country} value={country} className="hover:bg-tanzania-green/10">
+                {country}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-3">
         <Label htmlFor="region" className="text-tanzania-navy font-medium flex items-center">
           <MapPin className="w-4 h-4 mr-2 text-tanzania-green" />
-          Region *
+          Region/City *
         </Label>
         <Select value={formData.region} onValueChange={(value) => setFormData(prev => ({ ...prev, region: value }))}>
           <SelectTrigger className="h-12 border-2 border-tanzania-grey/50 focus:border-tanzania-green rounded-xl transition-all duration-300">

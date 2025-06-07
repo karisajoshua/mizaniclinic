@@ -14,6 +14,7 @@ import RealTimeStats from "@/components/dashboard/RealTimeStats";
 import type { UserAccount } from "@/types/dashboard";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const Dashboard = () => {
   const [userAccount, setUserAccount] = useState<UserAccount | null>(null);
@@ -31,7 +32,6 @@ const Dashboard = () => {
         description: "Your appointment has been confirmed. You'll receive a confirmation email shortly.",
       });
       setActiveTab("appointments");
-      // Clean up URL parameters
       navigate('/dashboard', { replace: true });
     } else if (searchParams.get('appointment_cancelled') === 'true') {
       toast({
@@ -40,7 +40,6 @@ const Dashboard = () => {
         variant: "destructive",
       });
       setActiveTab("appointments");
-      // Clean up URL parameters
       navigate('/dashboard', { replace: true });
     }
   }, [searchParams, navigate]);
@@ -52,36 +51,81 @@ const Dashboard = () => {
     }
 
     if (user) {
-      // Check if user has completed payment and has a referral ID
-      const storedUserAccount = localStorage.getItem('userAccount');
-      const registrationData = localStorage.getItem('registrationData');
-      
-      if (storedUserAccount) {
-        const accountData = JSON.parse(storedUserAccount);
-        // Only consider payment complete if they have a userReferralId (generated after payment)
-        setUserAccount(accountData);
-        setHasCompletedPayment(accountData.paymentConfirmed && accountData.userReferralId);
-      } else if (registrationData) {
-        const regData = JSON.parse(registrationData);
-        const mockAccount: UserAccount = {
-          fullName: user.user_metadata?.full_name || regData.fullName || "User",
-          region: regData.region || "Dar es Salaam",
-          userReferralId: "" // No referral ID until payment is confirmed
-        };
-        setUserAccount(mockAccount);
-        setHasCompletedPayment(true);
-      } else {
-        // For existing users without registration data
-        const mockAccount: UserAccount = {
-          fullName: user.user_metadata?.full_name || "User",
-          region: "Dar es Salaam",
-          userReferralId: `MCA25-T0001DSM`
-        };
-        setUserAccount(mockAccount);
-        setHasCompletedPayment(true); // Assume existing users have paid
-      }
+      fetchUserData();
     }
   }, [user, loading, navigate]);
+
+  const fetchUserData = async () => {
+    if (!user) return;
+
+    try {
+      // Fetch user profile from database
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+
+      if (profileError) {
+        console.error('Error fetching profile:', profileError);
+        // Fallback to localStorage or default data
+        handleFallbackData();
+        return;
+      }
+
+      if (profile) {
+        const accountData: UserAccount = {
+          fullName: profile.full_name || user.user_metadata?.full_name || "User",
+          region: profile.region || "Dar es Salaam",
+          userReferralId: profile.user_referral_id || profile.ambassador_id || ""
+        };
+
+        setUserAccount(accountData);
+        setHasCompletedPayment(profile.payment_status === 'confirmed' && profile.ambassador_id);
+
+        // Update localStorage with current data
+        localStorage.setItem('userAccount', JSON.stringify({
+          ...accountData,
+          paymentConfirmed: profile.payment_status === 'confirmed'
+        }));
+      } else {
+        handleFallbackData();
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+      handleFallbackData();
+    }
+  };
+
+  const handleFallbackData = () => {
+    // Check localStorage as fallback
+    const storedUserAccount = localStorage.getItem('userAccount');
+    const registrationData = localStorage.getItem('registrationData');
+    
+    if (storedUserAccount) {
+      const accountData = JSON.parse(storedUserAccount);
+      setUserAccount(accountData);
+      setHasCompletedPayment(accountData.paymentConfirmed && accountData.userReferralId);
+    } else if (registrationData) {
+      const regData = JSON.parse(registrationData);
+      const mockAccount: UserAccount = {
+        fullName: regData.fullName || "User",
+        region: regData.region || "Dar es Salaam",
+        userReferralId: regData.ambassadorId || ""
+      };
+      setUserAccount(mockAccount);
+      setHasCompletedPayment(false); // No payment confirmed yet
+    } else {
+      // Create default account for existing users
+      const mockAccount: UserAccount = {
+        fullName: user?.user_metadata?.full_name || "User",
+        region: "Dar es Salaam",
+        userReferralId: "MCA25-T0001DSM" // Default format
+      };
+      setUserAccount(mockAccount);
+      setHasCompletedPayment(true); // Assume existing users have paid
+    }
+  };
 
   if (loading) {
     return (

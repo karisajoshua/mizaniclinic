@@ -424,6 +424,7 @@ export type Database = {
           phone: string | null
           referral_code: string | null
           region: string | null
+          registration_data: Json | null
           registration_date: string | null
           status: string | null
           updated_at: string | null
@@ -439,6 +440,7 @@ export type Database = {
           phone?: string | null
           referral_code?: string | null
           region?: string | null
+          registration_data?: Json | null
           registration_date?: string | null
           status?: string | null
           updated_at?: string | null
@@ -454,6 +456,7 @@ export type Database = {
           phone?: string | null
           referral_code?: string | null
           region?: string | null
+          registration_data?: Json | null
           registration_date?: string | null
           status?: string | null
           updated_at?: string | null

@@ -28,17 +28,54 @@ export const REGION_CODES: Record<string, string> = {
   "Tabora": "TAB",
   "Tanga": "TAN",
   "Unguja North": "UNN",
-  "Unguja South": "UNS"
+  "Unguja South": "UNS",
+  // Kenya regions
+  "Nairobi": "NAI",
+  "Mombasa": "MOM",
+  "Kisumu": "KIS",
+  "Nakuru": "NAK",
+  "Eldoret": "ELD",
+  // Uganda regions
+  "Kampala": "KAM",
+  "Gulu": "GUL",
+  "Jinja": "JIN",
+  "Mbarara": "MBA",
+  // Rwanda regions
+  "Kigali": "KIG",
+  "Butare": "BUT",
+  "Gisenyi": "GIS",
+  // Other East African cities
+  "Bujumbura": "BUJ",
+  "Juba": "JUB",
+  "Addis Ababa": "ADD",
+  "Mogadishu": "MOG",
+  "Djibouti City": "DJI",
+  "Asmara": "ASM"
 };
 
-// This function is kept for backward compatibility but now uses the database function
-export const generateAmbassadorId = (region: string): string => {
+export const COUNTRY_CODES: Record<string, string> = {
+  "Tanzania": "T",
+  "Kenya": "K",
+  "Uganda": "U",
+  "Rwanda": "R",
+  "Burundi": "B",
+  "South Sudan": "S",
+  "Ethiopia": "E",
+  "Somalia": "O",
+  "Djibouti": "D",
+  "Eritrea": "A"
+};
+
+// This function now uses the database function for proper ID generation
+export const generateAmbassadorId = (region: string, country: string = "Tanzania"): string => {
   // This will be handled by the database function during registration
   // Returning a placeholder that will be replaced by the actual database-generated ID
-  return "MCA25-000000";
+  const countryCode = COUNTRY_CODES[country] || "T";
+  const regionCode = REGION_CODES[region] || "GEN";
+  return `MCA25-${countryCode}0001${regionCode}`;
 };
 
 // For backward compatibility, keep the old function name but use new format
-export const generateReferralId = (region: string): string => {
-  return generateAmbassadorId(region);
+export const generateReferralId = (region: string, country: string = "Tanzania"): string => {
+  return generateAmbassadorId(region, country);
 };

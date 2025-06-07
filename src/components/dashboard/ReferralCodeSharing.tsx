@@ -21,7 +21,7 @@ const ReferralCodeSharing = ({ userAccount }: ReferralCodeSharingProps) => {
       navigator.clipboard.writeText(userAccount.userReferralId);
       toast({
         title: "Copied! 🎉",
-        description: "Referral code copied to clipboard",
+        description: "Ambassador code copied to clipboard",
       });
     }
   };
