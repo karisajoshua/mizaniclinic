@@ -1,22 +1,32 @@
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Key, CheckCircle, AlertCircle } from "lucide-react";
+import { Key, CheckCircle, AlertCircle, Loader2, User } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useReferralCodeValidation } from "@/hooks/useReferralCodeValidation";
 
 interface ReferralCodeFieldProps {
   value: string;
   onChange: (value: string) => void;
+  onValidationChange?: (isValid: boolean) => void;
 }
 
-const ReferralCodeField = ({ value, onChange }: ReferralCodeFieldProps) => {
+const ReferralCodeField = ({ value, onChange, onValidationChange }: ReferralCodeFieldProps) => {
   const [isValidFormat, setIsValidFormat] = useState(false);
+  const { isValid, isChecking, sponsorName, error } = useReferralCodeValidation(value);
 
   useEffect(() => {
     // Check if the referral code matches the expected format
-    const isValid = /^MCA25-[A-Z0-9]+$/.test(value);
-    setIsValidFormat(isValid);
+    const formatValid = /^MCA25-[A-Z0-9]+$/.test(value);
+    setIsValidFormat(formatValid);
   }, [value]);
+
+  // Notify parent component of validation status
+  useEffect(() => {
+    if (onValidationChange) {
+      onValidationChange(isValid && isValidFormat);
+    }
+  }, [isValid, isValidFormat, onValidationChange]);
 
   const handleChange = (inputValue: string) => {
     // Auto-format to uppercase and ensure it starts with MCA25-
@@ -34,6 +44,24 @@ const ReferralCodeField = ({ value, onChange }: ReferralCodeFieldProps) => {
     onChange(formattedValue);
   };
 
+  const getValidationIcon = () => {
+    if (!value) return null;
+    if (isChecking) return <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />;
+    if (!isValidFormat) return <AlertCircle className="w-5 h-5 text-red-400" />;
+    if (isValid) return <CheckCircle className="w-5 h-5 text-tanzania-green" />;
+    if (error) return <AlertCircle className="w-5 h-5 text-red-400" />;
+    return null;
+  };
+
+  const getFieldBorderColor = () => {
+    if (!value) return 'border-tanzania-grey/50 focus:border-tanzania-green';
+    if (isChecking) return 'border-blue-300 focus:border-blue-400';
+    if (!isValidFormat) return 'border-red-300 focus:border-red-400';
+    if (isValid) return 'border-tanzania-green focus:border-tanzania-green';
+    if (error) return 'border-red-300 focus:border-red-400';
+    return 'border-tanzania-grey/50 focus:border-tanzania-green';
+  };
+
   return (
     <div className="space-y-3">
       <Label htmlFor="referralCode" className="text-tanzania-navy font-medium flex items-center">
@@ -46,35 +74,45 @@ const ReferralCodeField = ({ value, onChange }: ReferralCodeFieldProps) => {
           placeholder="MCA25-T0001DSM"
           value={value}
           onChange={(e) => handleChange(e.target.value)}
-          className={`h-12 border-2 rounded-xl transition-all duration-300 font-mono pr-10 ${
-            value && isValidFormat 
-              ? 'border-tanzania-green focus:border-tanzania-green' 
-              : value 
-                ? 'border-red-300 focus:border-red-400' 
-                : 'border-tanzania-grey/50 focus:border-tanzania-green'
-          }`}
+          className={`h-12 border-2 rounded-xl transition-all duration-300 font-mono pr-10 ${getFieldBorderColor()}`}
         />
-        {value && (
-          <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-            {isValidFormat ? (
-              <CheckCircle className="w-5 h-5 text-tanzania-green" />
-            ) : (
-              <AlertCircle className="w-5 h-5 text-red-400" />
-            )}
-          </div>
-        )}
+        <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+          {getValidationIcon()}
+        </div>
       </div>
       <div className="space-y-1">
-        <p className={`text-sm flex items-center transition-colors ${
-          value && isValidFormat ? 'text-tanzania-green' : 'text-tanzania-text/60'
-        }`}>
-          <CheckCircle className="w-3 h-3 mr-1" />
-          Enter the referral code from your sponsor
-        </p>
-        {value && !isValidFormat && (
+        {!value && (
+          <p className="text-sm text-tanzania-text/60 flex items-center">
+            <CheckCircle className="w-3 h-3 mr-1" />
+            Enter the referral code from your sponsor
+          </p>
+        )}
+        
+        {value && isChecking && (
+          <p className="text-sm text-blue-600 flex items-center">
+            <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+            Checking referral code...
+          </p>
+        )}
+        
+        {value && !isValidFormat && !isChecking && (
           <p className="text-sm text-red-500 flex items-center">
             <AlertCircle className="w-3 h-3 mr-1" />
             Format should be MCA25-XXXXX (e.g., MCA25-T0001DSM)
+          </p>
+        )}
+        
+        {value && isValidFormat && isValid && sponsorName && (
+          <p className="text-sm text-tanzania-green flex items-center">
+            <User className="w-3 h-3 mr-1" />
+            Valid referral code from {sponsorName} ✓
+          </p>
+        )}
+        
+        {value && isValidFormat && error && !isChecking && (
+          <p className="text-sm text-red-500 flex items-center">
+            <AlertCircle className="w-3 h-3 mr-1" />
+            {error}
           </p>
         )}
       </div>

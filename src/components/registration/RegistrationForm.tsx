@@ -22,6 +22,7 @@ const RegistrationForm = () => {
     phone: ""
   });
 
+  const [isReferralCodeValid, setIsReferralCodeValid] = useState(false);
   const [searchParams] = useSearchParams();
   const { loading, submitRegistration } = useRegistration();
 
@@ -62,18 +63,36 @@ const RegistrationForm = () => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  const handleReferralValidationChange = (isValid: boolean) => {
+    setIsReferralCodeValid(isValid);
+  };
+
+  const isFormValid = () => {
+    return (
+      formData.fullName.trim() && 
+      formData.email.trim() && 
+      formData.password.trim() && 
+      formData.referralCode.trim() && 
+      formData.region.trim() && 
+      formData.phone.trim() &&
+      isReferralCodeValid
+    );
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.fullName || !formData.email || !formData.password || !formData.referralCode || !formData.region || !formData.phone) {
+    if (!isFormValid()) {
       toast({
         title: "Error",
-        description: "Please fill in all required fields",
+        description: "Please fill in all required fields with valid information",
         variant: "destructive"
       });
       return;
     }
 
+    // Since we've already validated the referral code in real-time,
+    // we can proceed directly to registration
     await submitRegistration(formData);
   };
 
@@ -87,6 +106,7 @@ const RegistrationForm = () => {
       <ReferralCodeField 
         value={formData.referralCode}
         onChange={(value) => handleFieldChange('referralCode', value)}
+        onValidationChange={handleReferralValidationChange}
       />
 
       <LocationFields 
@@ -97,7 +117,7 @@ const RegistrationForm = () => {
       <Button 
         type="submit"
         className="w-full h-12 bg-gradient-to-r from-tanzania-green to-green-500 hover:from-green-500 hover:to-tanzania-green text-white text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
-        disabled={loading}
+        disabled={loading || !isFormValid()}
       >
         {loading ? "Creating Account..." : "Complete Registration"}
         <ArrowRight className="ml-2 w-5 h-5" />

@@ -71,34 +71,24 @@ export const useRegistration = () => {
 
       console.log('Looking for referral code:', formData.referralCode);
       
-      // Validate referral code exists - check both ambassador_id and user_referral_id fields
+      // Get referrer profile (referral code already validated in real-time)
       const { data: profiles, error: referrerError } = await supabase
         .from('profiles')
         .select('*')
         .or(`ambassador_id.eq.${formData.referralCode},user_referral_id.eq.${formData.referralCode}`);
 
-      if (referrerError) {
-        console.error('Database error looking up referral code:', referrerError);
+      if (referrerError || !profiles || profiles.length === 0) {
+        console.error('Referral code validation failed during registration:', referrerError);
         toast({
           title: "Registration Failed",
-          description: "Database error occurred. Please try again.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      if (!profiles || profiles.length === 0) {
-        console.log('No profile found for referral code:', formData.referralCode);
-        toast({
-          title: "Invalid Referral Code",
-          description: `The referral code "${formData.referralCode}" does not exist. Please check the code and try again.`,
+          description: "Referral code validation failed. Please try again.",
           variant: "destructive",
         });
         return;
       }
 
       const referrerProfile = profiles[0];
-      console.log('Valid referral code found from:', referrerProfile.full_name);
+      console.log('Valid referral code confirmed from:', referrerProfile.full_name);
       
       // Create the user account
       const { error: authError } = await signUp(formData.email, formData.password, formData.fullName);
