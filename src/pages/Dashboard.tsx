@@ -21,6 +21,7 @@ const Dashboard = () => {
   const [userAccount, setUserAccount] = useState<UserAccount | null>(null);
   const [activeTab, setActiveTab] = useState("overview");
   const [hasCompletedPayment, setHasCompletedPayment] = useState(false);
+  const [isLoadingPaymentStatus, setIsLoadingPaymentStatus] = useState(true);
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -46,21 +47,28 @@ const Dashboard = () => {
   }, [searchParams, navigate]);
 
   useEffect(() => {
+    console.log('Dashboard useEffect - loading:', loading, 'user:', user?.id);
+    
     if (!loading && !user) {
+      console.log('No user found, redirecting to signin');
       navigate('/signin');
       return;
     }
 
     if (user) {
+      console.log('User found, fetching user data');
       fetchUserData();
     }
   }, [user, loading, navigate]);
 
   const fetchUserData = async () => {
-    if (!user) return;
+    if (!user) {
+      console.log('No user available for data fetch');
+      return;
+    }
 
     try {
-      console.log('Fetching user data for:', user.id);
+      console.log('Starting fetchUserData for user:', user.id);
       
       // Fetch user profile from database
       const { data: profile, error: profileError } = await supabase
@@ -69,6 +77,8 @@ const Dashboard = () => {
         .eq('id', user.id)
         .single();
 
+      console.log('Profile fetch result:', { profile, profileError });
+
       if (profileError) {
         console.error('Error fetching profile:', profileError);
         handleFallbackData();
@@ -76,10 +86,11 @@ const Dashboard = () => {
       }
 
       if (profile) {
-        console.log('Profile data:', profile);
+        console.log('Processing profile data:', profile);
         
-        // Check for ambassador ID in either field
+        // Check for ambassador ID in either field - more flexible approach
         const ambassadorId = profile.user_referral_id || profile.ambassador_id || "";
+        console.log('Ambassador ID found:', ambassadorId);
         
         const accountData: UserAccount = {
           fullName: profile.full_name || user.user_metadata?.full_name || "User",
@@ -89,40 +100,60 @@ const Dashboard = () => {
 
         setUserAccount(accountData);
         
-        // Updated payment completion check - look for either ambassador ID field and confirmed payment
-        const hasAmbassadorId = Boolean(profile.user_referral_id || profile.ambassador_id);
+        // More comprehensive payment completion check
+        const hasAmbassadorId = Boolean(ambassadorId);
         const paymentConfirmed = profile.payment_status === 'confirmed';
-        const isActive = profile.status === 'active';
+        const isActiveStatus = profile.status === 'active' || profile.status === 'activated';
         
-        console.log('Payment check:', { hasAmbassadorId, paymentConfirmed, isActive, ambassadorId });
+        console.log('Payment status check:', { 
+          hasAmbassadorId, 
+          paymentConfirmed, 
+          isActiveStatus, 
+          ambassadorId,
+          status: profile.status,
+          paymentStatus: profile.payment_status
+        });
         
-        setHasCompletedPayment(hasAmbassadorId && (paymentConfirmed || isActive));
+        // If user has an ambassador ID and either confirmed payment OR active status, they're good
+        const paymentCompleted = hasAmbassadorId && (paymentConfirmed || isActiveStatus);
+        console.log('Final payment completed status:', paymentCompleted);
+        
+        setHasCompletedPayment(paymentCompleted);
+        setIsLoadingPaymentStatus(false);
 
         // Update localStorage with current data
         localStorage.setItem('userAccount', JSON.stringify({
           ...accountData,
-          paymentConfirmed: paymentConfirmed || isActive
+          paymentConfirmed: paymentCompleted
         }));
       } else {
+        console.log('No profile found, using fallback data');
         handleFallbackData();
       }
     } catch (error) {
-      console.error('Error fetching user data:', error);
+      console.error('Error in fetchUserData:', error);
       handleFallbackData();
     }
   };
 
   const handleFallbackData = () => {
+    console.log('Using fallback data approach');
+    setIsLoadingPaymentStatus(false);
+    
     // Check localStorage as fallback
     const storedUserAccount = localStorage.getItem('userAccount');
     const registrationData = localStorage.getItem('registrationData');
     
+    console.log('Stored data check:', { storedUserAccount, registrationData });
+    
     if (storedUserAccount) {
       const accountData = JSON.parse(storedUserAccount);
+      console.log('Using stored account data:', accountData);
       setUserAccount(accountData);
       setHasCompletedPayment(accountData.paymentConfirmed && accountData.userReferralId);
     } else if (registrationData) {
       const regData = JSON.parse(registrationData);
+      console.log('Using registration data:', regData);
       const mockAccount: UserAccount = {
         fullName: regData.fullName || "User",
         region: regData.region || "Dar es Salaam",
@@ -131,6 +162,7 @@ const Dashboard = () => {
       setUserAccount(mockAccount);
       setHasCompletedPayment(false); // No payment confirmed yet
     } else {
+      console.log('Using default fallback for existing user');
       // Create default account for existing users
       const mockAccount: UserAccount = {
         fullName: user?.user_metadata?.full_name || "User",
@@ -142,17 +174,20 @@ const Dashboard = () => {
     }
   };
 
-  if (loading) {
+  if (loading || isLoadingPaymentStatus) {
+    console.log('Showing loading state');
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-emerald-50 px-4">
         <Card className="p-6 sm:p-8 text-center border-0 bg-white/80 backdrop-blur-sm shadow-glass max-w-md w-full">
           <CardTitle className="text-gray-800 mb-4">Loading...</CardTitle>
+          <CardDescription>Checking your account status...</CardDescription>
         </Card>
       </div>
     );
   }
 
   if (!user || !userAccount) {
+    console.log('No user or account data, showing access denied');
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-emerald-50 px-4">
         <Card className="p-6 sm:p-8 text-center border-0 bg-white/80 backdrop-blur-sm shadow-glass max-w-md w-full">
@@ -169,6 +204,7 @@ const Dashboard = () => {
   }
 
   if (!hasCompletedPayment && userAccount) {
+    console.log('Payment not completed, showing payment required screen');
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50">
         <MobileHeader />
@@ -198,6 +234,8 @@ const Dashboard = () => {
       </div>
     );
   }
+
+  console.log('Rendering main dashboard for user:', userAccount.fullName);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-yellow-50 to-orange-50">
