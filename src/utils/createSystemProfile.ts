@@ -45,7 +45,7 @@ export const createSystemProfile = async () => {
       return { error: null };
     }
 
-    // Create the system profile
+    // Create the system profile in the consolidated profiles table
     const { error: profileError } = await supabase
       .from('profiles')
       .upsert({
@@ -58,27 +58,13 @@ export const createSystemProfile = async () => {
         status: 'active',
         payment_status: 'completed',
         referral_code: 'SYSTEM',
+        activated_at: new Date().toISOString(),
+        payment_verified_at: new Date().toISOString(),
       });
 
     if (profileError) {
       console.error('Error creating system profile:', profileError);
       return { error: profileError };
-    }
-
-    // Create the ambassador registration
-    const { error: ambassadorError } = await supabase
-      .from('ambassador_registrations')
-      .upsert({
-        user_id: systemUserId,
-        ambassador_id: 'MCA25-T0000DSM',
-        region: 'Dar es Salaam',
-        country: 'Tanzania',
-        status: 'active',
-      });
-
-    if (ambassadorError) {
-      console.error('Error creating system ambassador registration:', ambassadorError);
-      return { error: ambassadorError };
     }
 
     // Sign out the system user immediately for security

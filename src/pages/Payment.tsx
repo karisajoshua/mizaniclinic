@@ -165,26 +165,7 @@ const Payment = () => {
           .eq('code', receiptCode.trim())
       );
 
-      // 2. Upsert ambassador registration status (handles missing records)
-      updates.push(
-        supabase
-          .from('ambassador_registrations')
-          .upsert({
-            user_id: user?.id,
-            ambassador_id: ambassadorId,
-            region: registrationData?.region || 'Dar es Salaam',
-            country: registrationData?.country || 'Tanzania',
-            referral_code: registrationData?.referralCode || '',
-            status: 'active',
-            payment_verified_at: new Date().toISOString(),
-            activated_at: new Date().toISOString(),
-            receipt_code: receiptCode.trim()
-          }, {
-            onConflict: 'user_id'
-          })
-      );
-
-      // 3. Update profile with BOTH ambassador_id and user_referral_id for consistency
+      // 2. Update profile with payment verification and status
       updates.push(
         supabase
           .from('profiles')
@@ -192,7 +173,10 @@ const Payment = () => {
             status: 'active',
             payment_status: 'confirmed',
             ambassador_id: ambassadorId,
-            user_referral_id: ambassadorId // Ensure both fields are set
+            user_referral_id: ambassadorId,
+            payment_verified_at: new Date().toISOString(),
+            activated_at: new Date().toISOString(),
+            receipt_code: receiptCode.trim()
           })
           .eq('id', user?.id)
       );
