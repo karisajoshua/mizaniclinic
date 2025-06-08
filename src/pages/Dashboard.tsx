@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -11,6 +12,7 @@ import AmbassadorTools from "@/components/dashboard/AmbassadorTools";
 import AppointmentBooking from "@/components/appointments/AppointmentBooking";
 import AppointmentsList from "@/components/appointments/AppointmentsList";
 import RealTimeStats from "@/components/dashboard/RealTimeStats";
+import ProfileCompletionPrompt from "@/components/registration/ProfileCompletionPrompt";
 import type { UserAccount } from "@/types/dashboard";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
