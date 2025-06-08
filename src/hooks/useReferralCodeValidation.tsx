@@ -51,7 +51,7 @@ export const useReferralCodeValidation = (referralCode: string) => {
         const { data: profiles, error } = await supabase
           .from('profiles')
           .select('full_name, ambassador_id, user_referral_id')
-          .or(`ambassador_id.eq.${referralCode},user_referral_id.eq.${referralCode}`)
+          .or(`ambassador_id.eq."${referralCode}",user_referral_id.eq."${referralCode}"`)
           .limit(1);
 
         if (error) {
