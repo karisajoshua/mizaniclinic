@@ -26,6 +26,25 @@ export const useRegistration = () => {
     try {
       console.log('Starting registration process...');
       
+      // Validate referral code exists
+      const { data: referrerProfile, error: referrerError } = await supabase
+        .from('profiles')
+        .select('*')
+        .or(`ambassador_id.eq.${formData.referralCode},user_referral_id.eq.${formData.referralCode}`)
+        .single();
+
+      if (referrerError || !referrerProfile) {
+        console.error('Invalid referral code:', referrerError);
+        toast({
+          title: "Invalid Referral Code",
+          description: `The referral code "${formData.referralCode}" does not exist. Please check the code and try again.`,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      console.log('Valid referral code found from:', referrerProfile.full_name);
+      
       // First create the user account
       const { error: authError } = await signUp(formData.email, formData.password, formData.fullName);
 
@@ -88,7 +107,7 @@ export const useRegistration = () => {
         registrationDate: new Date().toISOString()
       };
 
-      // Create profile with complete data
+      // Create profile with complete data including both ambassador_id and user_referral_id
       const { error: profileError } = await supabase
         .from('profiles')
         .insert({
@@ -98,7 +117,7 @@ export const useRegistration = () => {
           region: formData.region,
           country: formData.country,
           ambassador_id: ambassadorId,
-          user_referral_id: ambassadorId,
+          user_referral_id: ambassadorId, // Set user_referral_id to the same as ambassador_id
           referral_code: formData.referralCode,
           status: 'pending',
           payment_status: 'pending',
@@ -140,6 +159,22 @@ export const useRegistration = () => {
           variant: "destructive"
         });
         return;
+      }
+
+      // Create referral record to track the relationship
+      const { error: referralError } = await supabase
+        .from('referrals')
+        .insert({
+          referrer_id: referrerProfile.id,
+          referred_id: user.id,
+          referral_code: formData.referralCode,
+          country: formData.country,
+          status: 'pending'
+        });
+
+      if (referralError) {
+        console.error('Referral creation error:', referralError);
+        // Don't fail registration for referral tracking error, just log it
       }
 
       console.log('Registration completed successfully');

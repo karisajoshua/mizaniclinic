@@ -1,66 +1,57 @@
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { LogIn, Eye, EyeOff, UserCheck } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { LogIn, Mail, Lock } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
 import MobileHeader from "@/components/MobileHeader";
-import { useAuth } from "@/hooks/useAuth";
 
 const SignIn = () => {
-  const [formData, setFormData] = useState({
-    ambassadorId: "",
-    password: ""
-  });
+  const [emailOrReferralCode, setEmailOrReferralCode] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
   const { signIn } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-
-    if (!formData.ambassadorId || !formData.password) {
+    
+    if (!emailOrReferralCode || !password) {
       toast({
         title: "Error",
         description: "Please fill in all fields",
         variant: "destructive"
       });
-      setLoading(false);
       return;
     }
 
+    setLoading(true);
+
     try {
-      // For now, use a temporary email format until proper ambassador ID login is implemented
-      const email = `${formData.ambassadorId.toLowerCase()}@mizaniclinic.temp`;
-      
-      const { error } = await signIn(email, formData.password);
+      const { error } = await signIn(emailOrReferralCode, password);
 
       if (error) {
         toast({
           title: "Sign In Failed",
-          description: "Invalid Ambassador ID or password. Please check your credentials.",
-          variant: "destructive",
+          description: error.message,
+          variant: "destructive"
         });
-        setLoading(false);
-        return;
+      } else {
+        toast({
+          title: "Welcome back!",
+          description: "You have successfully signed in.",
+        });
+        navigate('/dashboard');
       }
-
-      toast({
-        title: "Welcome Back! 🎉",
-        description: "Successfully signed in to your ambassador dashboard",
-      });
-
-      navigate('/dashboard');
     } catch (error) {
       console.error('Sign in error:', error);
       toast({
-        title: "Error",
-        description: "Sign in failed. Please try again.",
+        title: "Sign In Failed",
+        description: "An unexpected error occurred. Please try again.",
         variant: "destructive"
       });
     } finally {
@@ -69,7 +60,7 @@ const SignIn = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-yellow-50 to-orange-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
       <MobileHeader />
 
       <div className="px-4 py-8">
@@ -81,52 +72,40 @@ const SignIn = () => {
               </div>
               <CardTitle className="text-2xl sm:text-3xl text-tanzania-navy font-bold">Welcome Back</CardTitle>
               <CardDescription className="text-tanzania-text/70">
-                Sign in to your ambassador dashboard
+                Sign in with your email or ambassador ID
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
+            
+            <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="space-y-3">
-                  <Label htmlFor="ambassadorId" className="text-tanzania-navy font-medium flex items-center">
-                    <UserCheck className="w-4 h-4 mr-2 text-tanzania-green" />
-                    Ambassador ID *
+                  <Label htmlFor="emailOrReferralCode" className="text-tanzania-navy font-medium flex items-center">
+                    <Mail className="w-4 h-4 mr-2 text-tanzania-green" />
+                    Email or Ambassador ID
                   </Label>
                   <Input
-                    id="ambassadorId"
-                    placeholder="MCA25-000001"
-                    value={formData.ambassadorId}
-                    onChange={(e) => setFormData(prev => ({ ...prev, ambassadorId: e.target.value.toUpperCase() }))}
-                    className="h-12 border-2 border-tanzania-grey/50 focus:border-tanzania-green rounded-xl transition-all duration-300 font-mono"
+                    id="emailOrReferralCode"
+                    type="text"
+                    placeholder="email@example.com or MCA25-T0001DSM"
+                    value={emailOrReferralCode}
+                    onChange={(e) => setEmailOrReferralCode(e.target.value)}
+                    className="h-12 border-2 border-tanzania-grey/50 focus:border-tanzania-green rounded-xl transition-all duration-300"
                   />
                 </div>
 
                 <div className="space-y-3">
                   <Label htmlFor="password" className="text-tanzania-navy font-medium flex items-center">
-                    <div className="w-4 h-4 mr-2 bg-tanzania-green rounded-full"></div>
-                    Password *
+                    <Lock className="w-4 h-4 mr-2 text-tanzania-green" />
+                    Password
                   </Label>
-                  <div className="relative">
-                    <Input
-                      id="password"
-                      type={showPassword ? "text" : "password"}
-                      placeholder="Enter your password"
-                      value={formData.password}
-                      onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
-                      className="h-12 border-2 border-tanzania-grey/50 focus:border-tanzania-green rounded-xl transition-all duration-300 pr-12"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-tanzania-grey hover:text-tanzania-green transition-colors"
-                      aria-label={showPassword ? "Hide password" : "Show password"}
-                    >
-                      {showPassword ? (
-                        <EyeOff className="w-5 h-5" />
-                      ) : (
-                        <Eye className="w-5 h-5" />
-                      )}
-                    </button>
-                  </div>
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="h-12 border-2 border-tanzania-grey/50 focus:border-tanzania-green rounded-xl transition-all duration-300"
+                  />
                 </div>
 
                 <Button 
@@ -135,23 +114,17 @@ const SignIn = () => {
                   disabled={loading}
                 >
                   {loading ? "Signing In..." : "Sign In"}
-                  <LogIn className="ml-2 w-5 h-5" />
                 </Button>
-              </form>
 
-              <div className="text-center space-y-4">
-                <p className="text-sm text-tanzania-text/60">
-                  Don't have an account?
-                </p>
-                <Link to="/register">
-                  <Button 
-                    variant="outline" 
-                    className="w-full h-12 border-2 border-tanzania-green text-tanzania-green hover:bg-tanzania-green hover:text-white rounded-xl font-semibold transition-all duration-300"
-                  >
-                    Create Ambassador Account
-                  </Button>
-                </Link>
-              </div>
+                <div className="text-center pt-4">
+                  <p className="text-tanzania-text/70">
+                    Don't have an account?{" "}
+                    <Link to="/register" className="text-tanzania-green font-semibold hover:underline">
+                      Register here
+                    </Link>
+                  </p>
+                </div>
+              </form>
             </CardContent>
           </Card>
         </div>

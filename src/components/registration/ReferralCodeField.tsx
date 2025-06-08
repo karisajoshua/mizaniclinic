@@ -24,7 +24,7 @@ const ReferralCodeField = ({ value, onChange }: ReferralCodeFieldProps) => {
       />
       <p className="text-sm text-tanzania-text/60 flex items-center">
         <CheckCircle className="w-3 h-3 mr-1 text-tanzania-green" />
-        Format: MCA25-T0001DSM
+        Enter the referral code from your sponsor (e.g., MCA25-T0001DSM)
       </p>
     </div>
   );
