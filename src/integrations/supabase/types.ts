@@ -9,6 +9,62 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      ambassador_registrations: {
+        Row: {
+          activated_at: string | null
+          ambassador_id: string
+          country: string
+          created_at: string
+          id: string
+          payment_verified_at: string | null
+          receipt_code: string | null
+          referral_code: string | null
+          region: string
+          registration_date: string
+          status: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          activated_at?: string | null
+          ambassador_id: string
+          country: string
+          created_at?: string
+          id?: string
+          payment_verified_at?: string | null
+          receipt_code?: string | null
+          referral_code?: string | null
+          region: string
+          registration_date?: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          activated_at?: string | null
+          ambassador_id?: string
+          country?: string
+          created_at?: string
+          id?: string
+          payment_verified_at?: string | null
+          receipt_code?: string | null
+          referral_code?: string | null
+          region?: string
+          registration_date?: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ambassador_registrations_receipt_code_fkey"
+            columns: ["receipt_code"]
+            isOneToOne: false
+            referencedRelation: "receipt_codes"
+            referencedColumns: ["code"]
+          },
+        ]
+      }
       ambassador_stats: {
         Row: {
           activation_pack_earnings_usd: number
@@ -359,16 +415,13 @@ export type Database = {
       }
       profiles: {
         Row: {
-          activated_at: string | null
           ambassador_id: string | null
           country: string | null
           created_at: string | null
           full_name: string | null
           id: string
           payment_status: string | null
-          payment_verified_at: string | null
           phone: string | null
-          receipt_code: string | null
           referral_code: string | null
           region: string | null
           registration_data: Json | null
@@ -378,16 +431,13 @@ export type Database = {
           user_referral_id: string | null
         }
         Insert: {
-          activated_at?: string | null
           ambassador_id?: string | null
           country?: string | null
           created_at?: string | null
           full_name?: string | null
           id: string
           payment_status?: string | null
-          payment_verified_at?: string | null
           phone?: string | null
-          receipt_code?: string | null
           referral_code?: string | null
           region?: string | null
           registration_data?: Json | null
@@ -397,16 +447,13 @@ export type Database = {
           user_referral_id?: string | null
         }
         Update: {
-          activated_at?: string | null
           ambassador_id?: string | null
           country?: string | null
           created_at?: string | null
           full_name?: string | null
           id?: string
           payment_status?: string | null
-          payment_verified_at?: string | null
           phone?: string | null
-          receipt_code?: string | null
           referral_code?: string | null
           region?: string | null
           registration_data?: Json | null
@@ -637,14 +684,6 @@ export type Database = {
       generate_progressive_ambassador_id: {
         Args: Record<PropertyKey, never>
         Returns: string
-      }
-      get_user_by_ambassador_id: {
-        Args: { p_ambassador_id: string }
-        Returns: {
-          user_id: string
-          email: string
-          full_name: string
-        }[]
       }
     }
     Enums: {

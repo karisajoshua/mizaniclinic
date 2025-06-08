@@ -80,7 +80,7 @@ const Payment = () => {
       return;
     }
 
-    if (!registrationData && !user) {
+    if (!registrationData) {
       toast({
         title: "Error",
         description: "Registration data not found. Please register again.",
@@ -92,8 +92,6 @@ const Payment = () => {
     setLoading(true);
 
     try {
-      console.log('Starting payment verification process...');
-      
       // Check if receipt code exists and is available
       const { data: receiptData, error: receiptError } = await supabase
         .from('receipt_codes')
@@ -112,117 +110,78 @@ const Payment = () => {
         return;
       }
 
-      console.log('Receipt code validated, proceeding with updates...');
+      // Mark receipt as used
+      const { error: updateError } = await supabase
+        .from('receipt_codes')
+        .update({
+          status: 'used',
+          used_by: user?.id,
+          used_at: new Date().toISOString()
+        })
+        .eq('code', receiptCode.trim());
 
-      // Get or create ambassador ID
-      let ambassadorId = registrationData?.ambassadorId;
-      
-      if (!ambassadorId) {
-        // Fallback: generate ambassador ID if missing
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('ambassador_id, user_referral_id, region, country')
-          .eq('id', user?.id)
-          .single();
-          
-        ambassadorId = profile?.ambassador_id || profile?.user_referral_id;
-        
-        if (!ambassadorId && profile?.region && profile?.country) {
-          const { data: generatedId, error: idError } = await supabase
-            .rpc('generate_ambassador_id', {
-              p_region: profile.region,
-              p_country: profile.country
-            });
-            
-          if (!idError && generatedId) {
-            ambassadorId = generatedId;
-          }
-        }
-      }
-
-      if (!ambassadorId) {
+      if (updateError) {
+        console.error('Error updating receipt:', updateError);
         toast({
           title: "Error",
-          description: "Failed to get ambassador ID. Please contact support.",
+          description: "Failed to process receipt. Please try again.",
           variant: "destructive"
         });
         setLoading(false);
         return;
       }
 
-      // Start transaction-like updates
-      const updates = [];
+      // Update ambassador registration status
+      const { error: regError } = await supabase
+        .from('ambassador_registrations')
+        .update({
+          status: 'active',
+          payment_verified_at: new Date().toISOString(),
+          activated_at: new Date().toISOString(),
+          receipt_code: receiptCode.trim()
+        })
+        .eq('user_id', user?.id);
 
-      // 1. Mark receipt as used
-      updates.push(
-        supabase
-          .from('receipt_codes')
-          .update({
-            status: 'used',
-            used_by: user?.id,
-            used_at: new Date().toISOString()
-          })
-          .eq('code', receiptCode.trim())
-      );
-
-      // 2. Update profile with payment verification and status
-      updates.push(
-        supabase
-          .from('profiles')
-          .update({
-            status: 'active',
-            payment_status: 'confirmed',
-            ambassador_id: ambassadorId,
-            user_referral_id: ambassadorId,
-            payment_verified_at: new Date().toISOString(),
-            activated_at: new Date().toISOString(),
-            receipt_code: receiptCode.trim()
-          })
-          .eq('id', user?.id)
-      );
-
-      // Execute all updates
-      const results = await Promise.all(updates);
-      
-      // Check for any errors in the updates
-      const hasErrors = results.some(result => result.error);
-      if (hasErrors) {
-        console.error('Some updates failed:', results.map(r => r.error).filter(Boolean));
-        throw new Error('Failed to complete all payment updates');
+      if (regError) {
+        console.error('Error updating registration:', regError);
       }
 
-      console.log('All database updates completed successfully');
+      // Update profile with both ambassador_id and user_referral_id for consistency
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({
+          status: 'active',
+          payment_status: 'confirmed',
+          ambassador_id: registrationData.ambassadorId,
+          user_referral_id: registrationData.ambassadorId
+        })
+        .eq('id', user?.id);
+
+      if (profileError) {
+        console.error('Error updating profile:', profileError);
+      }
 
       // Store payment confirmation with the correct ambassador ID
       const userAccount = {
-        fullName: registrationData?.fullName || user?.user_metadata?.full_name || "User",
-        region: registrationData?.region || "Dar es Salaam",
-        country: registrationData?.country || "Tanzania",
-        userReferralId: ambassadorId,
+        fullName: registrationData.fullName,
+        region: registrationData.region,
+        country: registrationData.country,
+        userReferralId: registrationData.ambassadorId,
         paymentConfirmed: true,
-        ambassadorId: ambassadorId
+        ambassadorId: registrationData.ambassadorId
       };
 
       localStorage.setItem('userAccount', JSON.stringify(userAccount));
-      
-      // Clear registration data since it's no longer needed
-      localStorage.removeItem('registrationData');
 
-      console.log('Payment verified successfully, showing success message...');
+      console.log('Payment verified successfully, redirecting to dashboard...');
 
       toast({
         title: "Payment Verified! 🎉",
         description: "Your account has been activated. Welcome to the Mizani Clinic Ambassador program!",
       });
 
-      // Add a delay to ensure database updates propagate
-      setTimeout(() => {
-        console.log('Navigating to dashboard with payment success state...');
-        navigate('/dashboard', { 
-          replace: true,
-          state: { paymentJustCompleted: true }
-        });
-      }, 2000); // 2 second delay to ensure updates complete
+      // Navigate to dashboard immediately
+      navigate('/dashboard', { replace: true });
 
     } catch (error) {
       console.error('Payment verification error:', error);
