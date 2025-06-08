@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -40,13 +39,12 @@ export const useAuth = () => {
       console.log('Detected referral code format, looking up user...');
       
       // Find user by ambassador_id or user_referral_id
-      const { data: profile, error: profileError } = await supabase
+      const { data: profiles, error: profileError } = await supabase
         .from('profiles')
         .select('*')
-        .or(`ambassador_id.eq.${emailOrReferralCode.toUpperCase()},user_referral_id.eq.${emailOrReferralCode.toUpperCase()}`)
-        .single();
+        .or(`ambassador_id.eq.${emailOrReferralCode.toUpperCase()},user_referral_id.eq.${emailOrReferralCode.toUpperCase()}`);
 
-      if (profileError || !profile) {
+      if (profileError || !profiles || profiles.length === 0) {
         console.error('Profile lookup error:', profileError);
         return { 
           error: { 
@@ -55,27 +53,17 @@ export const useAuth = () => {
         };
       }
 
+      const profile = profiles[0];
       console.log('Found profile:', profile.id);
 
-      // Get the user's email from auth.users via the profiles table
-      const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
+      // Get the user's email from auth.users
+      const { data: { user: authUser }, error: authError } = await supabase.auth.admin.getUserById(profile.id);
       
-      if (authError) {
-        console.error('Auth users lookup error:', authError);
+      if (authError || !authUser?.email) {
+        console.error('Auth user lookup error:', authError);
         return { 
           error: { 
             message: 'Unable to verify user credentials. Please try again.' 
-          } 
-        };
-      }
-
-      const authUser = authUsers.users.find(u => u.id === profile.id);
-      
-      if (!authUser?.email) {
-        console.error('No email found for user');
-        return { 
-          error: { 
-            message: 'User account not found. Please contact support.' 
           } 
         };
       }
