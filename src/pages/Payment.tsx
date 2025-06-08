@@ -92,6 +92,8 @@ const Payment = () => {
     setLoading(true);
 
     try {
+      console.log('Starting payment verification process...');
+      
       // Check if receipt code exists and is available
       const { data: receiptData, error: receiptError } = await supabase
         .from('receipt_codes')
@@ -110,56 +112,60 @@ const Payment = () => {
         return;
       }
 
-      // Mark receipt as used
-      const { error: updateError } = await supabase
-        .from('receipt_codes')
-        .update({
-          status: 'used',
-          used_by: user?.id,
-          used_at: new Date().toISOString()
-        })
-        .eq('code', receiptCode.trim());
+      console.log('Receipt code validated, proceeding with updates...');
 
-      if (updateError) {
-        console.error('Error updating receipt:', updateError);
-        toast({
-          title: "Error",
-          description: "Failed to process receipt. Please try again.",
-          variant: "destructive"
-        });
-        setLoading(false);
-        return;
+      // Start transaction-like updates
+      const updates = [];
+
+      // 1. Mark receipt as used
+      updates.push(
+        supabase
+          .from('receipt_codes')
+          .update({
+            status: 'used',
+            used_by: user?.id,
+            used_at: new Date().toISOString()
+          })
+          .eq('code', receiptCode.trim())
+      );
+
+      // 2. Update ambassador registration status
+      updates.push(
+        supabase
+          .from('ambassador_registrations')
+          .update({
+            status: 'active',
+            payment_verified_at: new Date().toISOString(),
+            activated_at: new Date().toISOString(),
+            receipt_code: receiptCode.trim()
+          })
+          .eq('user_id', user?.id)
+      );
+
+      // 3. Update profile with BOTH ambassador_id and user_referral_id for consistency
+      updates.push(
+        supabase
+          .from('profiles')
+          .update({
+            status: 'active',
+            payment_status: 'confirmed',
+            ambassador_id: registrationData.ambassadorId,
+            user_referral_id: registrationData.ambassadorId // Ensure both fields are set
+          })
+          .eq('id', user?.id)
+      );
+
+      // Execute all updates
+      const results = await Promise.all(updates);
+      
+      // Check for any errors in the updates
+      const hasErrors = results.some(result => result.error);
+      if (hasErrors) {
+        console.error('Some updates failed:', results.map(r => r.error).filter(Boolean));
+        throw new Error('Failed to complete all payment updates');
       }
 
-      // Update ambassador registration status
-      const { error: regError } = await supabase
-        .from('ambassador_registrations')
-        .update({
-          status: 'active',
-          payment_verified_at: new Date().toISOString(),
-          activated_at: new Date().toISOString(),
-          receipt_code: receiptCode.trim()
-        })
-        .eq('user_id', user?.id);
-
-      if (regError) {
-        console.error('Error updating registration:', regError);
-      }
-
-      // Update profile with both ambassador_id and user_referral_id for consistency
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .update({
-          status: 'active',
-          payment_status: 'confirmed',
-          ambassador_id: registrationData.ambassadorId,
-          user_referral_id: registrationData.ambassadorId
-        })
-        .eq('id', user?.id);
-
-      if (profileError) {
-        console.error('Error updating profile:', profileError);
-      }
+      console.log('All database updates completed successfully');
 
       // Store payment confirmation with the correct ambassador ID
       const userAccount = {
@@ -172,16 +178,25 @@ const Payment = () => {
       };
 
       localStorage.setItem('userAccount', JSON.stringify(userAccount));
+      
+      // Clear registration data since it's no longer needed
+      localStorage.removeItem('registrationData');
 
-      console.log('Payment verified successfully, redirecting to dashboard...');
+      console.log('Payment verified successfully, showing success message...');
 
       toast({
         title: "Payment Verified! 🎉",
         description: "Your account has been activated. Welcome to the Mizani Clinic Ambassador program!",
       });
 
-      // Navigate to dashboard immediately
-      navigate('/dashboard', { replace: true });
+      // Add a small delay to ensure database updates propagate
+      setTimeout(() => {
+        console.log('Navigating to dashboard with payment success state...');
+        navigate('/dashboard', { 
+          replace: true,
+          state: { paymentJustCompleted: true }
+        });
+      }, 1500); // 1.5 second delay to ensure updates complete
 
     } catch (error) {
       console.error('Payment verification error:', error);
