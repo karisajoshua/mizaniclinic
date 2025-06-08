@@ -21,7 +21,6 @@ const Dashboard = () => {
   const [userAccount, setUserAccount] = useState<UserAccount | null>(null);
   const [activeTab, setActiveTab] = useState("overview");
   const [isLoadingUser, setIsLoadingUser] = useState(true);
-  const [retryCount, setRetryCount] = useState(0);
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -51,7 +50,7 @@ const Dashboard = () => {
   }, [searchParams, navigate]);
 
   useEffect(() => {
-    console.log('Dashboard useEffect - loading:', loading, 'user:', user?.id, 'paymentJustCompleted:', paymentJustCompleted);
+    console.log('Dashboard useEffect - loading:', loading, 'user:', user?.id);
     
     if (!loading && !user) {
       console.log('No user found, redirecting to signin');
@@ -63,24 +62,18 @@ const Dashboard = () => {
       console.log('User found, fetching user data');
       fetchUserData();
     }
-  }, [user, loading, navigate, paymentJustCompleted]);
+  }, [user, loading, navigate]);
 
-  const fetchUserData = async (isRetry = false) => {
+  const fetchUserData = async () => {
     if (!user) {
       console.log('No user available for data fetch');
       return;
     }
 
     try {
-      console.log(`Starting fetchUserData for user: ${user.id} ${isRetry ? '(retry)' : ''}`);
+      console.log(`Starting fetchUserData for user: ${user.id}`);
       
-      // If payment was just completed, add a small delay to ensure DB consistency
-      if (paymentJustCompleted && !isRetry) {
-        console.log('Payment just completed, adding delay for DB consistency...');
-        await new Promise(resolve => setTimeout(resolve, 1000));
-      }
-      
-      // Fetch user profile from database
+      // Fetch user profile from consolidated profiles table
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('*')
@@ -91,15 +84,6 @@ const Dashboard = () => {
 
       if (profileError) {
         console.error('Error fetching profile:', profileError);
-        
-        // If this is the first attempt and we just completed payment, retry once
-        if (!isRetry && paymentJustCompleted && retryCount < 2) {
-          console.log('Retrying data fetch after payment completion...');
-          setRetryCount(prev => prev + 1);
-          setTimeout(() => fetchUserData(true), 2000);
-          return;
-        }
-        
         handleFallbackData();
         return;
       }
@@ -107,8 +91,8 @@ const Dashboard = () => {
       if (profile) {
         console.log('Processing profile data:', profile);
         
-        // Check for ambassador ID in either field - more flexible approach
-        const ambassadorId = profile.user_referral_id || profile.ambassador_id || "";
+        // Use ambassador_id or user_referral_id, whichever is available
+        const ambassadorId = profile.ambassador_id || profile.user_referral_id || "";
         console.log('Ambassador ID found:', ambassadorId);
         
         const accountData: UserAccount = {
@@ -126,7 +110,7 @@ const Dashboard = () => {
           hasAmbassadorId: Boolean(ambassadorId)
         }));
 
-        // If payment was just completed, clear the state to prevent issues on refresh
+        // Clear payment completion state if present
         if (paymentJustCompleted) {
           navigate('/dashboard', { replace: true, state: {} });
         }
@@ -136,15 +120,6 @@ const Dashboard = () => {
       }
     } catch (error) {
       console.error('Error in fetchUserData:', error);
-      
-      // If this is the first attempt and we just completed payment, retry once
-      if (!isRetry && paymentJustCompleted && retryCount < 2) {
-        console.log('Retrying data fetch due to error after payment completion...');
-        setRetryCount(prev => prev + 1);
-        setTimeout(() => fetchUserData(true), 2000);
-        return;
-      }
-      
       handleFallbackData();
     }
   };
@@ -157,7 +132,7 @@ const Dashboard = () => {
     const storedUserAccount = localStorage.getItem('userAccount');
     const registrationData = localStorage.getItem('registrationData');
     
-    console.log('Stored data check:', { storedUserAccount, registrationData, paymentJustCompleted });
+    console.log('Stored data check:', { storedUserAccount, registrationData });
     
     if (storedUserAccount) {
       const accountData = JSON.parse(storedUserAccount);

@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { validateEmail, validateAmbassadorId, validatePassword, sanitizeString } from '@/utils/inputValidation';
 
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -34,7 +35,7 @@ export const useAuth = () => {
     console.log('Attempting to sign in with Ambassador ID:', ambassadorId);
     
     // Validate ambassador ID format
-    if (!/^MCA25-[A-Z0-9]+$/.test(ambassadorId)) {
+    if (!validateAmbassadorId(ambassadorId)) {
       return { 
         error: { 
           message: 'Invalid Ambassador ID format. Must be MCA25-XXXXX' 
@@ -43,7 +44,8 @@ export const useAuth = () => {
     }
 
     // Input validation
-    if (!ambassadorId.trim() || !password.trim()) {
+    const sanitizedAmbassadorId = sanitizeString(ambassadorId);
+    if (!sanitizedAmbassadorId.trim() || !password.trim()) {
       return {
         error: {
           message: 'Ambassador ID and password are required'
@@ -54,7 +56,7 @@ export const useAuth = () => {
     try {
       // Use the secure function to lookup user by ambassador ID
       const { data: userLookup, error: lookupError } = await supabase
-        .rpc('get_user_by_ambassador_id', { p_ambassador_id: ambassadorId });
+        .rpc('get_user_by_ambassador_id', { p_ambassador_id: sanitizedAmbassadorId });
 
       if (lookupError) {
         console.error('User lookup error:', lookupError);
@@ -66,10 +68,10 @@ export const useAuth = () => {
       }
 
       if (!userLookup || userLookup.length === 0) {
-        console.log('No profile found for Ambassador ID:', ambassadorId);
+        console.log('No profile found for Ambassador ID:', sanitizedAmbassadorId);
         return { 
           error: { 
-            message: `Ambassador ID "${ambassadorId}" not found. Please check your ID and try again.` 
+            message: `Ambassador ID "${sanitizedAmbassadorId}" not found. Please check your ID and try again.` 
           } 
         };
       }
@@ -111,7 +113,10 @@ export const useAuth = () => {
     console.log('Starting signup process...');
     
     // Input validation
-    if (!email.trim() || !password.trim() || !fullName.trim()) {
+    const sanitizedEmail = sanitizeString(email);
+    const sanitizedFullName = sanitizeString(fullName);
+    
+    if (!sanitizedEmail.trim() || !password.trim() || !sanitizedFullName.trim()) {
       return {
         error: {
           message: 'All fields are required'
@@ -120,8 +125,7 @@ export const useAuth = () => {
     }
 
     // Email format validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+    if (!validateEmail(sanitizedEmail)) {
       return {
         error: {
           message: 'Please enter a valid email address'
@@ -130,23 +134,23 @@ export const useAuth = () => {
     }
 
     // Password strength validation
-    if (password.length < 6) {
+    const passwordValidation = validatePassword(password);
+    if (!passwordValidation.isValid) {
       return {
         error: {
-          message: 'Password must be at least 6 characters long'
+          message: passwordValidation.message
         }
       };
     }
     
     // Sign up without email confirmation
     const { data, error } = await supabase.auth.signUp({
-      email: email.trim().toLowerCase(),
+      email: sanitizedEmail.toLowerCase(),
       password,
       options: {
         data: {
-          full_name: fullName.trim(),
+          full_name: sanitizedFullName,
         },
-        // Skip email confirmation
         emailRedirectTo: undefined,
       },
     });
@@ -162,7 +166,7 @@ export const useAuth = () => {
     if (data.user && !data.session) {
       console.log('User created but not confirmed, signing in manually...');
       const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: email.trim().toLowerCase(),
+        email: sanitizedEmail.toLowerCase(),
         password,
       });
       

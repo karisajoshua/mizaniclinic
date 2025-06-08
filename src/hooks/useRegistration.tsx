@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
+import { validateEmail, validatePhone, validateName } from '@/utils/inputValidation';
 
 export interface RegistrationData {
   fullName: string;
@@ -37,9 +38,8 @@ export const useRegistration = () => {
         return;
       }
 
-      // Email format validation
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(formData.email)) {
+      // Validate email format
+      if (!validateEmail(formData.email)) {
         toast({
           title: "Registration Failed",
           description: "Please enter a valid email address.",
@@ -48,9 +48,8 @@ export const useRegistration = () => {
         return;
       }
 
-      // Phone validation (basic)
-      const phoneRegex = /^\+?[\d\s\-\(\)]{7,}$/;
-      if (!phoneRegex.test(formData.phone)) {
+      // Validate phone format
+      if (!validatePhone(formData.phone)) {
         toast({
           title: "Registration Failed",
           description: "Please enter a valid phone number.",
@@ -59,9 +58,20 @@ export const useRegistration = () => {
         return;
       }
 
+      // Validate name
+      const nameValidation = validateName(formData.fullName);
+      if (!nameValidation.isValid) {
+        toast({
+          title: "Registration Failed",
+          description: nameValidation.message,
+          variant: "destructive",
+        });
+        return;
+      }
+
       console.log('Looking for referral code:', formData.referralCode);
       
-      // Validate referral code exists - treat all codes the same way
+      // Validate referral code exists - check both ambassador_id and user_referral_id fields
       const { data: profiles, error: referrerError } = await supabase
         .from('profiles')
         .select('*')
@@ -90,7 +100,7 @@ export const useRegistration = () => {
       const referrerProfile = profiles[0];
       console.log('Valid referral code found from:', referrerProfile.full_name);
       
-      // First create the user account
+      // Create the user account
       const { error: authError } = await signUp(formData.email, formData.password, formData.fullName);
 
       if (authError) {
@@ -135,7 +145,6 @@ export const useRegistration = () => {
 
       if (idError || !ambassadorIdResult) {
         console.error('Error generating ambassador ID:', idError);
-        
         toast({
           title: "Registration Failed",
           description: "Failed to generate ambassador ID. Please try again.",
@@ -147,7 +156,7 @@ export const useRegistration = () => {
       const ambassadorId = ambassadorIdResult;
       console.log('Generated ambassador ID:', ambassadorId);
 
-      // Create both profile and ambassador registration in a transaction-like manner
+      // Create complete profile with all data
       const registrationData = {
         fullName: formData.fullName.trim(),
         email: formData.email.trim().toLowerCase(),
@@ -160,7 +169,7 @@ export const useRegistration = () => {
         registrationDate: new Date().toISOString()
       };
 
-      // Create profile with complete data including both ambassador_id and user_referral_id
+      // Create profile with complete data in the consolidated profiles table
       const { error: profileError } = await supabase
         .from('profiles')
         .insert({
@@ -174,12 +183,12 @@ export const useRegistration = () => {
           referral_code: formData.referralCode.trim(),
           status: 'pending',
           payment_status: 'pending',
-          registration_data: registrationData
+          registration_data: registrationData,
+          registration_date: new Date().toISOString()
         });
 
       if (profileError) {
         console.error('Profile creation error:', profileError);
-        
         toast({
           title: "Registration Failed",
           description: "Failed to create user profile. Please try again.",
@@ -188,33 +197,7 @@ export const useRegistration = () => {
         return;
       }
 
-      // Create ambassador registration record
-      const { error: ambassadorError } = await supabase
-        .from('ambassador_registrations')
-        .insert({
-          user_id: user.id,
-          ambassador_id: ambassadorId,
-          region: formData.region,
-          country: formData.country,
-          referral_code: formData.referralCode.trim(),
-          status: 'pending'
-        });
-
-      if (ambassadorError) {
-        console.error('Ambassador registration error:', ambassadorError);
-        
-        // Clean up created profile if ambassador registration fails
-        await supabase.from('profiles').delete().eq('id', user.id);
-        
-        toast({
-          title: "Registration Failed",
-          description: "Failed to complete ambassador registration. Please try again.",
-          variant: "destructive"
-        });
-        return;
-      }
-
-      // Create referral record for ALL users to track the referral chain
+      // Create referral record to track the referral chain
       const { error: referralError } = await supabase
         .from('referrals')
         .insert({

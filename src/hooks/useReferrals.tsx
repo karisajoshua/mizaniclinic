@@ -14,7 +14,7 @@ export const useReferrals = () => {
         .from('referrals')
         .select(`
           *,
-          referred:profiles!referrals_referred_id_fkey(full_name, region)
+          referred:profiles!referrals_referred_id_fkey(full_name, region, country)
         `)
         .eq('referrer_id', user.id)
         .order('created_at', { ascending: false })
