@@ -27,34 +27,40 @@ export const useRegistration = () => {
       console.log('Starting registration process...');
       console.log('Looking for referral code:', formData.referralCode);
       
-      // Validate referral code exists - use proper error handling
-      const { data: profiles, error: referrerError } = await supabase
-        .from('profiles')
-        .select('*')
-        .or(`ambassador_id.eq.${formData.referralCode},user_referral_id.eq.${formData.referralCode}`);
+      // Check if it's a system referral code
+      const isSystemReferralCode = formData.referralCode === 'MCA25-T0000DSM';
+      
+      if (!isSystemReferralCode) {
+        // Validate referral code exists for non-system codes
+        const { data: profiles, error: referrerError } = await supabase
+          .from('profiles')
+          .select('*')
+          .or(`ambassador_id.eq.${formData.referralCode},user_referral_id.eq.${formData.referralCode}`);
 
-      if (referrerError) {
-        console.error('Database error looking up referral code:', referrerError);
-        toast({
-          title: "Registration Failed",
-          description: "Database error occurred. Please try again.",
-          variant: "destructive",
-        });
-        return;
+        if (referrerError) {
+          console.error('Database error looking up referral code:', referrerError);
+          toast({
+            title: "Registration Failed",
+            description: "Database error occurred. Please try again.",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        if (!profiles || profiles.length === 0) {
+          console.log('No profile found for referral code:', formData.referralCode);
+          toast({
+            title: "Invalid Referral Code",
+            description: `The referral code "${formData.referralCode}" does not exist. Please check the code and try again.`,
+            variant: "destructive",
+          });
+          return;
+        }
+
+        console.log('Valid referral code found from:', profiles[0].full_name);
+      } else {
+        console.log('Using system referral code:', formData.referralCode);
       }
-
-      if (!profiles || profiles.length === 0) {
-        console.log('No profile found for referral code:', formData.referralCode);
-        toast({
-          title: "Invalid Referral Code",
-          description: `The referral code "${formData.referralCode}" does not exist. Please check the code and try again.`,
-          variant: "destructive",
-        });
-        return;
-      }
-
-      const referrerProfile = profiles[0];
-      console.log('Valid referral code found from:', referrerProfile.full_name);
       
       // First create the user account
       const { error: authError } = await signUp(formData.email, formData.password, formData.fullName);
@@ -180,20 +186,30 @@ export const useRegistration = () => {
         return;
       }
 
-      // Create referral record to track the relationship
-      const { error: referralError } = await supabase
-        .from('referrals')
-        .insert({
-          referrer_id: referrerProfile.id,
-          referred_id: user.id,
-          referral_code: formData.referralCode,
-          country: formData.country,
-          status: 'pending'
-        });
+      // Create referral record only if not using system referral code
+      if (!isSystemReferralCode) {
+        const { data: referrerProfiles } = await supabase
+          .from('profiles')
+          .select('id')
+          .or(`ambassador_id.eq.${formData.referralCode},user_referral_id.eq.${formData.referralCode}`)
+          .limit(1);
 
-      if (referralError) {
-        console.error('Referral creation error:', referralError);
-        // Don't fail registration for referral tracking error, just log it
+        if (referrerProfiles && referrerProfiles.length > 0) {
+          const { error: referralError } = await supabase
+            .from('referrals')
+            .insert({
+              referrer_id: referrerProfiles[0].id,
+              referred_id: user.id,
+              referral_code: formData.referralCode,
+              country: formData.country,
+              status: 'pending'
+            });
+
+          if (referralError) {
+            console.error('Referral creation error:', referralError);
+            // Don't fail registration for referral tracking error, just log it
+          }
+        }
       }
 
       console.log('Registration completed successfully');
