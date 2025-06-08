@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -21,6 +20,7 @@ const Dashboard = () => {
   const [userAccount, setUserAccount] = useState<UserAccount | null>(null);
   const [activeTab, setActiveTab] = useState("overview");
   const [isLoadingUser, setIsLoadingUser] = useState(true);
+  const [showProfileCompletion, setShowProfileCompletion] = useState(false);
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -97,12 +97,20 @@ const Dashboard = () => {
         
         const accountData: UserAccount = {
           fullName: profile.full_name || user.user_metadata?.full_name || "User",
-          region: profile.region || "Dar es Salaam",
+          region: profile.region || "Not Specified",
           userReferralId: ambassadorId
         };
 
         setUserAccount(accountData);
         setIsLoadingUser(false);
+
+        // Check if profile needs completion
+        const needsCompletion = !profile.full_name || 
+                               profile.full_name === "User" || 
+                               !profile.phone || 
+                               profile.region === "Not Specified";
+        
+        setShowProfileCompletion(needsCompletion);
 
         // Update localStorage with current data
         localStorage.setItem('userAccount', JSON.stringify({
@@ -188,7 +196,7 @@ const Dashboard = () => {
     );
   }
 
-  console.log('Rendering main dashboard for user:', userAccount.fullName);
+  console.log('Rendering main dashboard for user:', userAccount?.fullName);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-yellow-50 to-orange-50">
@@ -197,6 +205,13 @@ const Dashboard = () => {
 
       <div className="px-3 sm:px-4 py-6 sm:py-8">
         <div className="container mx-auto max-w-6xl">
+          {/* Show profile completion prompt if needed */}
+          {showProfileCompletion && (
+            <div className="mb-6">
+              <ProfileCompletionPrompt />
+            </div>
+          )}
+
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-2 lg:grid-cols-6 mb-6 sm:mb-8 bg-white/90 backdrop-blur-sm shadow-lg h-auto p-1">
               <TabsTrigger value="overview" className="flex flex-col sm:flex-row items-center space-y-1 sm:space-y-0 sm:space-x-2 py-2 sm:py-3 data-[state=active]:bg-green-500 data-[state=active]:text-white">

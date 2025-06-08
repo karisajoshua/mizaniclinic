@@ -3,13 +3,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { User } from "lucide-react";
 import MobileHeader from "@/components/MobileHeader";
 import ProgressIndicator from "@/components/registration/ProgressIndicator";
-import RegistrationForm from "@/components/registration/RegistrationForm";
-import NextStepsInfo from "@/components/registration/NextStepsInfo";
+import SimpleRegistrationForm from "@/components/registration/SimpleRegistrationForm";
+import { Link } from "react-router-dom";
 
 const Register = () => {
   const progressSteps = [
     { number: 1, label: "Register" },
-    { number: 2, label: "Payment" }
+    { number: 2, label: "Get Started" }
   ];
 
   return (
@@ -29,14 +29,34 @@ const Register = () => {
               <div className="w-20 h-20 bg-gradient-to-br from-tanzania-green to-green-500 rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-xl animate-bounce-gentle">
                 <User className="w-10 h-10 text-white" />
               </div>
-              <CardTitle className="text-2xl sm:text-3xl text-tanzania-navy font-bold">Create Your Account</CardTitle>
+              <CardTitle className="text-2xl sm:text-3xl text-tanzania-navy font-bold">Join Mizani Clinic</CardTitle>
               <CardDescription className="text-tanzania-text/70">
-                Enter your details and referral code to get started
+                Quick registration - just 3 simple fields to get started
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <RegistrationForm />
-              <NextStepsInfo />
+              <SimpleRegistrationForm />
+              
+              <div className="text-center">
+                <p className="text-gray-600">
+                  Already have an account?{" "}
+                  <Link to="/signin" className="text-tanzania-green font-semibold hover:underline">
+                    Sign in here
+                  </Link>
+                </p>
+              </div>
+
+              <Card className="bg-gradient-to-br from-blue-50 to-green-50 border-0 p-4">
+                <h3 className="font-semibold text-tanzania-navy mb-2 text-sm">
+                  What happens next?
+                </h3>
+                <ul className="text-xs text-tanzania-text/70 space-y-1">
+                  <li>• Instant access to your dashboard</li>
+                  <li>• Your unique ambassador ID generated automatically</li>
+                  <li>• Complete your profile when convenient</li>
+                  <li>• Start earning up to TSH 88,000 per referral!</li>
+                </ul>
+              </Card>
             </CardContent>
           </Card>
         </div>
