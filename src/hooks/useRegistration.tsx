@@ -64,9 +64,6 @@ export const useRegistration = () => {
       if (idError || !ambassadorIdResult) {
         console.error('Error generating ambassador ID:', idError);
         
-        // Clean up the created user if ambassador ID generation fails
-        await supabase.auth.admin.deleteUser(user.id);
-        
         toast({
           title: "Registration Failed",
           description: "Failed to generate ambassador ID. Please try again.",
@@ -111,9 +108,6 @@ export const useRegistration = () => {
       if (profileError) {
         console.error('Profile creation error:', profileError);
         
-        // Clean up the created user if profile creation fails
-        await supabase.auth.admin.deleteUser(user.id);
-        
         toast({
           title: "Registration Failed",
           description: "Failed to create user profile. Please try again.",
@@ -137,9 +131,8 @@ export const useRegistration = () => {
       if (ambassadorError) {
         console.error('Ambassador registration error:', ambassadorError);
         
-        // Clean up created profile and user if ambassador registration fails
+        // Clean up created profile if ambassador registration fails
         await supabase.from('profiles').delete().eq('id', user.id);
-        await supabase.auth.admin.deleteUser(user.id);
         
         toast({
           title: "Registration Failed",
