@@ -12,11 +12,11 @@ const NextStepsInfo = () => {
       <ul className="text-sm text-tanzania-text/70 space-y-2">
         <li className="flex items-center">
           <div className="w-2 h-2 bg-tanzania-green rounded-full mr-3"></div>
-          You'll receive payment instructions via paybill
+          You'll be issued with a code upon payment confirmation
         </li>
         <li className="flex items-center">
           <div className="w-2 h-2 bg-tanzania-green rounded-full mr-3"></div>
-          Enter your transaction code for verification
+          Enter your 5 digit code for verification
         </li>
         <li className="flex items-center">
           <div className="w-2 h-2 bg-tanzania-green rounded-full mr-3"></div>
