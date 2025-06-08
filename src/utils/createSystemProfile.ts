@@ -3,9 +3,21 @@ import { supabase } from '@/integrations/supabase/client';
 
 export const createSystemProfile = async () => {
   try {
-    // First, create a system user account
+    // Check if system profile already exists
+    const { data: existingProfile, error: checkError } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('ambassador_id', 'MCA25-T0000DSM')
+      .single();
+
+    if (!checkError && existingProfile) {
+      console.log('System profile already exists');
+      return { error: null };
+    }
+
+    // Generate a secure random password for the system user
     const systemEmail = 'system@mizaniclinic.com';
-    const systemPassword = 'SystemUser123!';
+    const systemPassword = crypto.randomUUID() + '-' + Date.now();
     
     // Try to sign up the system user
     const { data: authData, error: authError } = await supabase.auth.signUp({
@@ -27,22 +39,10 @@ export const createSystemProfile = async () => {
     let systemUserId = authData?.user?.id;
     
     if (!systemUserId) {
-      // Try to sign in to get the user ID
-      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-        email: systemEmail,
-        password: systemPassword,
-      });
-      
-      if (signInError) {
-        console.error('Error signing in system user:', signInError);
-        return { error: signInError };
-      }
-      
-      systemUserId = signInData.user?.id;
-    }
-
-    if (!systemUserId) {
-      return { error: { message: 'Failed to get system user ID' } };
+      // If user already exists, we need to get their ID securely
+      // This is a one-time setup, so we'll handle this case differently
+      console.log('System user already exists, skipping profile creation');
+      return { error: null };
     }
 
     // Create the system profile
@@ -81,7 +81,7 @@ export const createSystemProfile = async () => {
       return { error: ambassadorError };
     }
 
-    // Sign out the system user
+    // Sign out the system user immediately for security
     await supabase.auth.signOut();
 
     console.log('System profile created successfully');

@@ -42,15 +42,22 @@ export const useAuth = () => {
       };
     }
 
-    try {
-      // Find user by ambassador_id or user_referral_id
-      const { data: profiles, error: profileError } = await supabase
-        .from('profiles')
-        .select('*')
-        .or(`ambassador_id.eq.${ambassadorId},user_referral_id.eq.${ambassadorId}`);
+    // Input validation
+    if (!ambassadorId.trim() || !password.trim()) {
+      return {
+        error: {
+          message: 'Ambassador ID and password are required'
+        }
+      };
+    }
 
-      if (profileError) {
-        console.error('Profile lookup error:', profileError);
+    try {
+      // Use the secure function to lookup user by ambassador ID
+      const { data: userLookup, error: lookupError } = await supabase
+        .rpc('get_user_by_ambassador_id', { p_ambassador_id: ambassadorId });
+
+      if (lookupError) {
+        console.error('User lookup error:', lookupError);
         return { 
           error: { 
             message: 'Database error occurred. Please try again.' 
@@ -58,7 +65,7 @@ export const useAuth = () => {
         };
       }
 
-      if (!profiles || profiles.length === 0) {
+      if (!userLookup || userLookup.length === 0) {
         console.log('No profile found for Ambassador ID:', ambassadorId);
         return { 
           error: { 
@@ -67,25 +74,13 @@ export const useAuth = () => {
         };
       }
 
-      const profile = profiles[0];
-      console.log('Found profile:', profile.id);
-
-      // Get the user's email from auth.users
-      const { data: { user: authUser }, error: authError } = await supabase.auth.admin.getUserById(profile.id);
-      
-      if (authError || !authUser?.email) {
-        console.error('Auth user lookup error:', authError);
-        return { 
-          error: { 
-            message: 'Unable to verify user credentials. Please contact support.' 
-          } 
-        };
-      }
+      const userInfo = userLookup[0];
+      console.log('Found user profile:', userInfo.user_id);
 
       // Sign in with the found email and provided password
-      console.log('Signing in with email:', authUser.email);
+      console.log('Signing in with email:', userInfo.email);
       const { error } = await supabase.auth.signInWithPassword({
-        email: authUser.email,
+        email: userInfo.email,
         password,
       });
 
@@ -115,13 +110,41 @@ export const useAuth = () => {
   const signUp = async (email: string, password: string, fullName: string) => {
     console.log('Starting signup process...');
     
+    // Input validation
+    if (!email.trim() || !password.trim() || !fullName.trim()) {
+      return {
+        error: {
+          message: 'All fields are required'
+        }
+      };
+    }
+
+    // Email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return {
+        error: {
+          message: 'Please enter a valid email address'
+        }
+      };
+    }
+
+    // Password strength validation
+    if (password.length < 6) {
+      return {
+        error: {
+          message: 'Password must be at least 6 characters long'
+        }
+      };
+    }
+    
     // Sign up without email confirmation
     const { data, error } = await supabase.auth.signUp({
-      email,
+      email: email.trim().toLowerCase(),
       password,
       options: {
         data: {
-          full_name: fullName,
+          full_name: fullName.trim(),
         },
         // Skip email confirmation
         emailRedirectTo: undefined,
@@ -139,7 +162,7 @@ export const useAuth = () => {
     if (data.user && !data.session) {
       console.log('User created but not confirmed, signing in manually...');
       const { error: signInError } = await supabase.auth.signInWithPassword({
-        email,
+        email: email.trim().toLowerCase(),
         password,
       });
       
@@ -156,6 +179,8 @@ export const useAuth = () => {
     // Clear stored user data
     localStorage.removeItem('currentUser');
     localStorage.removeItem('testUser');
+    localStorage.removeItem('userAccount');
+    localStorage.removeItem('registrationData');
     
     const { error } = await supabase.auth.signOut();
     

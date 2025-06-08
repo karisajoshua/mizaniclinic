@@ -25,6 +25,40 @@ export const useRegistration = () => {
 
     try {
       console.log('Starting registration process...');
+      
+      // Input validation
+      if (!formData.fullName.trim() || !formData.email.trim() || !formData.password.trim() || 
+          !formData.referralCode.trim() || !formData.region.trim() || !formData.phone.trim()) {
+        toast({
+          title: "Registration Failed",
+          description: "All fields are required. Please fill in all information.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Email format validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.email)) {
+        toast({
+          title: "Registration Failed",
+          description: "Please enter a valid email address.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Phone validation (basic)
+      const phoneRegex = /^\+?[\d\s\-\(\)]{7,}$/;
+      if (!phoneRegex.test(formData.phone)) {
+        toast({
+          title: "Registration Failed",
+          description: "Please enter a valid phone number.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       console.log('Looking for referral code:', formData.referralCode);
       
       // Validate referral code exists - treat all codes the same way
@@ -115,12 +149,12 @@ export const useRegistration = () => {
 
       // Create both profile and ambassador registration in a transaction-like manner
       const registrationData = {
-        fullName: formData.fullName,
-        email: formData.email,
+        fullName: formData.fullName.trim(),
+        email: formData.email.trim().toLowerCase(),
         region: formData.region,
         country: formData.country,
-        referralCode: formData.referralCode,
-        phone: formData.phone,
+        referralCode: formData.referralCode.trim(),
+        phone: formData.phone.trim(),
         ambassadorId,
         userId: user.id,
         registrationDate: new Date().toISOString()
@@ -131,13 +165,13 @@ export const useRegistration = () => {
         .from('profiles')
         .insert({
           id: user.id,
-          full_name: formData.fullName,
-          phone: formData.phone,
+          full_name: formData.fullName.trim(),
+          phone: formData.phone.trim(),
           region: formData.region,
           country: formData.country,
           ambassador_id: ambassadorId,
-          user_referral_id: ambassadorId, // Set user_referral_id to the same as ambassador_id
-          referral_code: formData.referralCode,
+          user_referral_id: ambassadorId,
+          referral_code: formData.referralCode.trim(),
           status: 'pending',
           payment_status: 'pending',
           registration_data: registrationData
@@ -162,7 +196,7 @@ export const useRegistration = () => {
           ambassador_id: ambassadorId,
           region: formData.region,
           country: formData.country,
-          referral_code: formData.referralCode,
+          referral_code: formData.referralCode.trim(),
           status: 'pending'
         });
 
@@ -186,7 +220,7 @@ export const useRegistration = () => {
         .insert({
           referrer_id: referrerProfile.id,
           referred_id: user.id,
-          referral_code: formData.referralCode,
+          referral_code: formData.referralCode.trim(),
           country: formData.country,
           status: 'pending'
         });
@@ -194,7 +228,6 @@ export const useRegistration = () => {
       if (referralError) {
         console.error('Referral creation error:', referralError);
         // Don't fail registration for referral tracking error, just log it
-        // The referral tracking is important for the dashboard, so we should log this prominently
         console.warn('REFERRAL TRACKING FAILED - this will affect dashboard display');
       } else {
         console.log('Referral record created successfully');
