@@ -117,15 +117,28 @@ const SimpleRegistrationForm = () => {
 
       console.log('User created successfully:', user.id);
 
-      // Step 3: Generate ambassador ID
+      // Step 3: Generate ambassador ID using the fixed database function
+      console.log('Calling generate_ambassador_id function...');
       const { data: ambassadorIdResult, error: idError } = await supabase
         .rpc('generate_ambassador_id', {
           p_region: 'Not Specified',
           p_country: 'Tanzania'
         });
 
-      if (idError || !ambassadorIdResult) {
+      console.log('Ambassador ID generation result:', { ambassadorIdResult, idError });
+
+      if (idError) {
         console.error('Error generating ambassador ID:', idError);
+        toast({
+          title: "Registration Failed",
+          description: `Failed to generate ambassador ID: ${idError.message}`,
+          variant: "destructive"
+        });
+        return;
+      }
+
+      if (!ambassadorIdResult) {
+        console.error('No ambassador ID returned from function');
         toast({
           title: "Registration Failed",
           description: "Failed to generate ambassador ID. Please try again.",
@@ -138,6 +151,7 @@ const SimpleRegistrationForm = () => {
       console.log('Generated ambassador ID:', ambassadorId);
 
       // Step 4: Create basic profile
+      console.log('Creating profile with ambassador ID:', ambassadorId);
       const { error: profileError } = await supabase
         .from('profiles')
         .insert({
@@ -165,7 +179,7 @@ const SimpleRegistrationForm = () => {
         console.error('Profile creation error:', profileError);
         toast({
           title: "Registration Failed",
-          description: "Failed to create profile. Please try again.",
+          description: `Failed to create profile: ${profileError.message}`,
           variant: "destructive"
         });
         return;
