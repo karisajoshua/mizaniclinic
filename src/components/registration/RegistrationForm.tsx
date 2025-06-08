@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -57,6 +58,8 @@ const RegistrationForm = () => {
     }
 
     try {
+      console.log('Starting registration process...');
+      
       // First create the user account
       const { error: authError } = await signUp(formData.email, formData.password, formData.fullName);
 
@@ -74,6 +77,8 @@ const RegistrationForm = () => {
       const { data: { user } } = await supabase.auth.getUser();
 
       if (user) {
+        console.log('User created, generating ambassador ID...');
+        
         // Generate ambassador ID using the database function
         const { data: ambassadorIdResult, error: idError } = await supabase
           .rpc('generate_ambassador_id', {
@@ -93,44 +98,63 @@ const RegistrationForm = () => {
         }
 
         const ambassadorId = ambassadorIdResult;
+        console.log('Generated ambassador ID:', ambassadorId);
 
-        // Create ambassador registration record
-        const { error: regError } = await supabase
-          .from('ambassador_registrations')
-          .insert({
-            user_id: user.id,
-            ambassador_id: ambassadorId,
-            region: formData.region,
-            country: formData.country,
-            referral_code: formData.referralCode,
-            status: 'pending'
+        // Use Promise.all to ensure both operations succeed or both fail
+        const updates = [];
+
+        // 1. Create ambassador registration record
+        updates.push(
+          supabase
+            .from('ambassador_registrations')
+            .insert({
+              user_id: user.id,
+              ambassador_id: ambassadorId,
+              region: formData.region,
+              country: formData.country,
+              referral_code: formData.referralCode,
+              status: 'pending'
+            })
+        );
+
+        // 2. Update user profile with all necessary data
+        updates.push(
+          supabase
+            .from('profiles')
+            .update({
+              full_name: formData.fullName,
+              phone: formData.phone,
+              region: formData.region,
+              country: formData.country,
+              ambassador_id: ambassadorId,
+              user_referral_id: ambassadorId, // Ensure both fields are set
+              referral_code: formData.referralCode,
+              registration_data: {
+                ...formData,
+                ambassadorId,
+                registrationDate: new Date().toISOString()
+              }
+            })
+            .eq('id', user.id)
+        );
+
+        // Execute both updates together
+        const results = await Promise.all(updates);
+        
+        // Check for any errors in the updates
+        const hasErrors = results.some(result => result.error);
+        if (hasErrors) {
+          console.error('Registration updates failed:', results.map(r => r.error).filter(Boolean));
+          toast({
+            title: "Error",
+            description: "Failed to complete registration. Please try again.",
+            variant: "destructive"
           });
-
-        if (regError) {
-          console.error('Error creating registration:', regError);
+          setLoading(false);
+          return;
         }
 
-        // Update user profile
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .update({
-            full_name: formData.fullName,
-            phone: formData.phone,
-            region: formData.region,
-            country: formData.country,
-            ambassador_id: ambassadorId,
-            referral_code: formData.referralCode,
-            registration_data: {
-              ...formData,
-              ambassadorId,
-              registrationDate: new Date().toISOString()
-            }
-          })
-          .eq('id', user.id);
-
-        if (profileError) {
-          console.error('Error updating profile:', profileError);
-        }
+        console.log('Registration completed successfully');
 
         // Store registration data for the payment page
         const registrationData = {

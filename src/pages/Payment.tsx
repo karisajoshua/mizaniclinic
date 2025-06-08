@@ -80,7 +80,7 @@ const Payment = () => {
       return;
     }
 
-    if (!registrationData) {
+    if (!registrationData && !user) {
       toast({
         title: "Error",
         description: "Registration data not found. Please register again.",
@@ -114,6 +114,42 @@ const Payment = () => {
 
       console.log('Receipt code validated, proceeding with updates...');
 
+      // Get or create ambassador ID
+      let ambassadorId = registrationData?.ambassadorId;
+      
+      if (!ambassadorId) {
+        // Fallback: generate ambassador ID if missing
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('ambassador_id, user_referral_id, region, country')
+          .eq('id', user?.id)
+          .single();
+          
+        ambassadorId = profile?.ambassador_id || profile?.user_referral_id;
+        
+        if (!ambassadorId && profile?.region && profile?.country) {
+          const { data: generatedId, error: idError } = await supabase
+            .rpc('generate_ambassador_id', {
+              p_region: profile.region,
+              p_country: profile.country
+            });
+            
+          if (!idError && generatedId) {
+            ambassadorId = generatedId;
+          }
+        }
+      }
+
+      if (!ambassadorId) {
+        toast({
+          title: "Error",
+          description: "Failed to get ambassador ID. Please contact support.",
+          variant: "destructive"
+        });
+        setLoading(false);
+        return;
+      }
+
       // Start transaction-like updates
       const updates = [];
 
@@ -129,17 +165,23 @@ const Payment = () => {
           .eq('code', receiptCode.trim())
       );
 
-      // 2. Update ambassador registration status
+      // 2. Upsert ambassador registration status (handles missing records)
       updates.push(
         supabase
           .from('ambassador_registrations')
-          .update({
+          .upsert({
+            user_id: user?.id,
+            ambassador_id: ambassadorId,
+            region: registrationData?.region || 'Dar es Salaam',
+            country: registrationData?.country || 'Tanzania',
+            referral_code: registrationData?.referralCode || '',
             status: 'active',
             payment_verified_at: new Date().toISOString(),
             activated_at: new Date().toISOString(),
             receipt_code: receiptCode.trim()
+          }, {
+            onConflict: 'user_id'
           })
-          .eq('user_id', user?.id)
       );
 
       // 3. Update profile with BOTH ambassador_id and user_referral_id for consistency
@@ -149,8 +191,8 @@ const Payment = () => {
           .update({
             status: 'active',
             payment_status: 'confirmed',
-            ambassador_id: registrationData.ambassadorId,
-            user_referral_id: registrationData.ambassadorId // Ensure both fields are set
+            ambassador_id: ambassadorId,
+            user_referral_id: ambassadorId // Ensure both fields are set
           })
           .eq('id', user?.id)
       );
@@ -169,12 +211,12 @@ const Payment = () => {
 
       // Store payment confirmation with the correct ambassador ID
       const userAccount = {
-        fullName: registrationData.fullName,
-        region: registrationData.region,
-        country: registrationData.country,
-        userReferralId: registrationData.ambassadorId,
+        fullName: registrationData?.fullName || user?.user_metadata?.full_name || "User",
+        region: registrationData?.region || "Dar es Salaam",
+        country: registrationData?.country || "Tanzania",
+        userReferralId: ambassadorId,
         paymentConfirmed: true,
-        ambassadorId: registrationData.ambassadorId
+        ambassadorId: ambassadorId
       };
 
       localStorage.setItem('userAccount', JSON.stringify(userAccount));
@@ -189,14 +231,14 @@ const Payment = () => {
         description: "Your account has been activated. Welcome to the Mizani Clinic Ambassador program!",
       });
 
-      // Add a small delay to ensure database updates propagate
+      // Add a delay to ensure database updates propagate
       setTimeout(() => {
         console.log('Navigating to dashboard with payment success state...');
         navigate('/dashboard', { 
           replace: true,
           state: { paymentJustCompleted: true }
         });
-      }, 1500); // 1.5 second delay to ensure updates complete
+      }, 2000); // 2 second delay to ensure updates complete
 
     } catch (error) {
       console.error('Payment verification error:', error);
