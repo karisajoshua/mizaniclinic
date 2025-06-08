@@ -29,26 +29,39 @@ export const useAuth = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signIn = async (emailOrReferralCode: string, password: string) => {
-    console.log('Attempting to sign in with:', emailOrReferralCode);
+  const signIn = async (ambassadorId: string, password: string) => {
+    console.log('Attempting to sign in with Ambassador ID:', ambassadorId);
     
-    // Check if input looks like a referral code (format: MCA25-XXXXXX)
-    const isReferralCode = /^MCA25-[A-Z0-9]+$/.test(emailOrReferralCode.toUpperCase());
-    
-    if (isReferralCode) {
-      console.log('Detected referral code format, looking up user...');
-      
+    // Validate ambassador ID format
+    if (!/^MCA25-[A-Z0-9]+$/.test(ambassadorId)) {
+      return { 
+        error: { 
+          message: 'Invalid Ambassador ID format. Must be MCA25-XXXXX' 
+        } 
+      };
+    }
+
+    try {
       // Find user by ambassador_id or user_referral_id
       const { data: profiles, error: profileError } = await supabase
         .from('profiles')
         .select('*')
-        .or(`ambassador_id.eq.${emailOrReferralCode.toUpperCase()},user_referral_id.eq.${emailOrReferralCode.toUpperCase()}`);
+        .or(`ambassador_id.eq.${ambassadorId},user_referral_id.eq.${ambassadorId}`);
 
-      if (profileError || !profiles || profiles.length === 0) {
+      if (profileError) {
         console.error('Profile lookup error:', profileError);
         return { 
           error: { 
-            message: `No user found with referral code: ${emailOrReferralCode.toUpperCase()}. Please check your code and try again.` 
+            message: 'Database error occurred. Please try again.' 
+          } 
+        };
+      }
+
+      if (!profiles || profiles.length === 0) {
+        console.log('No profile found for Ambassador ID:', ambassadorId);
+        return { 
+          error: { 
+            message: `Ambassador ID "${ambassadorId}" not found. Please check your ID and try again.` 
           } 
         };
       }
@@ -63,12 +76,12 @@ export const useAuth = () => {
         console.error('Auth user lookup error:', authError);
         return { 
           error: { 
-            message: 'Unable to verify user credentials. Please try again.' 
+            message: 'Unable to verify user credentials. Please contact support.' 
           } 
         };
       }
 
-      // Now sign in with the found email and provided password
+      // Sign in with the found email and provided password
       console.log('Signing in with email:', authUser.email);
       const { error } = await supabase.auth.signInWithPassword({
         email: authUser.email,
@@ -77,21 +90,24 @@ export const useAuth = () => {
 
       if (error) {
         console.error('Sign in error:', error);
-        return { 
-          error: { 
-            message: 'Invalid password for this referral code. Please check your credentials.' 
-          } 
-        };
+        if (error.message.includes('Invalid login credentials')) {
+          return { 
+            error: { 
+              message: 'Invalid password. Please check your credentials and try again.' 
+            } 
+          };
+        }
+        return { error };
       }
 
       return { error: null };
-    } else {
-      // Regular email login
-      const { error } = await supabase.auth.signInWithPassword({
-        email: emailOrReferralCode,
-        password,
-      });
-      return { error };
+    } catch (error) {
+      console.error('Unexpected sign in error:', error);
+      return { 
+        error: { 
+          message: 'An unexpected error occurred. Please try again.' 
+        } 
+      };
     }
   };
 

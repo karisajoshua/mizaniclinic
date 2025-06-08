@@ -25,16 +25,26 @@ export const useRegistration = () => {
 
     try {
       console.log('Starting registration process...');
+      console.log('Looking for referral code:', formData.referralCode);
       
-      // Validate referral code exists
-      const { data: referrerProfile, error: referrerError } = await supabase
+      // Validate referral code exists - use proper error handling
+      const { data: profiles, error: referrerError } = await supabase
         .from('profiles')
         .select('*')
-        .or(`ambassador_id.eq.${formData.referralCode},user_referral_id.eq.${formData.referralCode}`)
-        .single();
+        .or(`ambassador_id.eq.${formData.referralCode},user_referral_id.eq.${formData.referralCode}`);
 
-      if (referrerError || !referrerProfile) {
-        console.error('Invalid referral code:', referrerError);
+      if (referrerError) {
+        console.error('Database error looking up referral code:', referrerError);
+        toast({
+          title: "Registration Failed",
+          description: "Database error occurred. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (!profiles || profiles.length === 0) {
+        console.log('No profile found for referral code:', formData.referralCode);
         toast({
           title: "Invalid Referral Code",
           description: `The referral code "${formData.referralCode}" does not exist. Please check the code and try again.`,
@@ -43,6 +53,7 @@ export const useRegistration = () => {
         return;
       }
 
+      const referrerProfile = profiles[0];
       console.log('Valid referral code found from:', referrerProfile.full_name);
       
       // First create the user account
@@ -50,11 +61,19 @@ export const useRegistration = () => {
 
       if (authError) {
         console.error('Auth error:', authError);
-        toast({
-          title: "Registration Failed",
-          description: authError.message,
-          variant: "destructive",
-        });
+        if (authError.message.includes('already registered')) {
+          toast({
+            title: "Registration Failed",
+            description: "This email is already registered. Please try signing in or use a different email.",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Registration Failed",
+            description: authError.message,
+            variant: "destructive",
+          });
+        }
         return;
       }
 

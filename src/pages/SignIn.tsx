@@ -5,13 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { LogIn, Mail, Lock } from "lucide-react";
+import { LogIn, Key, Lock } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
 import MobileHeader from "@/components/MobileHeader";
 
 const SignIn = () => {
-  const [emailOrReferralCode, setEmailOrReferralCode] = useState("");
+  const [ambassadorId, setAmbassadorId] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const { signIn } = useAuth();
@@ -20,7 +20,7 @@ const SignIn = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!emailOrReferralCode || !password) {
+    if (!ambassadorId || !password) {
       toast({
         title: "Error",
         description: "Please fill in all fields",
@@ -29,10 +29,23 @@ const SignIn = () => {
       return;
     }
 
+    // Auto-format ambassador ID to uppercase
+    const formattedId = ambassadorId.toUpperCase();
+
+    // Validate ambassador ID format
+    if (!/^MCA25-[A-Z0-9]+$/.test(formattedId)) {
+      toast({
+        title: "Invalid Ambassador ID",
+        description: "Ambassador ID must be in format MCA25-XXXXX",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const { error } = await signIn(emailOrReferralCode, password);
+      const { error } = await signIn(formattedId, password);
 
       if (error) {
         toast({
@@ -72,25 +85,28 @@ const SignIn = () => {
               </div>
               <CardTitle className="text-2xl sm:text-3xl text-tanzania-navy font-bold">Welcome Back</CardTitle>
               <CardDescription className="text-tanzania-text/70">
-                Sign in with your email or ambassador ID
+                Sign in with your Ambassador ID
               </CardDescription>
             </CardHeader>
             
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="space-y-3">
-                  <Label htmlFor="emailOrReferralCode" className="text-tanzania-navy font-medium flex items-center">
-                    <Mail className="w-4 h-4 mr-2 text-tanzania-green" />
-                    Email or Ambassador ID
+                  <Label htmlFor="ambassadorId" className="text-tanzania-navy font-medium flex items-center">
+                    <Key className="w-4 h-4 mr-2 text-tanzania-green" />
+                    Ambassador ID
                   </Label>
                   <Input
-                    id="emailOrReferralCode"
+                    id="ambassadorId"
                     type="text"
-                    placeholder="email@example.com or MCA25-T0001DSM"
-                    value={emailOrReferralCode}
-                    onChange={(e) => setEmailOrReferralCode(e.target.value)}
-                    className="h-12 border-2 border-tanzania-grey/50 focus:border-tanzania-green rounded-xl transition-all duration-300"
+                    placeholder="MCA25-T0001DSM"
+                    value={ambassadorId}
+                    onChange={(e) => setAmbassadorId(e.target.value.toUpperCase())}
+                    className="h-12 border-2 border-tanzania-grey/50 focus:border-tanzania-green rounded-xl transition-all duration-300 font-mono"
                   />
+                  <p className="text-sm text-tanzania-text/60">
+                    Enter your unique Ambassador ID (e.g., MCA25-T0001DSM)
+                  </p>
                 </div>
 
                 <div className="space-y-3">
