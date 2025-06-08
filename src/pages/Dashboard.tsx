@@ -60,6 +60,8 @@ const Dashboard = () => {
     if (!user) return;
 
     try {
+      console.log('Fetching user data for:', user.id);
+      
       // Fetch user profile from database
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
@@ -69,25 +71,37 @@ const Dashboard = () => {
 
       if (profileError) {
         console.error('Error fetching profile:', profileError);
-        // Fallback to localStorage or default data
         handleFallbackData();
         return;
       }
 
       if (profile) {
+        console.log('Profile data:', profile);
+        
+        // Check for ambassador ID in either field
+        const ambassadorId = profile.user_referral_id || profile.ambassador_id || "";
+        
         const accountData: UserAccount = {
           fullName: profile.full_name || user.user_metadata?.full_name || "User",
           region: profile.region || "Dar es Salaam",
-          userReferralId: profile.user_referral_id || profile.ambassador_id || ""
+          userReferralId: ambassadorId
         };
 
         setUserAccount(accountData);
-        setHasCompletedPayment(profile.payment_status === 'confirmed' && Boolean(profile.ambassador_id));
+        
+        // Updated payment completion check - look for either ambassador ID field and confirmed payment
+        const hasAmbassadorId = Boolean(profile.user_referral_id || profile.ambassador_id);
+        const paymentConfirmed = profile.payment_status === 'confirmed';
+        const isActive = profile.status === 'active';
+        
+        console.log('Payment check:', { hasAmbassadorId, paymentConfirmed, isActive, ambassadorId });
+        
+        setHasCompletedPayment(hasAmbassadorId && (paymentConfirmed || isActive));
 
         // Update localStorage with current data
         localStorage.setItem('userAccount', JSON.stringify({
           ...accountData,
-          paymentConfirmed: profile.payment_status === 'confirmed'
+          paymentConfirmed: paymentConfirmed || isActive
         }));
       } else {
         handleFallbackData();

@@ -146,12 +146,13 @@ const Payment = () => {
         console.error('Error updating registration:', regError);
       }
 
-      // Update profile
+      // Update profile with both ambassador_id and user_referral_id for consistency
       const { error: profileError } = await supabase
         .from('profiles')
         .update({
           status: 'active',
           payment_status: 'confirmed',
+          ambassador_id: registrationData.ambassadorId,
           user_referral_id: registrationData.ambassadorId
         })
         .eq('id', user?.id);
@@ -172,15 +173,15 @@ const Payment = () => {
 
       localStorage.setItem('userAccount', JSON.stringify(userAccount));
 
+      console.log('Payment verified successfully, redirecting to dashboard...');
+
       toast({
         title: "Payment Verified! 🎉",
         description: "Your account has been activated. Welcome to the Mizani Clinic Ambassador program!",
       });
 
-      // Navigate to dashboard
-      setTimeout(() => {
-        navigate('/dashboard');
-      }, 1500);
+      // Navigate to dashboard immediately
+      navigate('/dashboard', { replace: true });
 
     } catch (error) {
       console.error('Payment verification error:', error);
