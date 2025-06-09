@@ -15,7 +15,8 @@ export const useAmbassadorStats = () => {
         .from('ambassador_stats')
         .select('*')
         .eq('user_id', user.id)
-        .single();
+         .maybeSingle();
+        
 
       if (statsError && statsError.code !== 'PGRST116') {
         console.error('Error fetching ambassador stats:', statsError);

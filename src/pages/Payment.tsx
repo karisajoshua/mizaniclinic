@@ -95,28 +95,54 @@ const Payment = () => {
       console.log('Starting payment verification process...');
       
       // Check if receipt code exists and is available
-      const { data: receiptData, error: receiptError } = await supabase
-        .from('receipt_codes')
-        .select('*')
-        .eq('code', receiptCode.trim())
-        .eq('status', 'available')
-        .single();
+      // const { data: receiptData, error: receiptError } = await supabase
+      //   .from('receipt_codes')
+      //   .select('*')
+      //   .eq('code', receiptCode.trim())
+      //   .eq('status', 'available')
+      //   .single();
 
-      if (receiptError || !receiptData) {
+      // if (receiptError || !receiptData) {
+      //   toast({
+      //     title: "Invalid Receipt Code",
+      //     description: "This receipt code is not valid or has already been used.",
+      //     variant: "destructive"
+      //   });
+      //   setLoading(false);
+      //   return;
+      // }
+
+      // console.log('Receipt code validated, proceeding with updates...');
+
+      // Get or create ambassador ID
+
+      const { data: receiptData, error: receiptError } = await supabase.rpc(
+        'verify_receipt_code' as any,
+        {
+          p_receipt_code: receiptCode.trim(),
+          p_uid: user.id,
+        }
+      );
+
+      if (receiptError) {
+        console.log("Receipt verification error", receiptError);
         toast({
-          title: "Invalid Receipt Code",
-          description: "This receipt code is not valid or has already been used.",
+          title: "Verification Failed",
+          description: receiptError.message,
           variant: "destructive"
         });
         setLoading(false);
         return;
       }
 
-      console.log('Receipt code validated, proceeding with updates...');
+      toast({
+        title: `Success`,
+        description: receiptData,
+      });
 
-      // Get or create ambassador ID
+
       let ambassadorId = registrationData?.ambassadorId;
-      
+
       if (!ambassadorId) {
         // Fallback: generate ambassador ID if missing
         const { data: profile } = await supabase
@@ -150,62 +176,6 @@ const Payment = () => {
         return;
       }
 
-      // Start transaction-like updates
-      const updates = [];
-
-      // 1. Mark receipt as used
-      updates.push(
-        supabase
-          .from('receipt_codes')
-          .update({
-            status: 'used',
-            used_by: user?.id,
-            used_at: new Date().toISOString()
-          })
-          .eq('code', receiptCode.trim())
-      );
-
-      // 2. Upsert ambassador registration status (handles missing records)
-      updates.push(
-        supabase
-          .from('ambassador_registrations')
-          .upsert({
-            user_id: user?.id,
-            ambassador_id: ambassadorId,
-            region: registrationData?.region || 'Dar es Salaam',
-            country: registrationData?.country || 'Tanzania',
-            referral_code: registrationData?.referralCode || '',
-            status: 'active',
-            payment_verified_at: new Date().toISOString(),
-            activated_at: new Date().toISOString(),
-            receipt_code: receiptCode.trim()
-          }, {
-            onConflict: 'user_id'
-          })
-      );
-
-      // 3. Update profile with BOTH ambassador_id and user_referral_id for consistency
-      updates.push(
-        supabase
-          .from('profiles')
-          .update({
-            status: 'active',
-            payment_status: 'confirmed',
-            ambassador_id: ambassadorId,
-            user_referral_id: ambassadorId // Ensure both fields are set
-          })
-          .eq('id', user?.id)
-      );
-
-      // Execute all updates
-      const results = await Promise.all(updates);
-      
-      // Check for any errors in the updates
-      const hasErrors = results.some(result => result.error);
-      if (hasErrors) {
-        console.error('Some updates failed:', results.map(r => r.error).filter(Boolean));
-        throw new Error('Failed to complete all payment updates');
-      }
 
       console.log('All database updates completed successfully');
 

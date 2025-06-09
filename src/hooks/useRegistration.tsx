@@ -32,6 +32,12 @@ export const useRegistration = () => {
         .select('*')
         .or(`ambassador_id.eq.${formData.referralCode},user_referral_id.eq.${formData.referralCode}`)
         .single();
+        
+        const allData = await supabase
+        .from('profiles')
+        .select('*')
+
+        console.log(allData)
 
       if (referrerError || !referrerProfile) {
         console.error('Invalid referral code:', referrerError);
@@ -135,31 +141,31 @@ export const useRegistration = () => {
         return;
       }
 
-      // Create ambassador registration record
-      const { error: ambassadorError } = await supabase
-        .from('ambassador_registrations')
-        .insert({
-          user_id: user.id,
-          ambassador_id: ambassadorId,
-          region: formData.region,
-          country: formData.country,
-          referral_code: formData.referralCode,
-          status: 'pending'
-        });
+      // Create ambassador registration record -- removed
+      // const { error: ambassadorError } = await supabase
+      //   .from('ambassador_registrations')
+      //   .insert({
+      //     user_id: user.id,
+      //     ambassador_id: ambassadorId,
+      //     region: formData.region,
+      //     country: formData.country,
+      //     referral_code: formData.referralCode,
+      //     status: 'pending'
+      //   });
 
-      if (ambassadorError) {
-        console.error('Ambassador registration error:', ambassadorError);
+      // if (ambassadorError) {
+      //   console.error('Ambassador registration error:', ambassadorError);
         
-        // Clean up created profile if ambassador registration fails
-        await supabase.from('profiles').delete().eq('id', user.id);
+      //   // Clean up created profile if ambassador registration fails
+      //   await supabase.from('profiles').delete().eq('id', user.id);
         
-        toast({
-          title: "Registration Failed",
-          description: "Failed to complete ambassador registration. Please try again.",
-          variant: "destructive"
-        });
-        return;
-      }
+      //   toast({
+      //     title: "Registration Failed",
+      //     description: "Failed to complete ambassador registration. Please try again.",
+      //     variant: "destructive"
+      //   });
+      //   return;
+      // }
 
       // Create referral record to track the relationship
       const { error: referralError } = await supabase
@@ -175,6 +181,11 @@ export const useRegistration = () => {
       if (referralError) {
         console.error('Referral creation error:', referralError);
         // Don't fail registration for referral tracking error, just log it
+
+        toast({
+          title: "Referral Created",
+          description: "Your ambassador has been notified"
+        });
       }
 
       console.log('Registration completed successfully');
@@ -184,7 +195,7 @@ export const useRegistration = () => {
 
       toast({
         title: "Registration Successful!",
-        description: `Your Ambassador ID: ${ambassadorId}. Please complete payment to activate your account.`,
+        description: `Please complete payment to activate your account.`,
       });
 
       // Navigate to payment page
