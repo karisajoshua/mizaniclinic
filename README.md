@@ -1,6 +1,6 @@
 # 🇹🇿 Mizani Clinic 
 
-A full-featured referral-based registration and healthcare booking platform tailored for Mizani Clinic Ambassadors across Tanzania and East Africa. This system enables users to register with referral codes, earn commissions through multiple earning channels, and schedule appointments with Dr. Mwaka — all through a clean, mobile-first web interface.
+A full-featured referral-based registration and healthcare bookings platform tailored for Mizani Clinic Ambassadors across Tanzania and East Africa. This system enables users to register with referral codes, earn commissions through multiple earning channels, and schedule appointments with Dr. Mwaka — all through a clean, mobile-first web interface.
 
 ---
 
