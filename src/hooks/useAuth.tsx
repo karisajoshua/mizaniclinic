@@ -30,12 +30,81 @@ export const useAuth = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    return { error };
+  const signIn = async (emailOrReferralCode: string, password: string) => {
+    console.log('Attempting to sign in with:', emailOrReferralCode);
+    
+    // Check if input looks like a referral code (format: MCA25-XXXXXX)
+    const isReferralCode = /^MCA25-[A-Z0-9]+$/.test(emailOrReferralCode.toUpperCase());
+    
+    if (isReferralCode) {
+      console.log('Detected referral code format, looking up user...');
+      
+      // Find user by ambassador_id or user_referral_id
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .or(`ambassador_id.eq.${emailOrReferralCode.toUpperCase()},user_referral_id.eq.${emailOrReferralCode.toUpperCase()}`)
+        .single();
+
+      if (profileError || !profile) {
+        console.error('Profile lookup error:', profileError);
+        return { 
+          error: { 
+            message: `No user found with referral code: ${emailOrReferralCode.toUpperCase()}. Please check your code and try again.` 
+          } 
+        };
+      }
+
+      console.log('Found profile:', profile.id);
+
+      // Get the user's email from auth.users via the profiles table
+      const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
+      
+      if (authError) {
+        console.error('Auth users lookup error:', authError);
+        return { 
+          error: { 
+            message: 'Unable to verify user credentials. Please try again.' 
+          } 
+        };
+      }
+
+      const authUser = authUsers.users.find(u => u.id === profile.id);
+      
+      if (!authUser?.email) {
+        console.error('No email found for user');
+        return { 
+          error: { 
+            message: 'User account not found. Please contact support.' 
+          } 
+        };
+      }
+
+      // Now sign in with the found email and provided password
+      console.log('Signing in with email:', authUser.email);
+      const { error } = await supabase.auth.signInWithPassword({
+        email: authUser.email,
+        password,
+      });
+
+      if (error) {
+        console.error('Sign in error:', error);
+        return { 
+          error: { 
+            message: 'Invalid password for this referral code. Please check your credentials.' 
+          } 
+        };
+      }
+
+      return { error: null };
+    } else {
+      // Regular email login
+      const { error } = await supabase.auth.signInWithPassword({
+        email: emailOrReferralCode,
+        password,
+      });
+      return { error };
+    }
   };
 
   const signUp = async (email: string, password: string, fullName: string) => {
