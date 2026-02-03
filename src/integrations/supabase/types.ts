@@ -7,64 +7,13 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "12.2.3 (519615d)"
+  }
   public: {
     Tables: {
-      ambassador_registrations: {
-        Row: {
-          activated_at: string | null
-          ambassador_id: string
-          country: string
-          created_at: string
-          id: string
-          payment_verified_at: string | null
-          receipt_code: string | null
-          referral_code: string | null
-          region: string
-          registration_date: string
-          status: string
-          updated_at: string
-          user_id: string | null
-        }
-        Insert: {
-          activated_at?: string | null
-          ambassador_id: string
-          country: string
-          created_at?: string
-          id?: string
-          payment_verified_at?: string | null
-          receipt_code?: string | null
-          referral_code?: string | null
-          region: string
-          registration_date?: string
-          status?: string
-          updated_at?: string
-          user_id?: string | null
-        }
-        Update: {
-          activated_at?: string | null
-          ambassador_id?: string
-          country?: string
-          created_at?: string
-          id?: string
-          payment_verified_at?: string | null
-          receipt_code?: string | null
-          referral_code?: string | null
-          region?: string
-          registration_date?: string
-          status?: string
-          updated_at?: string
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "ambassador_registrations_receipt_code_fkey"
-            columns: ["receipt_code"]
-            isOneToOne: false
-            referencedRelation: "receipt_codes"
-            referencedColumns: ["code"]
-          },
-        ]
-      }
       ambassador_stats: {
         Row: {
           activation_pack_earnings_usd: number
@@ -415,13 +364,16 @@ export type Database = {
       }
       profiles: {
         Row: {
+          activated_at: string | null
           ambassador_id: string | null
           country: string | null
           created_at: string | null
           full_name: string | null
           id: string
           payment_status: string | null
+          payment_verified_at: string | null
           phone: string | null
+          receipt_code: string | null
           referral_code: string | null
           region: string | null
           registration_data: Json | null
@@ -431,13 +383,16 @@ export type Database = {
           user_referral_id: string | null
         }
         Insert: {
+          activated_at?: string | null
           ambassador_id?: string | null
           country?: string | null
           created_at?: string | null
           full_name?: string | null
           id: string
           payment_status?: string | null
+          payment_verified_at?: string | null
           phone?: string | null
+          receipt_code?: string | null
           referral_code?: string | null
           region?: string | null
           registration_data?: Json | null
@@ -447,13 +402,16 @@ export type Database = {
           user_referral_id?: string | null
         }
         Update: {
+          activated_at?: string | null
           ambassador_id?: string | null
           country?: string | null
           created_at?: string | null
           full_name?: string | null
           id?: string
           payment_status?: string | null
+          payment_verified_at?: string | null
           phone?: string | null
+          receipt_code?: string | null
           referral_code?: string | null
           region?: string | null
           registration_data?: Json | null
@@ -678,11 +636,24 @@ export type Database = {
         Returns: undefined
       }
       generate_ambassador_id: {
-        Args: { p_region: string; p_country: string }
+        Args: { p_country: string; p_region: string }
         Returns: string
       }
-      generate_progressive_ambassador_id: {
-        Args: Record<PropertyKey, never>
+      generate_progressive_ambassador_id: { Args: never; Returns: string }
+      get_email_by_referral_code: {
+        Args: { input_referral_code: string }
+        Returns: string
+      }
+      get_user_by_ambassador_id: {
+        Args: { p_ambassador_id: string }
+        Returns: {
+          email: string
+          full_name: string
+          user_id: string
+        }[]
+      }
+      verify_receipt_code: {
+        Args: { p_receipt_code: string; p_uid: string }
         Returns: string
       }
     }
@@ -695,21 +666,25 @@ export type Database = {
   }
 }
 
-type DefaultSchema = Database[Extract<keyof Database, "public">]
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-        Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-      Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R
     }
     ? R
@@ -727,14 +702,16 @@ export type Tables<
 export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Insert: infer I
     }
     ? I
@@ -750,14 +727,16 @@ export type TablesInsert<
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Update: infer U
     }
     ? U
@@ -773,14 +752,16 @@ export type TablesUpdate<
 export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   EnumName extends DefaultSchemaEnumNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
     : never = never,
-> = DefaultSchemaEnumNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
   : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
     ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
     : never
@@ -788,14 +769,16 @@ export type Enums<
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
     : never = never,
-> = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
   : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
     ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never

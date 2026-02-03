@@ -4,6 +4,7 @@ import { Users, Coins, Calendar, ArrowRight, CheckCircle, Phone, MapPin, Star, S
 import { Link } from "react-router-dom";
 import MobileHeader from "@/components/MobileHeader";
 import { useAuth } from "@/hooks/useAuth";
+import HeroPhoneSlider from "@/components/home/HeroPhoneSlider";
 
 const Index = () => {
   const { user } = useAuth();
@@ -90,15 +91,8 @@ const Index = () => {
               </div>
             </div>
 
-            {/* Right Image */}
-            <div className="flex justify-center lg:justify-end">
-              <div className="relative">
-                <img src="https://lgtuwkhbucnucegkvirf.supabase.co/storage/v1/object/public/mizaniclinic//mobil_eapp_mizani-removebg-preview.png" alt="Mizani Clinic Mobile App" className="w-80 sm:w-96 lg:w-full max-w-md h-auto object-contain" />
-                <div className="absolute -top-4 -right-4 w-20 h-20 bg-tanzania-green rounded-full flex items-center justify-center animate-pulse">
-                  <Phone className="w-10 h-10 text-white" />
-                </div>
-              </div>
-            </div>
+            {/* Right Image - Phone Slider */}
+            <HeroPhoneSlider />
           </div>
         </div>
       </section>
