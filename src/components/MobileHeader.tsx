@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Menu, Phone, Users, User, LogOut } from "lucide-react";
+import { Menu, Phone, Users, User, LogOut, Shield } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
@@ -47,6 +47,9 @@ const MobileHeader = () => {
     icon: Users
   }];
 
+  const ADMIN_EMAILS = ['admin@mizaniclinic.com'];
+  const isAdmin = user && ADMIN_EMAILS.includes(user.email || '');
+
   // Navigation items for authenticated users
   const authenticatedNavItems = [{
     href: "/",
@@ -56,7 +59,11 @@ const MobileHeader = () => {
     href: "/dashboard",
     label: "Dashboard",
     icon: User
-  }];
+  }, ...(isAdmin ? [{
+    href: "/admin",
+    label: "Admin",
+    icon: Shield
+  }] : [])];
   const navItems = user ? authenticatedNavItems : unauthenticatedNavItems;
   const isActive = (path: string) => location.pathname === path;
   if (loading) {
