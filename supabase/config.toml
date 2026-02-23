@@ -1,1 +1,4 @@
 project_id = "rpkttbmlvjshkbjrmnvo"
+
+[functions.analyze-iris]
+verify_jwt = false

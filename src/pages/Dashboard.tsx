@@ -4,13 +4,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useSearchParams, useLocation } from "react-router-dom";
-import { TrendingUp, Coins, Users, Trophy, Download, Calendar } from "lucide-react";
+import { TrendingUp, Coins, Users, Trophy, Download, Calendar, Eye } from "lucide-react";
 import MobileHeader from "@/components/MobileHeader";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import ReferralCodeSharing from "@/components/dashboard/ReferralCodeSharing";
 import AmbassadorTools from "@/components/dashboard/AmbassadorTools";
 import AppointmentBooking from "@/components/appointments/AppointmentBooking";
 import AppointmentsList from "@/components/appointments/AppointmentsList";
+import IrisAnalysis from "@/components/iris/IrisAnalysis";
 import RealTimeStats from "@/components/dashboard/RealTimeStats";
 import type { UserAccount } from "@/types/dashboard";
 import { useAuth } from "@/hooks/useAuth";
@@ -284,7 +285,7 @@ const Dashboard = () => {
       <div className="px-3 sm:px-4 py-6 sm:py-8">
         <div className="container mx-auto max-w-6xl">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-6 mb-6 sm:mb-8 bg-white/90 backdrop-blur-sm shadow-lg h-auto p-1">
+            <TabsList className="grid w-full grid-cols-3 lg:grid-cols-7 mb-6 sm:mb-8 bg-white/90 backdrop-blur-sm shadow-lg h-auto p-1">
               <TabsTrigger value="overview" className="flex flex-col sm:flex-row items-center space-y-1 sm:space-y-0 sm:space-x-2 py-2 sm:py-3 data-[state=active]:bg-green-500 data-[state=active]:text-white">
                 <TrendingUp className="w-4 h-4" />
                 <span className="text-xs sm:text-sm font-bold">Overview</span>
@@ -304,6 +305,10 @@ const Dashboard = () => {
               <TabsTrigger value="tools" className="flex flex-col sm:flex-row items-center space-y-1 sm:space-y-0 sm:space-x-2 py-2 sm:py-3 data-[state=active]:bg-green-500 data-[state=active]:text-white">
                 <Download className="w-4 h-4" />
                 <span className="text-xs sm:text-sm font-bold">Tools</span>
+              </TabsTrigger>
+              <TabsTrigger value="iris" className="flex flex-col sm:flex-row items-center space-y-1 sm:space-y-0 sm:space-x-2 py-2 sm:py-3 data-[state=active]:bg-green-500 data-[state=active]:text-white">
+                <Eye className="w-4 h-4" />
+                <span className="text-xs sm:text-sm font-bold">Iris Scan</span>
               </TabsTrigger>
               <TabsTrigger value="appointments" className="flex flex-col sm:flex-row items-center space-y-1 sm:space-y-0 sm:space-x-2 py-2 sm:py-3 data-[state=active]:bg-green-500 data-[state=active]:text-white">
                 <Calendar className="w-4 h-4" />
@@ -330,6 +335,10 @@ const Dashboard = () => {
 
             <TabsContent value="tools" className="space-y-4 sm:space-y-6">
               <AmbassadorTools />
+            </TabsContent>
+
+            <TabsContent value="iris" className="space-y-4 sm:space-y-6">
+              <IrisAnalysis />
             </TabsContent>
 
             <TabsContent value="appointments" className="space-y-4 sm:space-y-6">
