@@ -103,6 +103,20 @@ const IrisAnalysis = ({ clientInfo }: IrisAnalysisProps) => {
       if (data?.error) throw new Error(data.error);
 
       setAnalysisResult(data.analysis);
+
+      // Save to database
+      const { error: saveError } = await supabase.from("iris_analyses" as any).insert({
+        user_id: (await supabase.auth.getUser()).data.user?.id,
+        client_name: clientInfo.fullName,
+        client_email: clientInfo.email,
+        client_phone: clientInfo.phone,
+        client_region: clientInfo.region,
+        ambassador_id: clientInfo.ambassadorId,
+        image_url: capturedImage,
+        analysis_text: data.analysis,
+      });
+      if (saveError) console.error("Failed to save iris analysis:", saveError);
+
       toast({ title: "Analysis Complete", description: "Your iris analysis report is ready." });
     } catch (err: any) {
       console.error("Iris analysis error:", err);
