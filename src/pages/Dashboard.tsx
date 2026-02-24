@@ -338,7 +338,7 @@ const Dashboard = () => {
             </TabsContent>
 
             <TabsContent value="iris" className="space-y-4 sm:space-y-6">
-              <IrisAnalysis />
+              <IrisAnalysis clientInfo={{ fullName: userAccount.fullName, region: userAccount.region, ambassadorId: userAccount.userReferralId, email: user?.email || "", phone: (user?.user_metadata as any)?.phone || "" }} />
             </TabsContent>
 
             <TabsContent value="appointments" className="space-y-4 sm:space-y-6">
