@@ -6,7 +6,19 @@ import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import IrisReport from "./IrisReport";
 
-const IrisAnalysis = () => {
+export interface ClientInfo {
+  fullName: string;
+  region: string;
+  ambassadorId: string;
+  email: string;
+  phone: string;
+}
+
+interface IrisAnalysisProps {
+  clientInfo: ClientInfo;
+}
+
+const IrisAnalysis = ({ clientInfo }: IrisAnalysisProps) => {
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [imageBase64, setImageBase64] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -87,13 +99,8 @@ const IrisAnalysis = () => {
         body: { imageBase64 },
       });
 
-      if (error) {
-        throw new Error(error.message || "Analysis failed");
-      }
-
-      if (data?.error) {
-        throw new Error(data.error);
-      }
+      if (error) throw new Error(error.message || "Analysis failed");
+      if (data?.error) throw new Error(data.error);
 
       setAnalysisResult(data.analysis);
       toast({ title: "Analysis Complete", description: "Your iris analysis report is ready." });
@@ -117,7 +124,7 @@ const IrisAnalysis = () => {
   };
 
   if (analysisResult && capturedImage) {
-    return <IrisReport analysis={analysisResult} imageUrl={capturedImage} onReset={reset} />;
+    return <IrisReport analysis={analysisResult} imageUrl={capturedImage} onReset={reset} clientInfo={clientInfo} />;
   }
 
   return (
