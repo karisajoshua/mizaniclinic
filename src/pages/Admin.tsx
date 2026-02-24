@@ -4,13 +4,14 @@ import { useAuth } from "@/hooks/useAuth";
 import { Navigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, Users, DollarSign, MapPin, Settings, BarChart3, Shield, Database, Activity } from "lucide-react";
+import { Loader2, Users, DollarSign, MapPin, Settings, BarChart3, Shield, Database, Activity, Eye } from "lucide-react";
 import AdminAmbassadorManagement from "@/components/admin/AdminAmbassadorManagement";
 import AdminFinancialManagement from "@/components/admin/AdminFinancialManagement";
 import AdminGeographicManagement from "@/components/admin/AdminGeographicManagement";
 import AdminSystemConfiguration from "@/components/admin/AdminSystemConfiguration";
 import AdminAnalytics from "@/components/admin/AdminAnalytics";
 import AdminOverview from "@/components/admin/AdminOverview";
+import AdminIrisReports from "@/components/admin/AdminIrisReports";
 
 const Admin = () => {
   const { user, loading } = useAuth();
@@ -104,7 +105,7 @@ const Admin = () => {
 
       <div className="container mx-auto px-6 py-8">
         <Tabs defaultValue="overview" className="space-y-8">
-          <TabsList className="bg-slate-800 border-slate-700 grid w-full grid-cols-6 lg:w-auto lg:grid-cols-6">
+          <TabsList className="bg-slate-800 border-slate-700 grid w-full grid-cols-7 lg:w-auto lg:grid-cols-7">
             <TabsTrigger 
               value="overview" 
               className="flex items-center space-x-2 data-[state=active]:bg-blue-600 data-[state=active]:text-white text-slate-300"
@@ -118,6 +119,13 @@ const Admin = () => {
             >
               <Users className="w-4 h-4" />
               <span className="hidden sm:inline">Users</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="iris-reports" 
+              className="flex items-center space-x-2 data-[state=active]:bg-green-600 data-[state=active]:text-white text-slate-300"
+            >
+              <Eye className="w-4 h-4" />
+              <span className="hidden sm:inline">Iris</span>
             </TabsTrigger>
             <TabsTrigger 
               value="financial" 
@@ -155,6 +163,10 @@ const Admin = () => {
 
           <TabsContent value="ambassadors">
             <AdminAmbassadorManagement />
+          </TabsContent>
+
+          <TabsContent value="iris-reports">
+            <AdminIrisReports />
           </TabsContent>
 
           <TabsContent value="financial">

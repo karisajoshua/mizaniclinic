@@ -282,6 +282,45 @@ export type Database = {
           },
         ]
       }
+      iris_analyses: {
+        Row: {
+          ambassador_id: string | null
+          analysis_text: string
+          client_email: string | null
+          client_name: string
+          client_phone: string | null
+          client_region: string | null
+          created_at: string
+          id: string
+          image_url: string | null
+          user_id: string
+        }
+        Insert: {
+          ambassador_id?: string | null
+          analysis_text: string
+          client_email?: string | null
+          client_name: string
+          client_phone?: string | null
+          client_region?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          user_id: string
+        }
+        Update: {
+          ambassador_id?: string | null
+          analysis_text?: string
+          client_email?: string | null
+          client_name?: string
+          client_phone?: string | null
+          client_region?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           action_url: string | null
