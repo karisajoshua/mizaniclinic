@@ -145,8 +145,11 @@ const signIn = async (emailOrReferralCode: string, password: string) => {
     user,
     session,
     loading,
+    isAdmin,
+    roleLoading,
     signIn,
     signUp,
     signOut,
   };
 };
+
