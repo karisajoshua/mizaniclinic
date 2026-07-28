@@ -26,18 +26,11 @@ export const useRegistration = () => {
     try {
       console.log('Starting registration process...');
       
-      // Validate referral code exists
-      const { data: referrerProfile, error: referrerError } = await supabase
-        .from('profiles')
-        .select('*')
-        .or(`ambassador_id.eq.${formData.referralCode},user_referral_id.eq.${formData.referralCode}`)
-        .single();
-        
-        const allData = await supabase
-        .from('profiles')
-        .select('*')
+      // Validate referral code exists (security definer RPC — no public profile access)
+      const { data: referrerRows, error: referrerError } = await supabase
+        .rpc('lookup_referrer', { p_code: formData.referralCode });
 
-        console.log(allData)
+      const referrerProfile = Array.isArray(referrerRows) ? referrerRows[0] : referrerRows;
 
       if (referrerError || !referrerProfile) {
         console.error('Invalid referral code:', referrerError);
@@ -48,6 +41,7 @@ export const useRegistration = () => {
         });
         return;
       }
+
 
       console.log('Valid referral code found from:', referrerProfile.full_name);
       
