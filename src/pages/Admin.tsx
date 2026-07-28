@@ -1,5 +1,4 @@
 
-import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Navigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,21 +13,10 @@ import AdminOverview from "@/components/admin/AdminOverview";
 import AdminIrisReports from "@/components/admin/AdminIrisReports";
 
 const Admin = () => {
-  const { user, loading } = useAuth();
-  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+  const { user, loading, isAdmin, roleLoading } = useAuth();
 
-  useEffect(() => {
-    console.log("Admin page - user:", user?.email);
-    if (user?.email === "admin@mizaniclinic.com" || user?.email === "tessangelika@gmail.com") {
-      setIsAdmin(true);
-      console.log("Admin access granted");
-    } else {
-      setIsAdmin(false);
-      console.log("Admin access denied");
-    }
-  }, [user]);
+  if (loading || roleLoading) {
 
-  if (loading || isAdmin === null) {
     return (
       <div className="min-h-screen bg-slate-900 flex items-center justify-center">
         <Card className="p-8 text-center bg-slate-800 border-slate-700">
