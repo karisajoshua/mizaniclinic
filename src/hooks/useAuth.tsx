@@ -7,6 +7,8 @@ export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [roleLoading, setRoleLoading] = useState(true);
 
   useEffect(() => {
     // Set up auth state listener
@@ -29,6 +31,32 @@ export const useAuth = () => {
 
     return () => subscription.unsubscribe();
   }, []);
+
+  // Resolve admin role server-side (user_roles table + has_role function)
+  useEffect(() => {
+    let cancelled = false;
+
+    if (!user) {
+      setIsAdmin(false);
+      setRoleLoading(false);
+      return;
+    }
+
+    setRoleLoading(true);
+    supabase
+      .rpc('has_role', { _user_id: user.id, _role: 'admin' })
+      .then(({ data, error }) => {
+        if (cancelled) return;
+        if (error) console.error('Role check error:', error);
+        setIsAdmin(data === true);
+        setRoleLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.id]);
+
 
 
 const signIn = async (emailOrReferralCode: string, password: string) => {
@@ -145,8 +173,11 @@ const signIn = async (emailOrReferralCode: string, password: string) => {
     user,
     session,
     loading,
+    isAdmin,
+    roleLoading,
     signIn,
     signUp,
     signOut,
   };
 };
+

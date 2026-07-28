@@ -26,18 +26,11 @@ export const useRegistration = () => {
     try {
       console.log('Starting registration process...');
       
-      // Validate referral code exists
-      const { data: referrerProfile, error: referrerError } = await supabase
-        .from('profiles')
-        .select('*')
-        .or(`ambassador_id.eq.${formData.referralCode},user_referral_id.eq.${formData.referralCode}`)
-        .single();
-        
-        const allData = await supabase
-        .from('profiles')
-        .select('*')
+      // Validate referral code exists (security definer RPC — no public profile access)
+      const { data: referrerRows, error: referrerError } = await supabase
+        .rpc('lookup_referrer', { p_code: formData.referralCode });
 
-        console.log(allData)
+      const referrerProfile = Array.isArray(referrerRows) ? referrerRows[0] : referrerRows;
 
       if (referrerError || !referrerProfile) {
         console.error('Invalid referral code:', referrerError);
@@ -48,6 +41,7 @@ export const useRegistration = () => {
         });
         return;
       }
+
 
       console.log('Valid referral code found from:', referrerProfile.full_name);
       
@@ -141,31 +135,7 @@ export const useRegistration = () => {
         return;
       }
 
-      // Create ambassador registration record -- removed
-      // const { error: ambassadorError } = await supabase
-      //   .from('ambassador_registrations')
-      //   .insert({
-      //     user_id: user.id,
-      //     ambassador_id: ambassadorId,
-      //     region: formData.region,
-      //     country: formData.country,
-      //     referral_code: formData.referralCode,
-      //     status: 'pending'
-      //   });
 
-      // if (ambassadorError) {
-      //   console.error('Ambassador registration error:', ambassadorError);
-        
-      //   // Clean up created profile if ambassador registration fails
-      //   await supabase.from('profiles').delete().eq('id', user.id);
-        
-      //   toast({
-      //     title: "Registration Failed",
-      //     description: "Failed to complete ambassador registration. Please try again.",
-      //     variant: "destructive"
-      //   });
-      //   return;
-      // }
 
       // Create referral record to track the relationship
       const { error: referralError } = await supabase

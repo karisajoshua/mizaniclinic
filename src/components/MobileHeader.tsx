@@ -11,8 +11,10 @@ const MobileHeader = () => {
   const {
     user,
     signOut,
-    loading
+    loading,
+    isAdmin
   } = useAuth();
+
   const handleSignOut = async () => {
     const {
       error
@@ -47,8 +49,7 @@ const MobileHeader = () => {
     icon: Users
   }];
 
-  const ADMIN_EMAILS = ['admin@mizaniclinic.com'];
-  const isAdmin = user && ADMIN_EMAILS.includes(user.email || '');
+
 
   // Navigation items for authenticated users
   const authenticatedNavItems = [{

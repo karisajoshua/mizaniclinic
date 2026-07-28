@@ -1,44 +1,41 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, DollarSign, Globe, Activity, TrendingUp } from "lucide-react";
+import { Users, DollarSign, Globe, UserCheck } from "lucide-react";
 import { useCountryLimits } from "@/hooks/useCountryLimits";
+import { useAdminMetrics } from "@/hooks/useAdminData";
 
 const SystemMetricsCards = () => {
   const { data: countries } = useCountryLimits();
+  const { data, isLoading } = useAdminMetrics();
 
   const systemMetrics = [
     {
       title: "Total System Users",
-      value: "1,247",
+      value: `${data?.totalUsers ?? 0}`,
       icon: Users,
       color: "bg-blue-600",
-      change: "+15.3%",
-      trend: "up"
+      detail: `${data?.pendingUsers ?? 0} pending activation`,
     },
     {
       title: "Platform Revenue",
-      value: "$89,450",
+      value: `$${(data?.totalRevenueUsd ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
       icon: DollarSign,
       color: "bg-emerald-600",
-      change: "+23.8%",
-      trend: "up"
+      detail: "paid earnings to date",
     },
     {
       title: "Active Regions",
-      value: countries?.length || 6,
+      value: `${countries?.length ?? 0}`,
       icon: Globe,
       color: "bg-purple-600",
-      change: "100%",
-      trend: "stable"
+      detail: "countries enabled",
     },
     {
-      title: "System Health",
-      value: "99.8%",
-      icon: Activity,
+      title: "Active Ambassadors",
+      value: `${data?.activeUsers ?? 0}`,
+      icon: UserCheck,
       color: "bg-orange-600",
-      change: "+0.2%",
-      trend: "up"
-    }
+      detail: "status active",
+    },
   ];
 
   return (
@@ -52,12 +49,8 @@ const SystemMetricsCards = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-white mb-1">{metric.value}</div>
-            <div className="flex items-center space-x-1">
-              <TrendingUp className="w-4 h-4 text-emerald-400" />
-              <span className="text-sm text-emerald-400 font-medium">{metric.change}</span>
-              <span className="text-xs text-slate-400">vs last month</span>
-            </div>
+            <div className="text-3xl font-bold text-white mb-1">{isLoading ? "—" : metric.value}</div>
+            <span className="text-xs text-slate-400">{metric.detail}</span>
           </CardContent>
         </Card>
       ))}

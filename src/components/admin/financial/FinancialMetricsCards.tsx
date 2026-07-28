@@ -1,37 +1,42 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DollarSign, Clock, CheckCircle, TrendingUp } from "lucide-react";
+import { useAdminMetrics } from "@/hooks/useAdminData";
+
+const money = (n: number) =>
+  `$${n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 const FinancialMetricsCards = () => {
+  const { data, isLoading } = useAdminMetrics();
+
   const financialMetrics = [
     {
       title: "Total Platform Revenue",
-      value: "$125,450",
+      value: money(data?.totalRevenueUsd ?? 0),
       icon: DollarSign,
       color: "bg-emerald-600",
-      change: "+18.2%"
+      change: "paid earnings to date",
     },
     {
       title: "Pending Payouts",
-      value: "$12,250",
+      value: money(data?.pendingPayoutsUsd ?? 0),
       icon: Clock,
       color: "bg-yellow-600",
-      change: "23 requests"
+      change: `${data?.pendingPayoutCount ?? 0} requests`,
     },
     {
       title: "Processed This Month",
-      value: "$45,750",
+      value: money(data?.paidThisMonthUsd ?? 0),
       icon: CheckCircle,
       color: "bg-blue-600",
-      change: "156 transactions"
+      change: `${data?.paidThisMonthCount ?? 0} transactions`,
     },
     {
-      title: "Average Commission",
-      value: "31.2%",
+      title: "Active Ambassadors",
+      value: `${data?.activeUsers ?? 0}`,
       icon: TrendingUp,
       color: "bg-purple-600",
-      change: "+2.1%"
-    }
+      change: `${data?.totalUsers ?? 0} total registered`,
+    },
   ];
 
   return (
@@ -45,7 +50,7 @@ const FinancialMetricsCards = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-white">{metric.value}</div>
+            <div className="text-2xl font-bold text-white">{isLoading ? "—" : metric.value}</div>
             <p className="text-xs text-emerald-400 font-medium">{metric.change}</p>
           </CardContent>
         </Card>
