@@ -11,8 +11,10 @@ const MobileHeader = () => {
   const {
     user,
     signOut,
-    loading
+    loading,
+    isAdmin
   } = useAuth();
+
   const handleSignOut = async () => {
     const {
       error
