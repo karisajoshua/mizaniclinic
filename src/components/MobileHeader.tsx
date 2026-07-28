@@ -49,8 +49,7 @@ const MobileHeader = () => {
     icon: Users
   }];
 
-  const ADMIN_EMAILS = ['admin@mizaniclinic.com'];
-  const isAdmin = user && ADMIN_EMAILS.includes(user.email || '');
+
 
   // Navigation items for authenticated users
   const authenticatedNavItems = [{
