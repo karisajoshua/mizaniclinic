@@ -30,9 +30,11 @@ export interface UserAccount {
 
 export interface Country {
   name: string;
+  code?: string;
   flag: string;
   count: number;
   limit: number;
+  premiumUnlocked?: boolean;
 }
 
 export interface Referral {
