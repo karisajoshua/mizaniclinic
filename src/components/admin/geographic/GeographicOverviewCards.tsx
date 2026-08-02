@@ -10,6 +10,7 @@ interface GeographicOverviewCardsProps {
 const GeographicOverviewCards = ({ countries }: GeographicOverviewCardsProps) => {
   const totalAmbassadors = countries?.reduce((sum, country) => sum + country.count, 0) || 0;
   const totalCapacity = countries?.reduce((sum, country) => sum + country.limit, 0) || 0;
+  const premiumCountries = countries?.filter((c) => c.premiumUnlocked) || [];
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
