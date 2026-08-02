@@ -52,8 +52,12 @@ const GeographicOverviewCards = ({ countries }: GeographicOverviewCardsProps) =>
           <Settings className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">1</div>
-          <p className="text-xs text-muted-foreground">Tanzania unlocked</p>
+          <div className="text-2xl font-bold">{premiumCountries.length}</div>
+          <p className="text-xs text-muted-foreground">
+            {premiumCountries.length > 0
+              ? `${premiumCountries.map((c) => c.name).join(', ')} unlocked`
+              : 'None unlocked'}
+          </p>
         </CardContent>
       </Card>
     </div>
