@@ -1,61 +1,45 @@
-## System Audit Report — What's Done vs. What's Remaining
+# Phase 2: Make the Admin panel real
 
-### Module status
+Replace the remaining hardcoded/mock data in the admin modules with live database data and working actions. RLS already grants admins full read/write on `profiles`, `earnings`, `country_limits`, `referrals`, and `ambassador_stats`, so no schema changes are needed.
 
-| Module | Verdict |
-|---|---|
-| Landing page (`Index.tsx`) | Complete (static marketing) |
-| Auth (`useAuth`, SignIn) | Complete |
-| Registration → Payment | Partial |
-| Dashboard (stats, referrals, earnings) | Partial — real data + fabricated filler |
-| Ambassador Tools tab | Non-functional (toast stubs) |
-| Appointments (Stripe) | Partial — booking works, confirmation unverified |
-| Iris Analysis + Admin Iris Reports | Complete |
-| Admin panel (6 of 7 tabs) | Mock only — hardcoded data, console.log handlers |
+## 1. User Management (ambassadors)
 
-### What is genuinely finished
-- Supabase auth incl. sign-in by referral code; registration writing to `profiles` + `referrals` with server-generated ambassador IDs; receipt-code activation via `verify_receipt_code`.
-- Referral/earnings/country-limit data layer (`useAmbassadorStats`, `useReferrals`, `useCountryLimits`) reading live tables.
-- Referral code sharing (copy, WhatsApp, QR).
-- Iris scan: camera capture, Gemini analysis edge function, save to `iris_analyses`, PDF report, and the admin Iris Reports tab (the only real admin module).
-- Appointment booking against `doctor_availability` with real Stripe Checkout.
+- Load real ambassadors from `profiles` joined with `ambassador_stats` (referral counts, earnings) instead of the three fake records.
+- Display: full name, Ambassador ID, phone, region/country, referrals, earnings, status, join date. Email is not stored in `profiles`, so the table shows Ambassador ID + phone in place of the fake email column (email lives in auth and is not readable from the client).
+- Search/status/region filters operate on the real rows; region options come from the loaded data.
+- "Approve" action writes `status = 'active'` (plus `activated_at`) to the profile and refreshes the list.
+- "Bulk Approve" approves all currently pending rows with a confirmation step.
+- "Export Data" downloads the filtered list as CSV.
+- Stats cards above the table compute from the real rows.
 
-### What is NOT completed
+## 2. Payout Queue (financial)
 
-**1. Admin panel is a shell (biggest gap)**
-- Overview metrics ("1,247 users", "$89,450 revenue", "99.8% health"), alerts, pending actions: hardcoded arrays.
-- Ambassador Management: 3 fake records; approve / status-change / export handlers only `console.log`.
-- Financial Management: fake revenue + payout queue; "Process Payout" does nothing.
-- Geographic Management: limit updates, premium toggle, add-country all `console.log` ("in production this would update the database").
-- System Configuration: commission tiers, product pricing, security and notification settings never persist.
-- Analytics: charts fed entirely by mock arrays; Export/Filter buttons have no handlers.
+- Replace mock payouts with pending/paid rows from `earnings`, showing the ambassador's name and Ambassador ID.
+- Status filter (all/pending/paid) queries real statuses.
+- Processing a payout marks the earning `paid` with `paid_date = now()` and refreshes metrics.
+- "Approve All Pending" in the financial header processes every pending earning, with confirmation.
+- Row download button exports that payout's details as CSV.
 
-**2. Dashboard fabricated numbers**
-- `ambassadorLimit: 856` hardcoded; QuickStats "+$1 today", "4/6 countries", "$250/2500 next bonus" are literals; RecentReferrals shows a flat "+$0.20" per referral.
-- Tools tab: flyer download, training materials, success stories, support centre — all toast-only stubs.
+## 3. Geographic Management
 
-**3. Payment/appointment correctness gaps**
-- `confirm-appointment-payment` edge function exists but is never invoked and no Stripe webhook is configured — success is inferred from the redirect URL only, so appointments stay `pending` after real payment.
-- `Payment.tsx` dereferences `user.id` on a path where `user` can be null.
+- "Update" on a country limit writes the entered number to `country_limits.ambassador_limit`.
+- Premium toggle flips `country_limits.premium_unlocked`.
+- Country cards show real counts derived from `profiles` per country rather than fabricated activation/earnings figures.
+- "Add New Country" opens a dialog that inserts a new `country_limits` row (code, name, limit).
+- Regional analytics numbers come from real per-country aggregates.
 
-**4. Dead / duplicated code**
-- `SignUp.tsx` is a second registration flow that only writes to localStorage, diverging from `Register.tsx`; `ApplicationProcessing` page is orphaned (nothing routes to it); `ReferralManagement` and `EarningsBreakdown` are built but not mounted anywhere.
-- `useRegistration.tsx` has a debug unfiltered `select('*')` on `profiles` and a large commented-out `ambassador_registrations` block.
-- PDF/markdown rendering duplicated between `IrisReport` and `AdminIrisReports`.
+## 4. Overview polish
 
-**5. Security items (verified against live policies)**
-- `profiles` has `SELECT using(true)` for everyone and `UPDATE using(true)` for any authenticated user — any signed-in user can read and modify every other user's profile, including `ambassador_id`, `status` and `payment_status`. This is the most serious issue found.
-- `receipt_codes` allows any authenticated user to `UPDATE` and `INSERT`.
-- `ambassador_stats`, `earnings`, `team_bonuses` have `ALL ... using(true)` "System can manage" policies open to `public`.
-- Admin access is a hardcoded email list in `Admin.tsx` and duplicated in the `iris_analyses` policy — no `user_roles` table / `has_role()` function exists.
-- `analyze-iris` runs with `verify_jwt = false`, so anyone can burn AI credits against it.
+- `RegionalStatusGrid`: replace the hardcoded "+12%" growth with real 30-day signup growth per country, and derive Status from capacity/active flag.
+- `SystemAlerts`: generate alerts from real conditions (countries above 80% capacity, pending approvals backlog, pending payout volume) instead of the fixed four messages. Show empty state when nothing is wrong.
 
-### Suggested order of work (for when you want to build)
-1. Security hardening: `user_roles` + `has_role()`, lock down `profiles` / `receipt_codes` / stats tables, require JWT on `analyze-iris`.
-2. Make Admin real, tab by tab (Overview → Ambassadors → Geographic → Financial → Config → Analytics).
-3. Fix appointment payment confirmation (Stripe webhook → `confirm-appointment-payment`).
-4. Replace fabricated dashboard numbers with real queries; implement or remove the Tools tab.
-5. Clean-up: remove dead pages/components, debug queries, duplicated PDF code.
+## Technical notes
 
-### Technical notes
-Everything above is verified against the actual files and the live RLS policy set. No code changes are included in this plan — approving it only means I start on step 1 unless you tell me a different starting point.
+- New hooks in `src/hooks/useAdminData.tsx`: `useAdminAmbassadors`, `useAdminPayouts`, `useAdminCountryStats`, plus mutations for approve/payout/limit updates, all via React Query with cache invalidation of `admin-metrics`.
+- Components touched: `AdminAmbassadorManagement`, `AmbassadorDataTable`, `AmbassadorStatsCards`, `AmbassadorFilters`, `AdminFinancialManagement`, `PayoutQueueManagement`, `AdminGeographicManagement`, `CountryManagementCards`, `RegionalAnalytics`, `GeographicOverviewCards`, `RegionalStatusGrid`, `SystemAlerts`.
+- Loading skeletons and empty states for every table/grid; toast on every mutation success/failure.
+- No migrations, no changes to auth or registration flows.
+
+## Out of scope for this plan
+
+Phase 3 (Stripe appointment webhook), Phase 4 (ambassador dashboard mock data), Phase 5 (cleanup) remain queued.
