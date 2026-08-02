@@ -1,42 +1,28 @@
-
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Eye, UserCheck, MoreHorizontal } from "lucide-react";
-
-interface Ambassador {
-  id: string;
-  name: string;
-  email: string;
-  referralCode: string;
-  region: string;
-  totalReferrals: number;
-  activeReferrals: number;
-  totalEarnings: number;
-  status: string;
-  tier: string;
-  joinDate: string;
-  lastActive: string;
-}
+import { UserCheck } from "lucide-react";
+import type { AdminAmbassador } from "@/hooks/useAdminData";
 
 interface AmbassadorDataTableProps {
-  ambassadors: Ambassador[];
-  onStatusChange: (ambassadorId: string, newStatus: string) => void;
+  ambassadors: AdminAmbassador[];
+  onStatusChange: (ambassadorId: string) => void;
+  isUpdating?: boolean;
 }
 
-const AmbassadorDataTable = ({ ambassadors, onStatusChange }: AmbassadorDataTableProps) => {
+const AmbassadorDataTable = ({ ambassadors, onStatusChange, isUpdating }: AmbassadorDataTableProps) => {
   return (
-    <div className="border border-slate-700 rounded-lg overflow-hidden">
+    <div className="border border-slate-700 rounded-lg overflow-x-auto">
       <Table>
         <TableHeader>
           <TableRow className="bg-slate-900 border-slate-700 hover:bg-slate-900">
             <TableHead className="text-slate-300">User</TableHead>
-            <TableHead className="text-slate-300">Referral Code</TableHead>
-            <TableHead className="text-slate-300">Region</TableHead>
+            <TableHead className="text-slate-300">Ambassador ID</TableHead>
+            <TableHead className="text-slate-300">Location</TableHead>
             <TableHead className="text-slate-300">Performance</TableHead>
             <TableHead className="text-slate-300">Earnings</TableHead>
+            <TableHead className="text-slate-300">Tier</TableHead>
             <TableHead className="text-slate-300">Status</TableHead>
-            <TableHead className="text-slate-300">Last Active</TableHead>
             <TableHead className="text-slate-300">Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -46,17 +32,20 @@ const AmbassadorDataTable = ({ ambassadors, onStatusChange }: AmbassadorDataTabl
               <TableCell>
                 <div>
                   <div className="font-medium text-white">{ambassador.name}</div>
-                  <div className="text-sm text-slate-400">{ambassador.email}</div>
-                  <div className="text-xs text-slate-500">Joined {ambassador.joinDate}</div>
+                  <div className="text-sm text-slate-400">{ambassador.phone}</div>
+                  <div className="text-xs text-slate-500">
+                    {ambassador.joinDate ? `Joined ${ambassador.joinDate}` : "Join date unknown"}
+                  </div>
                 </div>
               </TableCell>
               <TableCell>
                 <code className="bg-slate-900 px-2 py-1 rounded text-sm text-blue-400 border border-slate-700">
-                  {ambassador.referralCode}
+                  {ambassador.ambassadorId}
                 </code>
               </TableCell>
               <TableCell>
                 <div className="text-white">{ambassador.region}</div>
+                <div className="text-xs text-slate-400">{ambassador.country}</div>
               </TableCell>
               <TableCell>
                 <div className="text-sm">
@@ -68,10 +57,13 @@ const AmbassadorDataTable = ({ ambassadors, onStatusChange }: AmbassadorDataTabl
                 <div className="font-medium text-white">${ambassador.totalEarnings.toFixed(2)}</div>
               </TableCell>
               <TableCell>
-                <Badge 
+                <span className="text-slate-300 text-sm">{ambassador.tier}</span>
+              </TableCell>
+              <TableCell>
+                <Badge
                   variant={
-                    ambassador.status === 'active' ? 'default' : 
-                    ambassador.status === 'pending' ? 'secondary' : 
+                    ambassador.status === 'active' ? 'default' :
+                    ambassador.status === 'pending' ? 'secondary' :
                     'destructive'
                   }
                   className={
@@ -84,30 +76,17 @@ const AmbassadorDataTable = ({ ambassadors, onStatusChange }: AmbassadorDataTabl
                 </Badge>
               </TableCell>
               <TableCell>
-                <div className="text-sm text-slate-400">{ambassador.lastActive}</div>
-              </TableCell>
-              <TableCell>
-                <div className="flex space-x-2">
-                  <Button size="sm" variant="outline" className="border-slate-600 text-slate-300 hover:bg-slate-700">
-                    <Eye className="w-4 h-4" />
-                  </Button>
-                  {ambassador.status === 'pending' && (
-                    <Button 
-                      size="sm" 
-                      className="bg-emerald-600 hover:bg-emerald-700"
-                      onClick={() => onStatusChange(ambassador.id, 'active')}
-                    >
-                      <UserCheck className="w-4 h-4" />
-                    </Button>
-                  )}
-                  <Button 
-                    size="sm" 
-                    variant="outline"
-                    className="border-slate-600 text-slate-300 hover:bg-slate-700"
+                {ambassador.status !== 'active' && (
+                  <Button
+                    size="sm"
+                    disabled={isUpdating}
+                    className="bg-emerald-600 hover:bg-emerald-700"
+                    onClick={() => onStatusChange(ambassador.id)}
                   >
-                    <MoreHorizontal className="w-4 h-4" />
+                    <UserCheck className="w-4 h-4 mr-1" />
+                    Approve
                   </Button>
-                </div>
+                )}
               </TableCell>
             </TableRow>
           ))}
