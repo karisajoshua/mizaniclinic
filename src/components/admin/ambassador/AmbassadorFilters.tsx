@@ -1,4 +1,3 @@
-
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Search } from "lucide-react";
@@ -10,6 +9,7 @@ interface AmbassadorFiltersProps {
   setStatusFilter: (value: string) => void;
   regionFilter: string;
   setRegionFilter: (value: string) => void;
+  regions?: string[];
 }
 
 const AmbassadorFilters = ({
@@ -18,7 +18,8 @@ const AmbassadorFilters = ({
   statusFilter,
   setStatusFilter,
   regionFilter,
-  setRegionFilter
+  setRegionFilter,
+  regions = []
 }: AmbassadorFiltersProps) => {
   return (
     <div className="flex flex-col lg:flex-row gap-4 mb-6">
@@ -26,7 +27,7 @@ const AmbassadorFilters = ({
         <div className="relative">
           <Search className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
           <Input
-            placeholder="Search users by name, email, or code..."
+            placeholder="Search by name, ambassador ID, or phone..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10 bg-slate-900 border-slate-600 text-white placeholder:text-slate-400"
@@ -50,9 +51,9 @@ const AmbassadorFilters = ({
         </SelectTrigger>
         <SelectContent className="bg-slate-900 border-slate-600">
           <SelectItem value="all">All Regions</SelectItem>
-          <SelectItem value="Nairobi">Nairobi</SelectItem>
-          <SelectItem value="Mombasa">Mombasa</SelectItem>
-          <SelectItem value="Dar es Salaam">Dar es Salaam</SelectItem>
+          {regions.map((region) => (
+            <SelectItem key={region} value={region}>{region}</SelectItem>
+          ))}
         </SelectContent>
       </Select>
     </div>

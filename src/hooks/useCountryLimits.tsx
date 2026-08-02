@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Country } from "@/types/dashboard";
@@ -29,9 +28,11 @@ export const useCountryLimits = () => {
 
       return countryLimits?.map(country => ({
         name: country.country_name,
+        code: country.country_code,
         flag: countryFlags[country.country_code] || '🏳️',
         count: country.current_count,
-        limit: country.ambassador_limit
+        limit: country.ambassador_limit,
+        premiumUnlocked: country.premium_unlocked,
       })) || [];
     },
     enabled: true,
