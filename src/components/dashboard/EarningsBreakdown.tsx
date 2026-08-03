@@ -32,7 +32,7 @@ const EarningsBreakdown = () => {
       case 'direct_sales':
         return 'Direct Sales';
       case 'second_level':
-        return 'Second Level';
+        return 'First Generation';
       case 'team_bonus_level1':
         return 'Motorbike Bonus';
       case 'team_bonus_level2':

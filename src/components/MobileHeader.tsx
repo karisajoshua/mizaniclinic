@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Menu, Phone, Users, User, LogOut, Shield } from "lucide-react";
+import { Menu, Phone, Users, User, LogOut, Shield, Coins } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
@@ -40,6 +40,10 @@ const MobileHeader = () => {
     label: "Home",
     icon: Phone
   }, {
+    href: "/compensation",
+    label: "Compensation Plan",
+    icon: Coins
+  }, {
     href: "/signin",
     label: "Login",
     icon: User
@@ -56,6 +60,10 @@ const MobileHeader = () => {
     href: "/",
     label: "Home",
     icon: Phone
+  }, {
+    href: "/compensation",
+    label: "Compensation Plan",
+    icon: Coins
   }, {
     href: "/dashboard",
     label: "Dashboard",
@@ -123,7 +131,7 @@ const MobileHeader = () => {
 
             <div className="mt-8 p-4 bg-white/5 rounded-xl border border-white/10">
               <p className="text-blue-200 text-sm text-center">
-                {user ? `Welcome back!` : "Refer friends and earn Tshs. 88,000/- per referral!"}
+                {user ? `Welcome back!` : "Refer friends and earn 35% on every Activation Pack!"}
               </p>
             </div>
           </SheetContent>

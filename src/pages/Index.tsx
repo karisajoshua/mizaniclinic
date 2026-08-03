@@ -35,21 +35,21 @@ const Index = () => {
               </h1>
 
               {/* Subtitle */}
-              <p className="text-xl sm:text-2xl text-blue-200 font-semibold">Earn up to Tshs 88,000/- per referral </p>
+              <p className="text-xl sm:text-2xl text-blue-200 font-semibold">Earn 35% on Activation Packs and 25% on product sales</p>
 
               {/* Earning Numbers */}
               <div className="grid grid-cols-3 gap-4 max-w-lg mx-auto lg:mx-0">
                 <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
-                  <div className="text-2xl sm:text-3xl font-black text-tanzania-green-light">30%</div>
+                  <div className="text-2xl sm:text-3xl font-black text-tanzania-green-light">35%</div>
                   <div className="text-xs text-blue-200 font-semibold">Activation Pack</div>
                 </div>
                 <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
                   <div className="text-2xl sm:text-3xl font-black text-tanzania-green-light">25%</div>
-                  <div className="text-xs text-blue-200 font-semibold">Direct Referral</div>
+                  <div className="text-xs text-blue-200 font-semibold">Direct Sales</div>
                 </div>
                 <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
-                  <div className="text-2xl sm:text-3xl font-black text-tanzania-green-light">15%</div>
-                  <div className="text-xs text-blue-200 font-semibold">Second Level</div>
+                  <div className="text-2xl sm:text-3xl font-black text-tanzania-green-light">10%</div>
+                  <div className="text-xs text-blue-200 font-semibold">First Generation</div>
                 </div>
               </div>
 
@@ -65,6 +65,11 @@ const Index = () => {
                       <Button size="lg" className="w-full max-w-md h-16 bg-gradient-to-r from-tanzania-green to-tanzania-green-light hover:from-tanzania-green-light hover:to-tanzania-green text-white text-xl font-black rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105 border-4 border-white/20">
                         REGISTER NOW
                         <ArrowRight className="ml-3 w-6 h-6" />
+                      </Button>
+                    </Link>
+                    <Link to="/compensation">
+                      <Button variant="outline" size="lg" className="w-full max-w-md h-14 bg-white/10 backdrop-blur-sm border-2 border-white/30 text-white text-lg font-bold rounded-2xl hover:bg-white/20 transition-all duration-300">
+                        VIEW COMPENSATION PLAN
                       </Button>
                     </Link>
                     {/* Mobile Login Button */}
@@ -118,7 +123,7 @@ const Index = () => {
             }, {
               icon: Coins,
               title: "3. Earn",
-              description: "Earn upto Tshs. 88,000/- per referral",
+              description: "35% activation packs, 25% direct sales",
               color: "from-orange-500 to-red-500"
             }].map((step, index) => (
               <Card key={index} className="group relative overflow-hidden border-0 bg-white hover:bg-tanzania-grey transition-all duration-300 hover:shadow-2xl transform hover:scale-105 shadow-lg">
@@ -192,6 +197,9 @@ const Index = () => {
             <span className="font-bold text-lg">MIZANI CLINIC</span>
           </div>
           <p className="text-blue-200 font-medium">Your Success, Our Mission</p>
+          <Link to="/compensation" className="inline-block mt-3 text-tanzania-green-light font-semibold underline">
+            Compensation Plan
+          </Link>
         </div>
       </footer>
     </div>

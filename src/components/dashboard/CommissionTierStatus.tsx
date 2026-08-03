@@ -23,7 +23,7 @@ const CommissionTierStatus = ({ ambassadorStats }: CommissionTierStatusProps) =>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
             <span className="font-bold text-gray-700 text-sm sm:text-base">Current Tier:</span>
             <Badge className="bg-green-500 text-white font-bold text-sm sm:text-lg px-3 sm:px-4 py-1 sm:py-2 w-fit">
-              Standard (30%–25%–15%)
+              Standard (35% – 25% – 10%)
             </Badge>
           </div>
           <div className="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-4">

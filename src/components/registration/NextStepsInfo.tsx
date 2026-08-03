@@ -24,7 +24,7 @@ const NextStepsInfo = () => {
         </li>
         <li className="flex items-center">
           <div className="w-2 h-2 bg-tanzania-green rounded-full mr-3"></div>
-          Start earning up to Tshs. 88,000/- per referral!
+          Start earning 35% on every Activation Pack you sponsor!
         </li>
       </ul>
     </Card>

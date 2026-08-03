@@ -28,7 +28,7 @@ const AdminAnalytics = () => {
   const earningsBreakdown = [
     { type: 'Activation Pack', amount: 15750 },
     { type: 'Direct Sales', amount: 18900 },
-    { type: 'Second Level', amount: 6750 },
+    { type: 'First Generation', amount: 6750 },
     { type: 'Team Bonuses', amount: 3600 }
   ];
 
