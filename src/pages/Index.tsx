@@ -67,6 +67,11 @@ const Index = () => {
                         <ArrowRight className="ml-3 w-6 h-6" />
                       </Button>
                     </Link>
+                    <Link to="/compensation">
+                      <Button variant="outline" size="lg" className="w-full max-w-md h-14 bg-white/10 backdrop-blur-sm border-2 border-white/30 text-white text-lg font-bold rounded-2xl hover:bg-white/20 transition-all duration-300">
+                        VIEW COMPENSATION PLAN
+                      </Button>
+                    </Link>
                     {/* Mobile Login Button */}
                     <div className="block lg:hidden">
                       <Link to="/signin">
@@ -192,6 +197,9 @@ const Index = () => {
             <span className="font-bold text-lg">MIZANI CLINIC</span>
           </div>
           <p className="text-blue-200 font-medium">Your Success, Our Mission</p>
+          <Link to="/compensation" className="inline-block mt-3 text-tanzania-green-light font-semibold underline">
+            Compensation Plan
+          </Link>
         </div>
       </footer>
     </div>
