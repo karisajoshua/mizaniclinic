@@ -16,10 +16,10 @@ const AdminSystemConfiguration = () => {
   const commissionTiers = [
     {
       name: "Standard",
-      activationPack: 30,
+      activationPack: 35,
       directSalesMin: 25,
       directSalesMax: 35,
-      secondLevel: 15,
+      secondLevel: 10,
       status: "active"
     },
     {
@@ -93,7 +93,7 @@ const AdminSystemConfiguration = () => {
                       />
                     </div>
                     <div>
-                      <Label htmlFor={`${tier.name}-second`}>Second Level (%)</Label>
+                      <Label htmlFor={`${tier.name}-second`}>First Generation (%)</Label>
                       <Input
                         id={`${tier.name}-second`}
                         type="number"
@@ -165,18 +165,18 @@ const AdminSystemConfiguration = () => {
                     <p className="text-sm text-gray-600">Ambassador registration package</p>
                   </div>
                   <div className="text-right">
-                    <div className="font-bold">$20 USD</div>
+                    <div className="font-bold">$35 USD</div>
                     <Badge className="mt-1">Commission Eligible</Badge>
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4 mt-4">
                   <div>
                     <Label htmlFor="activation-price">Price (USD)</Label>
-                    <Input id="activation-price" type="number" defaultValue="20" />
+                    <Input id="activation-price" type="number" defaultValue="35" />
                   </div>
                   <div>
                     <Label htmlFor="activation-local">Price (TZS)</Label>
-                    <Input id="activation-local" type="number" defaultValue="50000" />
+                    <Input id="activation-local" type="number" defaultValue="87500" />
                   </div>
                 </div>
               </CardContent>

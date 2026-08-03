@@ -123,7 +123,7 @@ const MobileHeader = () => {
 
             <div className="mt-8 p-4 bg-white/5 rounded-xl border border-white/10">
               <p className="text-blue-200 text-sm text-center">
-                {user ? `Welcome back!` : "Refer friends and earn Tshs. 88,000/- per referral!"}
+                {user ? `Welcome back!` : "Refer friends and earn 35% on every Activation Pack!"}
               </p>
             </div>
           </SheetContent>

@@ -15,7 +15,7 @@ const EarningsOverview = ({ ambassadorStats }: EarningsOverviewProps) => {
       way: "Way 1",
       emoji: "🥇",
       title: "Activation Pack Referrals",
-      description: "30% commission from new Ambassador registrations",
+      description: "35% commission from new Ambassador registrations",
       earnings: `$${(ambassadorStats.activationPackEarnings / 2500).toFixed(0)} USD`,
       status: "Paid after every 5 referrals",
       color: "from-yellow-400 to-orange-500"
@@ -32,8 +32,8 @@ const EarningsOverview = ({ ambassadorStats }: EarningsOverviewProps) => {
     {
       way: "Way 3",
       emoji: "🥉", 
-      title: "Second-Level Referrals",
-      description: "15% of what your Ambassadors earn",
+      title: "First Generation Leadership",
+      description: "10% of sales by Ambassadors you sponsored",
       earnings: `$${(ambassadorStats.secondLevelEarnings / 2500).toFixed(0)} USD`,
       status: "Paid per transaction",
       color: "from-blue-400 to-cyan-500"
