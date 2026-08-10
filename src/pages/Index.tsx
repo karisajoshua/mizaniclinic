@@ -194,7 +194,7 @@ const Index = () => {
         <div className="container mx-auto text-center">
           <div className="flex justify-center items-center space-x-2 mb-2">
             <img src="https://rpkttbmlvjshkbjrmnvo.supabase.co/storage/v1/object/public/mizaniclinic//Mizani%20(1).png" alt="Mizani Clinic Logo" className="w-8 h-8 object-contain" />
-            <span className="font-bold text-lg">MIZANI CLINIC</span>
+            <span className="font-bold text-lg">MIZANI HEALTH</span>
           </div>
           <p className="text-blue-200 font-medium">Your Success, Our Mission</p>
           <Link to="/compensation" className="inline-block mt-3 text-tanzania-green-light font-semibold underline">

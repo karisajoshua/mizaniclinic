@@ -81,7 +81,7 @@ const MobileHeader = () => {
           <Link to="/" className="flex items-center space-x-2 group">
             <img src="https://rpkttbmlvjshkbjrmnvo.supabase.co/storage/v1/object/public/mizaniclinic//Mizani%20(1).png" alt="Mizani Clinic Logo" className="w-10 h-10 object-contain group-hover:scale-105 transition-transform duration-200" />
             <div className="hidden sm:block">
-              <h1 className="text-xl font-bold text-white">MIZANI CLINIC</h1>
+              <h1 className="text-xl font-bold text-white">MIZANI HEALTH</h1>
               <p className="text-xs text-blue-200 -mt-1">Referral System</p>
             </div>
           </Link>
@@ -95,7 +95,7 @@ const MobileHeader = () => {
         <Link to="/" className="flex items-center space-x-2 group">
           <img src="https://rpkttbmlvjshkbjrmnvo.supabase.co/storage/v1/object/public/mizaniclinic//Mizani%20(1).png" alt="Mizani Clinic Logo" className="w-10 h-10 object-contain group-hover:scale-105 transition-transform duration-200" />
           <div className="hidden sm:block">
-            <h1 className="text-xl font-bold text-white">MIZANI CLINIC</h1>
+            <h1 className="text-xl font-bold text-white">MIZANI HEALTH</h1>
             <p className="text-xs text-blue-200 -mt-1">Ambassador Program</p>
           </div>
         </Link>
@@ -110,7 +110,7 @@ const MobileHeader = () => {
           <SheetContent side="right" className="w-80 bg-gradient-to-b from-[#00122D] to-[#00122D] border-white/10">
             <SheetHeader className="text-center border-b border-white/10 pb-4 mb-6">
               <img src="https://rpkttbmlvjshkbjrmnvo.supabase.co/storage/v1/object/public/mizaniclinic//Mizani%20(1).png" alt="Mizani Clinic Logo" className="w-16 h-16 object-contain mx-auto mb-3" />
-              <SheetTitle className="text-2xl font-bold text-white">MIZANI CLINIC</SheetTitle>
+              <SheetTitle className="text-2xl font-bold text-white">MIZANI HEALTH</SheetTitle>
               <p className="text-blue-200">Ambassador Program</p>
             </SheetHeader>
             
