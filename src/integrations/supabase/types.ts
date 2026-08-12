@@ -726,6 +726,16 @@ export type Database = {
           id: string
         }[]
       }
+      register_ambassador: {
+        Args: {
+          p_country: string
+          p_full_name: string
+          p_phone: string
+          p_referral_code: string
+          p_region: string
+        }
+        Returns: string
+      }
       verify_receipt_code: {
         Args: { p_receipt_code: string; p_uid: string }
         Returns: string
