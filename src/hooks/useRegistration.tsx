@@ -24,8 +24,6 @@ export const useRegistration = () => {
     setLoading(true);
 
     try {
-      console.log('Starting registration process...');
-      
       // Validate referral code exists (security definer RPC — no public profile access)
       const { data: referrerRows, error: referrerError } = await supabase
         .rpc('lookup_referrer', { p_code: formData.referralCode });
@@ -33,7 +31,6 @@ export const useRegistration = () => {
       const referrerProfile = Array.isArray(referrerRows) ? referrerRows[0] : referrerRows;
 
       if (referrerError || !referrerProfile) {
-        console.error('Invalid referral code:', referrerError);
         toast({
           title: "Invalid Referral Code",
           description: `The referral code "${formData.referralCode}" does not exist. Please check the code and try again.`,
@@ -42,14 +39,10 @@ export const useRegistration = () => {
         return;
       }
 
-
-      console.log('Valid referral code found from:', referrerProfile.full_name);
-      
-      // First create the user account
+      // Create the user account (auto signs in)
       const { error: authError } = await signUp(formData.email, formData.password, formData.fullName);
 
       if (authError) {
-        console.error('Auth error:', authError);
         toast({
           title: "Registration Failed",
           description: authError.message,
@@ -58,43 +51,39 @@ export const useRegistration = () => {
         return;
       }
 
-      // Get the current user after signup
       const { data: { user }, error: getUserError } = await supabase.auth.getUser();
 
       if (getUserError || !user) {
-        console.error('Failed to get user after signup:', getUserError);
         toast({
           title: "Registration Failed",
-          description: "Failed to create user account. Please try again.",
+          description: getUserError?.message || "Could not establish a session after sign up. Please sign in and try again.",
           variant: "destructive",
         });
         return;
       }
 
-      console.log('User created successfully:', user.id);
-      
-      // Generate ambassador ID using the database function
-      const { data: ambassadorIdResult, error: idError } = await supabase
-        .rpc('generate_ambassador_id', {
+      // Create profile + referral atomically on the server
+      const { data: ambassadorId, error: regError } = await supabase.rpc(
+        'register_ambassador' as any,
+        {
+          p_full_name: formData.fullName,
+          p_phone: formData.phone,
           p_region: formData.region,
-          p_country: formData.country
-        });
+          p_country: formData.country,
+          p_referral_code: formData.referralCode,
+        }
+      );
 
-      if (idError || !ambassadorIdResult) {
-        console.error('Error generating ambassador ID:', idError);
-        
+      if (regError || !ambassadorId) {
+        console.error('Registration RPC error:', regError);
         toast({
           title: "Registration Failed",
-          description: "Failed to generate ambassador ID. Please try again.",
-          variant: "destructive"
+          description: regError?.message || "Could not create your ambassador profile. Please try again.",
+          variant: "destructive",
         });
         return;
       }
 
-      const ambassadorId = ambassadorIdResult;
-      console.log('Generated ambassador ID:', ambassadorId);
-
-      // Create both profile and ambassador registration in a transaction-like manner
       const registrationData = {
         fullName: formData.fullName,
         email: formData.email,
@@ -102,80 +91,25 @@ export const useRegistration = () => {
         country: formData.country,
         referralCode: formData.referralCode,
         phone: formData.phone,
-        ambassadorId,
+        ambassadorId: ambassadorId as string,
         userId: user.id,
         registrationDate: new Date().toISOString()
       };
 
-      // Create profile with complete data including both ambassador_id and user_referral_id
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .insert({
-          id: user.id,
-          full_name: formData.fullName,
-          phone: formData.phone,
-          region: formData.region,
-          country: formData.country,
-          ambassador_id: ambassadorId,
-          user_referral_id: ambassadorId, // Set user_referral_id to the same as ambassador_id
-          referral_code: formData.referralCode,
-          status: 'pending',
-          payment_status: 'pending',
-          registration_data: registrationData
-        });
-
-      if (profileError) {
-        console.error('Profile creation error:', profileError);
-        
-        toast({
-          title: "Registration Failed",
-          description: "Failed to create user profile. Please try again.",
-          variant: "destructive"
-        });
-        return;
-      }
-
-
-
-      // Create referral record to track the relationship
-      const { error: referralError } = await supabase
-        .from('referrals')
-        .insert({
-          referrer_id: referrerProfile.id,
-          referred_id: user.id,
-          referral_code: formData.referralCode,
-          country: formData.country,
-          status: 'pending'
-        });
-
-      if (referralError) {
-        console.error('Referral creation error:', referralError);
-        // Don't fail registration for referral tracking error, just log it
-
-        toast({
-          title: "Referral Created",
-          description: "Your ambassador has been notified"
-        });
-      }
-
-      console.log('Registration completed successfully');
-
-      // Store registration data for the payment page
       localStorage.setItem('registrationData', JSON.stringify(registrationData));
 
       toast({
         title: "Registration Successful!",
-        description: `Please complete payment to activate your account.`,
+        description: `Your Ambassador ID is ${ambassadorId}. Please complete payment to activate your account.`,
       });
 
-      // Navigate to payment page
       navigate('/payment');
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Unexpected registration error:', error);
       toast({
         title: "Registration Failed",
-        description: "An unexpected error occurred. Please try again.",
+        description: error?.message || "An unexpected error occurred. Please try again.",
         variant: "destructive"
       });
     } finally {
