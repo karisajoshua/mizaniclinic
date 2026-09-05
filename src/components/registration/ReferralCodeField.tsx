@@ -17,14 +17,14 @@ const ReferralCodeField = ({ value, onChange }: ReferralCodeFieldProps) => {
       </Label>
       <Input
         id="referralCode"
-        placeholder="MCA25-T0001DSM"
+        placeholder="MAP26-T0001DSM"
         value={value}
         onChange={(e) => onChange(e.target.value.toUpperCase())}
         className="h-12 border-2 border-tanzania-grey/50 focus:border-tanzania-green rounded-xl transition-all duration-300 font-mono"
       />
       <p className="text-sm text-tanzania-text/60 flex items-center">
         <CheckCircle className="w-3 h-3 mr-1 text-tanzania-green" />
-        Enter the referral code from your sponsor (e.g., MCA25-T0001DSM)
+        Enter the referral code from your sponsor (e.g., MAP26-T0001DSM)
       </p>
     </div>
   );

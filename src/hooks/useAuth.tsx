@@ -62,8 +62,8 @@ export const useAuth = () => {
 const signIn = async (emailOrReferralCode: string, password: string) => {
   console.log('Attempting to sign in with:', emailOrReferralCode);
   
-  // Check if input looks like a referral code (format: MCA25-XXXXXX)
-  const isReferralCode = /^MCA25-[A-Z0-9]+$/.test(emailOrReferralCode.toUpperCase());
+  // Check if input looks like a referral code (format: MAP26-XXXXXX)
+  const isReferralCode = /^MAP26-[A-Z0-9]+$/.test(emailOrReferralCode.toUpperCase());
   
   if (isReferralCode) {
     console.log('Detected referral code format, looking up user...');
