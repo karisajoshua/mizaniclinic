@@ -72,7 +72,7 @@ export const generateAmbassadorId = (region: string, country: string = "Tanzania
   // Returning a placeholder that will be replaced by the actual database-generated ID
   const countryCode = COUNTRY_CODES[country] || "T";
   const regionCode = REGION_CODES[region] || "GEN";
-  return `MCA25-${countryCode}0001${regionCode}`;
+  return `MAP26-${countryCode}0001${regionCode}`;
 };
 
 // For backward compatibility, keep the old function name but use new format

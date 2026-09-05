@@ -207,7 +207,7 @@ const Dashboard = () => {
       const mockAccount: UserAccount = {
         fullName: user?.user_metadata?.full_name || "User",
         region: "Dar es Salaam",
-        userReferralId: "MCA25-T0001DSM" // Default format
+        userReferralId: "MAP26-T0001DSM" // Default format
       };
       setUserAccount(mockAccount);
       setHasCompletedPayment(true); // Assume existing users have paid

@@ -52,21 +52,21 @@ export const COUNTRY_REGIONS: Record<string, string[]> = {
 // Test ambassador accounts
 export const TEST_AMBASSADORS = [
   {
-    ambassadorId: "MCA25-T0001DSM",
+    ambassadorId: "MAP26-T0001DSM",
     password: "test123",
     name: "John Mwalimu",
     region: "Dar es Salaam",
     country: "Tanzania"
   },
   {
-    ambassadorId: "MCA25-K0001NAI", 
+    ambassadorId: "MAP26-K0001NAI", 
     password: "test123",
     name: "Grace Wanjiku",
     region: "Nairobi",
     country: "Kenya"
   },
   {
-    ambassadorId: "MCA25-U0001KAM",
+    ambassadorId: "MAP26-U0001KAM",
     password: "test123", 
     name: "David Mukasa",
     region: "Kampala",
