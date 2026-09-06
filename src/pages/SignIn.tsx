@@ -86,7 +86,7 @@ const SignIn = () => {
                   <Input
                     id="emailOrReferralCode"
                     type="text"
-                    placeholder="email@example.com or MAP26-T0001DSM"
+                    placeholder="email@example.com or MAP26-T1001DSM"
                     value={emailOrReferralCode}
                     onChange={(e) => setEmailOrReferralCode(e.target.value)}
                     className="h-12 border-2 border-tanzania-grey/50 focus:border-tanzania-green rounded-xl transition-all duration-300"

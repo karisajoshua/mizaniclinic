@@ -17,7 +17,8 @@ const ReferralCodeField = ({ value, onChange }: ReferralCodeFieldProps) => {
       </Label>
       <Input
         id="referralCode"
-        placeholder="MAP26-T0001DSM"
+        placeholder="MAP26-T1001DSM"
+
         value={value}
         onChange={(e) => onChange(e.target.value.toUpperCase())}
         className="h-12 border-2 border-tanzania-grey/50 focus:border-tanzania-green rounded-xl transition-all duration-300 font-mono"
