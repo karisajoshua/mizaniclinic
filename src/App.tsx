@@ -8,7 +8,6 @@ import Register from "./pages/Register";
 import Payment from "./pages/Payment";
 import Dashboard from "./pages/Dashboard";
 import SignIn from "./pages/SignIn";
-import SignUp from "./pages/SignUp";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 import ApplicationProcessing from "./pages/ApplicationProcessing";
@@ -25,7 +24,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/signin" element={<SignIn />} />
-          <Route path="/signup" element={<SignUp />} />
+          <Route path="/signup" element={<Register />} />
           <Route path="/register" element={<Register />} />
           <Route path="/compensation" element={<CompensationPlan />} />
           <Route path="/payment" element={<Payment />} />

@@ -17,7 +17,7 @@ const ReferralCodeField = ({ value, onChange }: ReferralCodeFieldProps) => {
       </Label>
       <Input
         id="referralCode"
-        placeholder="MAP26-T1001DSM"
+        placeholder="MAP-T1001DSM"
 
         value={value}
         onChange={(e) => onChange(e.target.value.toUpperCase())}
@@ -25,7 +25,7 @@ const ReferralCodeField = ({ value, onChange }: ReferralCodeFieldProps) => {
       />
       <p className="text-sm text-tanzania-text/60 flex items-center">
         <CheckCircle className="w-3 h-3 mr-1 text-tanzania-green" />
-        Enter the referral code from your sponsor (e.g., MAP26-T1001DSM)
+        Enter the referral code from your sponsor (e.g., MAP-T1001DSM)
       </p>
     </div>
   );

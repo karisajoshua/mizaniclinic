@@ -7,7 +7,6 @@ import { supabase } from '@/integrations/supabase/client';
 
 export interface RegistrationData {
   fullName: string;
-  email: string;
   password: string;
   referralCode: string;
   region: string;
@@ -39,8 +38,12 @@ export const useRegistration = () => {
         return;
       }
 
+      // No email is collected at sign-up: derive a private internal one from the phone number
+      const phoneDigits = formData.phone.replace(/\D/g, '');
+      const internalEmail = `${phoneDigits}@ambassadors.mizanihealth.app`;
+
       // Create the user account (auto signs in)
-      const { error: authError } = await signUp(formData.email, formData.password, formData.fullName);
+      const { error: authError } = await signUp(internalEmail, formData.password, formData.fullName);
 
       if (authError) {
         toast({
@@ -86,7 +89,7 @@ export const useRegistration = () => {
 
       const registrationData = {
         fullName: formData.fullName,
-        email: formData.email,
+        email: internalEmail,
         region: formData.region,
         country: formData.country,
         referralCode: formData.referralCode,
