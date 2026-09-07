@@ -165,10 +165,10 @@ const RegistrationForm = () => {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-tanzania-grey hover:text-tanzania-green transition-colors"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-tanzania-navy hover:text-tanzania-green transition-colors"
                 aria-label={showPassword ? "Hide password" : "Show password"}
               >
-                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                {showPassword ? <EyeOff className="w-6 h-6" /> : <Eye className="w-6 h-6" />}
               </button>
             </div>
           </div>
