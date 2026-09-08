@@ -116,7 +116,18 @@ const SignIn = () => {
                   {loading ? "Signing In..." : "Sign In"}
                 </Button>
 
-                <div className="text-center pt-4">
+                <div className="text-center pt-2">
+                  <a
+                    href="https://wa.me/255747100100?text=Hello%20Mizani%20Health%2C%20I%20forgot%20my%20ambassador%20password"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-tanzania-green font-medium hover:underline"
+                  >
+                    Forgot your password? Contact support on WhatsApp
+                  </a>
+                </div>
+
+                <div className="text-center pt-2">
                   <p className="text-tanzania-text/70">
                     Don't have an account?{" "}
                     <Link to="/register" className="text-tanzania-green font-semibold hover:underline">
@@ -124,6 +135,7 @@ const SignIn = () => {
                     </Link>
                   </p>
                 </div>
+
               </form>
             </CardContent>
           </Card>
