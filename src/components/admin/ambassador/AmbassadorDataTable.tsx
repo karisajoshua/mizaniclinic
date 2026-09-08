@@ -1,8 +1,16 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { UserCheck } from "lucide-react";
+import { UserCheck, KeyRound } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
 import type { AdminAmbassador } from "@/hooks/useAdminData";
+import {
+  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface AmbassadorDataTableProps {
   ambassadors: AdminAmbassador[];
@@ -11,6 +19,35 @@ interface AmbassadorDataTableProps {
 }
 
 const AmbassadorDataTable = ({ ambassadors, onStatusChange, isUpdating }: AmbassadorDataTableProps) => {
+  const [resetTarget, setResetTarget] = useState<AdminAmbassador | null>(null);
+  const [newPassword, setNewPassword] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const handleReset = async () => {
+    if (!resetTarget) return;
+    if (newPassword.length < 6) {
+      toast({ title: "Password too short", description: "Use at least 6 characters.", variant: "destructive" });
+      return;
+    }
+    setSaving(true);
+    const { data, error } = await supabase.functions.invoke("admin-reset-password", {
+      body: { targetUserId: resetTarget.id, newPassword },
+    });
+    setSaving(false);
+    if (error || (data as any)?.error) {
+      toast({
+        title: "Could not reset password",
+        description: (data as any)?.error || error?.message,
+        variant: "destructive",
+      });
+      return;
+    }
+    toast({ title: "Password updated", description: `${resetTarget.name} can now sign in with the new password.` });
+    setResetTarget(null);
+    setNewPassword("");
+  };
+
+
   return (
     <div className="border border-slate-700 rounded-lg overflow-x-auto">
       <Table>
@@ -76,24 +113,63 @@ const AmbassadorDataTable = ({ ambassadors, onStatusChange, isUpdating }: Ambass
                 </Badge>
               </TableCell>
               <TableCell>
-                {ambassador.status !== 'active' && (
+                <div className="flex flex-col gap-2">
+                  {ambassador.status !== 'active' && (
+                    <Button
+                      size="sm"
+                      disabled={isUpdating}
+                      className="bg-emerald-600 hover:bg-emerald-700"
+                      onClick={() => onStatusChange(ambassador.id)}
+                    >
+                      <UserCheck className="w-4 h-4 mr-1" />
+                      Approve
+                    </Button>
+                  )}
                   <Button
                     size="sm"
-                    disabled={isUpdating}
-                    className="bg-emerald-600 hover:bg-emerald-700"
-                    onClick={() => onStatusChange(ambassador.id)}
+                    variant="outline"
+                    className="border-slate-600 text-slate-200 hover:bg-slate-800"
+                    onClick={() => { setResetTarget(ambassador); setNewPassword(""); }}
                   >
-                    <UserCheck className="w-4 h-4 mr-1" />
-                    Approve
+                    <KeyRound className="w-4 h-4 mr-1" />
+                    Reset password
                   </Button>
-                )}
+                </div>
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
+
+      <Dialog open={!!resetTarget} onOpenChange={(o) => !o && setResetTarget(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reset password</DialogTitle>
+            <DialogDescription>
+              Set a new password for {resetTarget?.name} ({resetTarget?.ambassadorId}). Share it with them privately.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Label htmlFor="new-password">New password</Label>
+            <Input
+              id="new-password"
+              type="text"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              placeholder="At least 6 characters"
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setResetTarget(null)}>Cancel</Button>
+            <Button onClick={handleReset} disabled={saving}>
+              {saving ? "Saving..." : "Set password"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
 
 export default AmbassadorDataTable;
+
