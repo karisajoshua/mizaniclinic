@@ -49,7 +49,7 @@ const Admin = () => {
             <div className="flex items-center space-x-4">
               <div className="text-right">
                 <div className="text-sm text-slate-400">Logged in as</div>
-                <div className="text-white font-semibold">{user.email}</div>
+                <div className="text-white font-semibold">{(user.user_metadata as any)?.full_name || user.email}</div>
               </div>
               <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
                 <Shield className="w-5 h-5 text-white" />
