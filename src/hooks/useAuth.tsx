@@ -92,12 +92,16 @@ const signIn = async (emailOrReferralCode: string, password: string) => {
 
     if (error) {
       console.error('Sign in error:', error);
-      return { 
-        error: { 
-          message: 'Invalid password for this referral code. Please check your credentials.' 
-        } 
+      const isCredentials = /invalid login credentials/i.test(error.message);
+      return {
+        error: {
+          message: isCredentials
+            ? 'Incorrect password for this Ambassador ID. Please try again.'
+            : error.message,
+        },
       };
     }
+
 
     return { error: null };
   } else {
