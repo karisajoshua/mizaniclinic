@@ -66,28 +66,28 @@ export const useAmbassadorStats = () => {
         DRC: 0
       };
 
+      const codeToName: Record<string, keyof typeof referralsByCountry> = {
+        TZ: 'Tanzania',
+        KE: 'Kenya',
+        UG: 'Uganda',
+        RW: 'Rwanda',
+        BI: 'Burundi',
+        CD: 'DRC',
+        Tanzania: 'Tanzania',
+        Kenya: 'Kenya',
+        Uganda: 'Uganda',
+        Rwanda: 'Rwanda',
+        Burundi: 'Burundi',
+        DRC: 'DRC',
+      };
+
       referrals?.forEach(referral => {
-        switch (referral.country) {
-          case 'TZ':
-            referralsByCountry.Tanzania++;
-            break;
-          case 'KE':
-            referralsByCountry.Kenya++;
-            break;
-          case 'UG':
-            referralsByCountry.Uganda++;
-            break;
-          case 'RW':
-            referralsByCountry.Rwanda++;
-            break;
-          case 'BI':
-            referralsByCountry.Burundi++;
-            break;
-          case 'CD':
-            referralsByCountry.DRC++;
-            break;
-        }
+        const name = codeToName[referral.country as string];
+        if (name) referralsByCountry[name]++;
       });
+
+      const countryName = profile?.country || 'Tanzania';
+      const ownLimit = countryLimits?.find(c => c.country_name === countryName);
 
       // Get team progress values from bonuses
       const motorbikeBonus = bonuses?.find(b => b.bonus_type === 'motorbike');
