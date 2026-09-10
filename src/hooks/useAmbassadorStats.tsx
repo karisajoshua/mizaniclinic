@@ -104,7 +104,9 @@ export const useAmbassadorStats = () => {
         activeReferrals: stats?.active_referrals || 0,
         pendingReferrals: stats?.pending_referrals || 0,
         referralsByCountry,
-        ambassadorLimit: 856, // This would come from country limits calculation
+        ambassadorLimit: ownLimit?.ambassador_limit ?? 100,
+        countryName,
+        countryActiveCount: ownLimit?.current_count ?? 0,
         currentCommissionTier: stats?.current_commission_tier || "Standard",
         nextPayoutDate: stats?.next_payout_date || "2024-02-01"
       };
