@@ -30,6 +30,17 @@ export const useAmbassadorStats = () => {
         .eq('referrer_id', user.id)
         .eq('status', 'active');
 
+      // Get the ambassador's own country and the live country limits
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('country')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      const { data: countryLimits } = await supabase
+        .from('country_limits')
+        .select('country_name, current_count, ambassador_limit');
+
       if (referralsError) {
         console.error('Error fetching referrals:', referralsError);
         throw referralsError;
