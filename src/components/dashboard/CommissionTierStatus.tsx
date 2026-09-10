@@ -31,7 +31,7 @@ const CommissionTierStatus = ({ ambassadorStats }: CommissionTierStatusProps) =>
               Upgrade to Premium Tier!
             </h4>
             <p className="text-yellow-700 font-semibold mb-3 text-sm sm:text-base">
-              When 1,000 total Ambassadors reached across Tanzania:
+              When {ambassadorStats.ambassadorLimit.toLocaleString()} active Ambassadors are reached in {ambassadorStats.countryName}:
             </p>
             <ul className="space-y-2 text-xs sm:text-sm text-yellow-700 font-medium">
               <li>• Activation Pack: 70% commission</li>
@@ -40,10 +40,15 @@ const CommissionTierStatus = ({ ambassadorStats }: CommissionTierStatusProps) =>
             </ul>
             <div className="mt-4">
               <div className="flex justify-between items-center mb-2">
-                <span className="text-xs sm:text-sm font-bold text-yellow-800">Tanzania Ambassadors:</span>
-                <span className="font-black text-yellow-800 text-sm sm:text-base">{ambassadorStats.ambassadorLimit}/1,000</span>
+                <span className="text-xs sm:text-sm font-bold text-yellow-800">{ambassadorStats.countryName} Ambassadors:</span>
+                <span className="font-black text-yellow-800 text-sm sm:text-base">
+                  {ambassadorStats.countryActiveCount.toLocaleString()}/{ambassadorStats.ambassadorLimit.toLocaleString()}
+                </span>
               </div>
-              <Progress value={(ambassadorStats.ambassadorLimit/1000)*100} className="h-2 sm:h-3" />
+              <Progress
+                value={ambassadorStats.ambassadorLimit > 0 ? Math.min(100, (ambassadorStats.countryActiveCount / ambassadorStats.ambassadorLimit) * 100) : 0}
+                className="h-2 sm:h-3"
+              />
             </div>
           </div>
         </div>
