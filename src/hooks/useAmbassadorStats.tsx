@@ -30,6 +30,17 @@ export const useAmbassadorStats = () => {
         .eq('referrer_id', user.id)
         .eq('status', 'active');
 
+      // Get the ambassador's own country and the live country limits
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('country')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      const { data: countryLimits } = await supabase
+        .from('country_limits')
+        .select('country_name, current_count, ambassador_limit');
+
       if (referralsError) {
         console.error('Error fetching referrals:', referralsError);
         throw referralsError;
@@ -55,28 +66,28 @@ export const useAmbassadorStats = () => {
         DRC: 0
       };
 
+      const codeToName: Record<string, keyof typeof referralsByCountry> = {
+        TZ: 'Tanzania',
+        KE: 'Kenya',
+        UG: 'Uganda',
+        RW: 'Rwanda',
+        BI: 'Burundi',
+        CD: 'DRC',
+        Tanzania: 'Tanzania',
+        Kenya: 'Kenya',
+        Uganda: 'Uganda',
+        Rwanda: 'Rwanda',
+        Burundi: 'Burundi',
+        DRC: 'DRC',
+      };
+
       referrals?.forEach(referral => {
-        switch (referral.country) {
-          case 'TZ':
-            referralsByCountry.Tanzania++;
-            break;
-          case 'KE':
-            referralsByCountry.Kenya++;
-            break;
-          case 'UG':
-            referralsByCountry.Uganda++;
-            break;
-          case 'RW':
-            referralsByCountry.Rwanda++;
-            break;
-          case 'BI':
-            referralsByCountry.Burundi++;
-            break;
-          case 'CD':
-            referralsByCountry.DRC++;
-            break;
-        }
+        const name = codeToName[referral.country as string];
+        if (name) referralsByCountry[name]++;
       });
+
+      const countryName = profile?.country || 'Tanzania';
+      const ownLimit = countryLimits?.find(c => c.country_name === countryName);
 
       // Get team progress values from bonuses
       const motorbikeBonus = bonuses?.find(b => b.bonus_type === 'motorbike');
@@ -93,7 +104,9 @@ export const useAmbassadorStats = () => {
         activeReferrals: stats?.active_referrals || 0,
         pendingReferrals: stats?.pending_referrals || 0,
         referralsByCountry,
-        ambassadorLimit: 856, // This would come from country limits calculation
+        ambassadorLimit: ownLimit?.ambassador_limit ?? 100,
+        countryName,
+        countryActiveCount: ownLimit?.current_count ?? 0,
         currentCommissionTier: stats?.current_commission_tier || "Standard",
         nextPayoutDate: stats?.next_payout_date || "2024-02-01"
       };

@@ -18,6 +18,8 @@ export interface AmbassadorStats {
     DRC: number;
   };
   ambassadorLimit: number;
+  countryName: string;
+  countryActiveCount: number;
   currentCommissionTier: string;
   nextPayoutDate: string;
 }
