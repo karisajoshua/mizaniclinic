@@ -18,12 +18,15 @@ export type Database = {
         Row: {
           activation_pack_earnings_usd: number
           active_referrals: number
+          approved_earnings_usd: number
           created_at: string
           current_commission_tier: string
           direct_sales_earnings_usd: number
           id: string
           last_calculated: string
           next_payout_date: string | null
+          paid_earnings_usd: number
+          pending_earnings_usd: number
           pending_referrals: number
           second_level_earnings_usd: number
           team_bonus_earnings_usd: number
@@ -35,12 +38,15 @@ export type Database = {
         Insert: {
           activation_pack_earnings_usd?: number
           active_referrals?: number
+          approved_earnings_usd?: number
           created_at?: string
           current_commission_tier?: string
           direct_sales_earnings_usd?: number
           id?: string
           last_calculated?: string
           next_payout_date?: string | null
+          paid_earnings_usd?: number
+          pending_earnings_usd?: number
           pending_referrals?: number
           second_level_earnings_usd?: number
           team_bonus_earnings_usd?: number
@@ -52,12 +58,15 @@ export type Database = {
         Update: {
           activation_pack_earnings_usd?: number
           active_referrals?: number
+          approved_earnings_usd?: number
           created_at?: string
           current_commission_tier?: string
           direct_sales_earnings_usd?: number
           id?: string
           last_calculated?: string
           next_payout_date?: string | null
+          paid_earnings_usd?: number
+          pending_earnings_usd?: number
           pending_referrals?: number
           second_level_earnings_usd?: number
           team_bonus_earnings_usd?: number
@@ -233,6 +242,7 @@ export type Database = {
         Row: {
           amount_local: number
           amount_usd: number
+          approved_date: string | null
           commission_rate: number | null
           created_at: string
           currency: string
@@ -247,6 +257,7 @@ export type Database = {
         Insert: {
           amount_local: number
           amount_usd: number
+          approved_date?: string | null
           commission_rate?: number | null
           created_at?: string
           currency?: string
@@ -261,6 +272,7 @@ export type Database = {
         Update: {
           amount_local?: number
           amount_usd?: number
+          approved_date?: string | null
           commission_rate?: number | null
           created_at?: string
           currency?: string
@@ -609,6 +621,33 @@ export type Database = {
           },
         ]
       }
+      system_settings: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          key: string
+          updated_at: string
+          value: Json
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          key: string
+          updated_at?: string
+          value?: Json
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          key?: string
+          updated_at?: string
+          value?: Json
+        }
+        Relationships: []
+      }
       team_bonuses: {
         Row: {
           achieved: boolean
@@ -735,6 +774,10 @@ export type Database = {
           p_region: string
         }
         Returns: string
+      }
+      set_earnings_status: {
+        Args: { p_ids: string[]; p_status: string }
+        Returns: number
       }
       verify_receipt_code: {
         Args: { p_receipt_code: string; p_uid: string }
