@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Camera, Upload, Loader2, RotateCcw, Eye } from "lucide-react";
@@ -37,11 +37,11 @@ const IrisAnalysis = ({ clientInfo }: IrisAnalysisProps) => {
           width: { ideal: 1920 },
           height: { ideal: 1080 },
         },
+        audio: false,
       });
       streamRef.current = stream;
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-      }
+      // Show the preview first so the <video> element is mounted,
+      // then attach the stream in the effect below.
       setIsCameraOpen(true);
     } catch {
       toast({
@@ -55,7 +55,45 @@ const IrisAnalysis = ({ clientInfo }: IrisAnalysisProps) => {
   const stopCamera = useCallback(() => {
     streamRef.current?.getTracks().forEach((t) => t.stop());
     streamRef.current = null;
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
     setIsCameraOpen(false);
+  }, []);
+
+  // Attach the stream once the video element exists, and start playback.
+  useEffect(() => {
+    const video = videoRef.current;
+    const stream = streamRef.current;
+    if (!isCameraOpen || !video || !stream) return;
+
+    video.srcObject = stream;
+    video.muted = true;
+    video.setAttribute("playsinline", "true");
+    const play = async () => {
+      try {
+        await video.play();
+      } catch {
+        /* autoplay can be interrupted; the user can retry */
+      }
+    };
+    if (video.readyState >= 1) {
+      play();
+    } else {
+      video.onloadedmetadata = play;
+    }
+
+    return () => {
+      video.onloadedmetadata = null;
+    };
+  }, [isCameraOpen]);
+
+  // Always release the camera when leaving the screen.
+  useEffect(() => {
+    return () => {
+      streamRef.current?.getTracks().forEach((t) => t.stop());
+      streamRef.current = null;
+    };
   }, []);
 
   const capturePhoto = useCallback(() => {
