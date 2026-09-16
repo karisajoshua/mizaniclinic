@@ -6,7 +6,7 @@ const money = (n: number) =>
   `$${n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 const FinancialMetricsCards = () => {
-  const { data, isLoading } = useAdminMetrics();
+  const { data, isLoading, isError } = useAdminMetrics();
 
   const financialMetrics = [
     {
@@ -14,7 +14,7 @@ const FinancialMetricsCards = () => {
       value: money(data?.totalRevenueUsd ?? 0),
       icon: DollarSign,
       color: "bg-emerald-600",
-      change: "paid earnings to date",
+      change: "recorded receipts, sales and consultations",
     },
     {
       title: "Pending Payouts",
@@ -31,11 +31,11 @@ const FinancialMetricsCards = () => {
       change: `${data?.paidThisMonthCount ?? 0} transactions`,
     },
     {
-      title: "Active Ambassadors",
-      value: `${data?.activeUsers ?? 0}`,
+      title: "Approved for Payment",
+      value: money(data?.approvedPayoutsUsd ?? 0),
       icon: TrendingUp,
       color: "bg-purple-600",
-      change: `${data?.totalUsers ?? 0} total registered`,
+      change: `${data?.approvedPayoutCount ?? 0} commissions`,
     },
   ];
 
@@ -50,7 +50,7 @@ const FinancialMetricsCards = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-white">{isLoading ? "—" : metric.value}</div>
+            <div className="text-2xl font-bold text-white">{isError ? "Unavailable" : isLoading ? "—" : metric.value}</div>
             <p className="text-xs text-emerald-400 font-medium">{metric.change}</p>
           </CardContent>
         </Card>

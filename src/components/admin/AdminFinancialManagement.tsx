@@ -9,16 +9,16 @@ const AdminFinancialManagement = () => {
   const { data: payouts = [] } = useAdminPayouts();
   const process = useProcessPayouts();
 
-  const pendingIds = payouts.filter((p) => p.status === "pending").map((p) => p.id);
+  const pendingIds = payouts.filter((p) => p.status === "pending").map((p) => p.id).slice(0, 1000);
 
   const handleBulkApproval = () => {
     if (pendingIds.length === 0) return;
     if (
       window.confirm(
-        `Mark ${pendingIds.length} pending payout${pendingIds.length === 1 ? "" : "s"} as paid?`
+        `Approve ${pendingIds.length} pending commissions for payment?`
       )
     ) {
-      process.mutate(pendingIds);
+      process.mutate({ ids: pendingIds, status: "approved" });
     }
   };
 
@@ -34,6 +34,7 @@ const AdminFinancialManagement = () => {
         Status: p.status,
         Earned: p.earnedDate,
         Paid: p.paidDate ?? "",
+        Reference: p.reference ?? "",
       }))
     );
   };
@@ -57,7 +58,7 @@ const AdminFinancialManagement = () => {
             ) : (
               <CheckCircle className="w-4 h-4 mr-2" />
             )}
-            Approve All Pending{pendingIds.length > 0 ? ` (${pendingIds.length})` : ""}
+            Approve Pending (up to 1,000){pendingIds.length > 0 ? ` (${pendingIds.length})` : ""}
           </Button>
           <Button
             variant="outline"

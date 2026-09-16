@@ -8,13 +8,12 @@ interface BonusProgressProps {
   ambassadorStats: AmbassadorStats;
 }
 
-const MOTORBIKE_TARGET_USD = 400;
-const CAR_TARGET_USD = 2400;
-
 const pct = (current: number, target: number) =>
   target > 0 ? Math.min(100, Math.max(0, (current / target) * 100)) : 0;
 
 const BonusProgress = ({ ambassadorStats }: BonusProgressProps) => {
+  const MOTORBIKE_TARGET_USD = ambassadorStats.motorbikeTarget;
+  const CAR_TARGET_USD = ambassadorStats.carTarget;
   const motorbikeUsd = ambassadorStats.teamProgressLevel1;
   const carUsd = ambassadorStats.teamProgressLevel2;
 

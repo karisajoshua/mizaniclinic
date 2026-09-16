@@ -249,6 +249,7 @@ export type Database = {
           earned_date: string
           earning_type: string
           id: string
+          payout_reference: string | null
           paid_date: string | null
           source_transaction_id: string | null
           status: string
@@ -264,6 +265,7 @@ export type Database = {
           earned_date?: string
           earning_type: string
           id?: string
+          payout_reference?: string | null
           paid_date?: string | null
           source_transaction_id?: string | null
           status?: string
@@ -279,6 +281,7 @@ export type Database = {
           earned_date?: string
           earning_type?: string
           id?: string
+          payout_reference?: string | null
           paid_date?: string | null
           source_transaction_id?: string | null
           status?: string
@@ -475,6 +478,9 @@ export type Database = {
       }
       receipt_codes: {
         Row: {
+          amount_usd: number | null
+          amount_local: number | null
+          currency: string | null
           code: string
           created_at: string
           id: string
@@ -483,6 +489,9 @@ export type Database = {
           used_by: string | null
         }
         Insert: {
+          amount_usd?: number | null
+          amount_local?: number | null
+          currency?: string | null
           code: string
           created_at?: string
           id?: string
@@ -491,6 +500,9 @@ export type Database = {
           used_by?: string | null
         }
         Update: {
+          amount_usd?: number | null
+          amount_local?: number | null
+          currency?: string | null
           code?: string
           created_at?: string
           id?: string
@@ -730,6 +742,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_admin_ambassadors: {
+        Args: Record<string, never>
+        Returns: { id: string; full_name: string | null; phone: string | null; region: string | null; country: string | null; ambassador_id: string | null; status: string | null; joined_at: string | null; activated_at: string | null; total_referrals: number; active_referrals: number; total_earnings: number; tier: string; receipt_verified: boolean }[]
+      }
+      save_platform_settings: { Args: { p_settings: Json }; Returns: undefined }
+      get_admin_report: { Args: { p_months?: number }; Returns: Json }
+      get_ambassador_dashboard: { Args: Record<string, never>; Returns: Json }
+      get_recent_referrals: { Args: Record<string, never>; Returns: { name: string; join_date: string; location: string; status: string }[] }
+      transition_earnings: { Args: { p_ids: string[]; p_status: string; p_reference?: string | null }; Returns: number }
+      approve_verified_ambassadors: { Args: { p_ids: string[] }; Returns: number }
       calculate_ambassador_stats: {
         Args: { target_user_id: string }
         Returns: undefined

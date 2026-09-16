@@ -1,3 +1,4 @@
+import { errorMessage } from '@/lib/reporting';
 import { useState, useRef, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -143,7 +144,7 @@ const IrisAnalysis = ({ clientInfo }: IrisAnalysisProps) => {
       setAnalysisResult(data.analysis);
 
       // Save to database
-      const { error: saveError } = await supabase.from("iris_analyses" as any).insert({
+      const { error: saveError } = await supabase.from("iris_analyses").insert({
         user_id: (await supabase.auth.getUser()).data.user?.id,
         client_name: clientInfo.fullName,
         client_email: clientInfo.email,
@@ -156,11 +157,11 @@ const IrisAnalysis = ({ clientInfo }: IrisAnalysisProps) => {
       if (saveError) console.error("Failed to save iris analysis:", saveError);
 
       toast({ title: "Analysis Complete", description: "Your iris analysis report is ready." });
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Iris analysis error:", err);
       toast({
         title: "Analysis Failed",
-        description: err.message || "Could not analyze the image. Please try again.",
+        description: errorMessage(err, "Could not analyze the image. Please try again."),
         variant: "destructive",
       });
     } finally {

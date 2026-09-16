@@ -99,7 +99,7 @@ const CountryCard = ({
                 disabled={isUpdating || !country.code}
                 onClick={() => {
                   const parsed = parseInt(limitValue, 10);
-                  if (!Number.isNaN(parsed) && country.code) {
+                  if (Number.isInteger(parsed) && parsed > 0 && country.code) {
                     onUpdateLimit(country.code, parsed);
                   }
                 }}
@@ -112,7 +112,7 @@ const CountryCard = ({
           <div className="flex items-center justify-between">
             <div>
               <span className="text-sm font-medium">Premium Tier</span>
-              <p className="text-xs text-gray-500">Enhanced commission rates</p>
+              <p className="text-xs text-gray-500">Automatic at capacity; optional override</p>
             </div>
             <Button
               size="sm"
@@ -120,7 +120,7 @@ const CountryCard = ({
               variant={country.premiumUnlocked ? "default" : "outline"}
               onClick={() => country.code && onTogglePremium(country.code, !country.premiumUnlocked)}
             >
-              {country.premiumUnlocked ? "Unlocked" : "Locked"}
+              {country.premiumUnlocked ? "Clear override" : "Enable override"}
             </Button>
           </div>
         </div>

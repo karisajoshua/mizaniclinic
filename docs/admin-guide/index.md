@@ -114,8 +114,3 @@ The admin interface provides comprehensive system oversight:
 5. Post-incident analysis
 
 ## Next Steps
-
-- [Detailed Dashboard Guide →](/admin-guide/dashboard)
-- [User Management →](/admin-guide/users)
-- [Financial Administration →](/admin-guide/finance)
-- [System Configuration →](/admin-guide/config)

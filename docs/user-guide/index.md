@@ -1,46 +1,12 @@
+# Ambassador guide
 
-# User Guide
+Register using another ambassador's referral code, pay the clinic separately and activate your account with the receipt code provided by staff. The database verifies payment before the dashboard opens.
 
-Welcome to the Mizani Clinic Ambassador platform! This guide will help you understand how to use all the features available to ambassadors.
+The dashboard shows recorded earnings in USD, your actual referral activity and program country progress. Commission records have separate pending, approved and paid states. Pending and approved amounts have not yet been recorded as paid out.
 
-## Overview
+Administrators configure Standard and Premium commission rates. Your displayed rates reflect your current country tier. New transactions use the saved rates; older earnings keep their original amounts. Premium applies when country capacity is reached or the administrator enables it for that country.
 
-As a Mizani Clinic Ambassador, you can:
+Bonus progress uses the recorded team bonus amount and target. Car progress uses the current recorded period. Progress towards a target does not itself confirm reward delivery.
 
-- 🎯 **Earn Money**: Get paid for each successful referral
-- 📱 **Share Your Code**: Use your unique referral code to invite others
-- 📊 **Track Progress**: Monitor your earnings and referral performance
-- 🏥 **Book Appointments**: Schedule consultations with Dr. Mwaka
-- 🎁 **Win Bonuses**: Qualify for motorbike and car rewards
-
-## Getting Started
-
-1. **Register** with a valid referral code from another ambassador
-2. **Complete** your profile and payment information
-3. **Share** your unique referral code with friends and family
-4. **Earn** commissions when people register with your code
-5. **Track** your progress on the dashboard
-
-## Earning Model
-
-### Commission Structure
-
-| Type | Rate | Payment Schedule |
-|------|------|------------------|
-| Direct Referral | 30% | After 5 signups |
-| Service Referral | 25% | Immediate |
-| Second-Level | 15% | Monthly |
-| Tier Bonus | 70% | After 1,000 ambassadors |
-
-### Bonus Rewards
-
-- **Motorbike**: Achieve 1,000 MPA points
-- **Car**: Achieve 6,000 MPA points
-- **Enhanced Tiers**: Up to 75% commission rates
-
-## Quick Actions
-
-- [Registration Process →](/user-guide/registration)
-- [Dashboard Overview →](/user-guide/dashboard)
-- [Referral Management →](/user-guide/referrals)
-- [Earnings Tracking →](/user-guide/earnings)
+- [Registration and receipt activation](/user-guide/registration)
+- [Dashboard guide](/user-guide/dashboard)

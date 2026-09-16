@@ -14,7 +14,6 @@ export const useAuth = () => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        console.log('Auth state changed:', event, session?.user?.id);
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
@@ -23,7 +22,6 @@ export const useAuth = () => {
 
     // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('Initial session:', session?.user?.id);
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
@@ -32,19 +30,22 @@ export const useAuth = () => {
     return () => subscription.unsubscribe();
   }, []);
 
+  const userId = user?.id;
+
   // Resolve admin role server-side (user_roles table + has_role function)
   useEffect(() => {
     let cancelled = false;
 
-    if (!user) {
+    if (!userId) {
       setIsAdmin(false);
       setRoleLoading(false);
       return;
     }
 
+    setIsAdmin(false);
     setRoleLoading(true);
     supabase
-      .rpc('has_role', { _user_id: user.id, _role: 'admin' })
+      .rpc('has_role', { _user_id: userId, _role: 'admin' })
       .then(({ data, error }) => {
         if (cancelled) return;
         if (error) console.error('Role check error:', error);
@@ -55,36 +56,33 @@ export const useAuth = () => {
     return () => {
       cancelled = true;
     };
-  }, [user?.id]);
+  }, [userId]);
 
 
 
 const signIn = async (emailOrReferralCode: string, password: string) => {
-  console.log('Attempting to sign in with:', emailOrReferralCode);
-  
+
   // Check if input looks like a referral code (format: MAP-XXXXXX)
   const isReferralCode = /^MAP(26)?-[A-Z0-9]+$/.test(emailOrReferralCode.toUpperCase());
-  
+
   if (isReferralCode) {
-    console.log('Detected referral code format, looking up user...');
-    
+
     // Use RPC function to get email by referral code
     const { data: email, error: rpcError } = await supabase
-      .rpc('get_email_by_referral_code' as any, { 
-        input_referral_code: emailOrReferralCode.toUpperCase() 
+      .rpc('get_email_by_referral_code', {
+        input_referral_code: emailOrReferralCode.toUpperCase()
       });
 
     if (rpcError || !email) {
       console.error('RPC lookup error:', rpcError);
-      return { 
-        error: { 
-          message: `No user found with referral code: ${emailOrReferralCode.toUpperCase()}. Please check your code and try again.` 
-        } 
+      return {
+        error: {
+          message: `No user found with referral code: ${emailOrReferralCode.toUpperCase()}. Please check your code and try again.`
+        }
       };
     }
 
     // Now sign in with the found email and provided password
-    console.log('Signing in with email from RPC:', email);
     const { error } = await supabase.auth.signInWithPassword({
       email: email,
       password,
@@ -120,8 +118,7 @@ const signIn = async (emailOrReferralCode: string, password: string) => {
 };
 
   const signUp = async (email: string, password: string, fullName: string) => {
-    console.log('Starting signup process...');
-    
+
     // Sign up without email confirmation
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -140,16 +137,14 @@ const signIn = async (emailOrReferralCode: string, password: string) => {
       return { error };
     }
 
-    console.log('Signup successful:', data.user?.id);
 
     // If user is created but not confirmed, we need to sign them in manually
     if (data.user && !data.session) {
-      console.log('User created but not confirmed, signing in manually...');
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
-      
+
       if (signInError) {
         console.error('Auto sign-in error:', signInError);
         return { error: signInError };
@@ -163,13 +158,13 @@ const signIn = async (emailOrReferralCode: string, password: string) => {
     // Clear stored user data
     localStorage.removeItem('currentUser');
     localStorage.removeItem('testUser');
-    
+
     const { error } = await supabase.auth.signOut();
-    
+
     // Reset state
     setUser(null);
     setSession(null);
-    
+
     return { error };
   };
 
@@ -184,4 +179,3 @@ const signIn = async (emailOrReferralCode: string, password: string) => {
     signOut,
   };
 };
-

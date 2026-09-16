@@ -7,8 +7,10 @@ import CountryDistribution from "./CountryDistribution";
 import RecentReferrals from "./RecentReferrals";
 import BonusProgress from "./BonusProgress";
 import CommissionTierStatus from "./CommissionTierStatus";
+import EarningsBreakdown from "./EarningsBreakdown";
 import EarningsOverview from "./EarningsOverview";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 
 interface RealTimeStatsProps {
@@ -16,9 +18,9 @@ interface RealTimeStatsProps {
 }
 
 const RealTimeStats = ({ activeTab }: RealTimeStatsProps) => {
-  const { data: ambassadorStats, isLoading: statsLoading, error: statsError } = useAmbassadorStats();
-  const { data: referrals, isLoading: referralsLoading } = useReferrals();
-  const { data: countries, isLoading: countriesLoading } = useCountryLimits();
+  const { data: ambassadorStats, isLoading: statsLoading, error: statsError, refetch: refetchStats } = useAmbassadorStats();
+  const { data: referrals, isLoading: referralsLoading, error: referralsError, refetch: refetchReferrals } = useReferrals();
+  const { data: countries, isLoading: countriesLoading, error: countriesError, refetch: refetchCountries } = useCountryLimits();
 
   if (statsLoading || referralsLoading || countriesLoading) {
     return (
@@ -30,13 +32,14 @@ const RealTimeStats = ({ activeTab }: RealTimeStatsProps) => {
     );
   }
 
-  if (statsError) {
+  if (statsError || referralsError || countriesError) {
     return (
       <Card className="p-6 text-center border-red-200 bg-red-50">
         <CardTitle className="text-red-800">Unable to load data</CardTitle>
         <CardDescription className="text-red-600">
           Please check your connection and try again
         </CardDescription>
+        <Button onClick={() => { void refetchStats(); void refetchReferrals(); void refetchCountries(); }}>Retry</Button>
       </Card>
     );
   }
@@ -57,7 +60,7 @@ const RealTimeStats = ({ activeTab }: RealTimeStatsProps) => {
       case "overview":
         return <QuickStats ambassadorStats={ambassadorStats} />;
       case "earnings":
-        return <EarningsOverview ambassadorStats={ambassadorStats} />;
+        return <><EarningsOverview ambassadorStats={ambassadorStats} /><EarningsBreakdown /></>;
       case "referrals":
         return (
           <div className="space-y-4 sm:space-y-6">

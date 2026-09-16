@@ -5,7 +5,7 @@ import reactRefresh from "eslint-plugin-react-refresh";
 import tseslint from "typescript-eslint";
 
 export default tseslint.config(
-  { ignores: ["dist"] },
+  { ignores: ["dist", "docs/.vitepress/dist", "docs/.vitepress/cache", "coverage", "supabase/.temp"] },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ["**/*.{ts,tsx}"],
@@ -21,7 +21,7 @@ export default tseslint.config(
       ...reactHooks.configs.recommended.rules,
       "react-refresh/only-export-components": [
         "warn",
-        { allowConstantExport: true },
+        { allowConstantExport: true, allowExportNames: ["badgeVariants", "buttonVariants", "useFormField", "navigationMenuTriggerStyle", "useSidebar", "toast", "toggleVariants"] },
       ],
       "@typescript-eslint/no-unused-vars": "off",
     },

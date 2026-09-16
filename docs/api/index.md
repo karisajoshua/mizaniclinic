@@ -279,8 +279,3 @@ const { data: referrals } = useQuery({
 ```
 
 ## Next Steps
-
-- [Authentication Details →](/api/auth)
-- [User Management →](/api/users)
-- [Referral System →](/api/referrals)
-- [Payment Processing →](/api/payments)

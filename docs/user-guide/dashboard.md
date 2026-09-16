@@ -109,7 +109,3 @@ Compare your performance:
 - **Goal Tracking**: Progress toward personal targets
 
 ## Next Steps
-
-- [Learn about Referral Management →](/user-guide/referrals)
-- [Understand Earnings Tracking →](/user-guide/earnings)
-- [Explore Appointment Booking →](/user-guide/appointments)

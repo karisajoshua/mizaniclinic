@@ -8,7 +8,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const logStep = (step: string, details?: any) => {
+const logStep = (step: string, details?: unknown) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
   console.log(`[CONFIRM-APPOINTMENT-PAYMENT] ${step}${detailsStr}`);
 };
@@ -34,7 +34,7 @@ serve(async (req) => {
     if (!sessionId) throw new Error("Session ID is required");
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
-    
+
     // Retrieve the session
     const session = await stripe.checkout.sessions.retrieve(sessionId);
     logStep("Session retrieved", { sessionId, status: session.payment_status });
@@ -46,7 +46,7 @@ serve(async (req) => {
       // Update appointment status
       const { error: updateError } = await supabaseClient
         .from("appointments")
-        .update({ 
+        .update({
           payment_status: 'paid',
           status: 'confirmed'
         })
@@ -66,9 +66,9 @@ serve(async (req) => {
         .eq("id", appointmentId)
         .single();
 
-      return new Response(JSON.stringify({ 
-        success: true, 
-        appointment: appointment 
+      return new Response(JSON.stringify({
+        success: true,
+        appointment: appointment
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,

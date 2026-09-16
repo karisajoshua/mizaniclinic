@@ -1,3 +1,4 @@
+import { usePlatformSettings } from "@/hooks/usePlatformSettings";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AlertTriangle, CheckCircle, Clock } from "lucide-react";
@@ -11,14 +12,15 @@ interface SystemAlert {
 }
 
 const SystemAlerts = () => {
-  const { data: countries } = useCountryLimits();
-  const { data: stats } = useAdminCountryStats();
-  const { data: metrics } = useAdminMetrics();
+  const { data: settings, isPending: settingsLoading, isError: settingsError } = usePlatformSettings();
+  const { data: countries, isPending: countriesLoading, isError: countriesError } = useCountryLimits();
+  const { data: stats, isPending: statsLoading, isError: statsError } = useAdminCountryStats();
+  const { data: metrics, isPending: metricsLoading, isError: metricsError } = useAdminMetrics();
 
   const systemAlerts: SystemAlert[] = [];
 
-  (countries ?? []).forEach((country) => {
-    const registered = stats?.[country.name]?.total ?? country.count;
+  (settings?.admin_alerts.country_limits ? countries ?? [] : []).forEach((country) => {
+    const registered = stats?.[country.name]?.active ?? country.count;
     const limit = country.limit || 1;
     const pct = Math.round((registered / limit) * 100);
     if (pct >= 100) {
@@ -36,15 +38,15 @@ const SystemAlerts = () => {
     }
   });
 
-  if (metrics && metrics.pendingUsers > 0) {
+  if (settings?.admin_alerts.registrations && metrics && metrics.pendingUsers > 0) {
     systemAlerts.push({
       type: "info",
-      message: `${metrics.pendingUsers} ambassador${metrics.pendingUsers === 1 ? "" : "s"} awaiting approval`,
+      message: `${metrics.pendingUsers} ambassador${metrics.pendingUsers === 1 ? "" : "s"} awaiting receipt activation`,
       priority: metrics.pendingUsers > 10 ? "high" : "medium",
     });
   }
 
-  if (metrics && metrics.pendingPayoutCount > 0) {
+  if (settings?.admin_alerts.payouts && metrics && metrics.pendingPayoutCount > 0) {
     systemAlerts.push({
       type: "warning",
       message: `${metrics.pendingPayoutCount} pending payout${metrics.pendingPayoutCount === 1 ? "" : "s"} totalling $${metrics.pendingPayoutsUsd.toFixed(2)}`,
@@ -52,7 +54,7 @@ const SystemAlerts = () => {
     });
   }
 
-  if (metrics && metrics.paidThisMonthCount > 0) {
+  if (settings?.admin_alerts.milestones && metrics && metrics.paidThisMonthCount > 0) {
     systemAlerts.push({
       type: "success",
       message: `${metrics.paidThisMonthCount} payout${metrics.paidThisMonthCount === 1 ? "" : "s"} completed this month ($${metrics.paidThisMonthUsd.toFixed(2)})`,
@@ -73,10 +75,10 @@ const SystemAlerts = () => {
         <CardDescription className="text-slate-400">Critical system notifications</CardDescription>
       </CardHeader>
       <CardContent>
-        {systemAlerts.length === 0 ? (
+        {settingsError || countriesError || statsError || metricsError ? <p role="alert" className="text-red-300">Alerts could not be loaded.</p> : settingsLoading || countriesLoading || statsLoading || metricsLoading ? <p className="text-slate-300">Loading alerts…</p> : systemAlerts.length === 0 ? (
           <div className="flex items-center space-x-2 text-slate-400 text-sm py-6">
             <CheckCircle className="w-5 h-5 text-emerald-400" />
-            <span>All systems normal — nothing needs attention.</span>
+            <span>No enabled alerts to display.</span>
           </div>
         ) : (
           <div className="space-y-4">
