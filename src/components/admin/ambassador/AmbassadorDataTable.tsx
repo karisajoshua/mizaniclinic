@@ -30,14 +30,14 @@ const AmbassadorDataTable = ({ ambassadors, onStatusChange, isUpdating }: Ambass
       return;
     }
     setSaving(true);
-    const { data, error } = await supabase.functions.invoke("admin-reset-password", {
+    const { data, error } = await supabase.functions.invoke<{ error?: string }>("admin-reset-password", {
       body: { targetUserId: resetTarget.id, newPassword },
     });
     setSaving(false);
-    if (error || (data as any)?.error) {
+    if (error || data?.error) {
       toast({
         title: "Could not reset password",
-        description: (data as any)?.error || error?.message,
+        description: data?.error || error?.message,
         variant: "destructive",
       });
       return;
@@ -114,15 +114,15 @@ const AmbassadorDataTable = ({ ambassadors, onStatusChange, isUpdating }: Ambass
               </TableCell>
               <TableCell>
                 <div className="flex flex-col gap-2">
-                  {ambassador.status !== 'active' && (
+                  {ambassador.status === 'pending' && (
                     <Button
                       size="sm"
-                      disabled={isUpdating}
+                      disabled={isUpdating || !ambassador.canApprove}
                       className="bg-emerald-600 hover:bg-emerald-700"
                       onClick={() => onStatusChange(ambassador.id)}
                     >
                       <UserCheck className="w-4 h-4 mr-1" />
-                      Approve
+                      {ambassador.canApprove ? "Approve" : "Awaiting receipt"}
                     </Button>
                   )}
                   <Button
@@ -172,4 +172,3 @@ const AmbassadorDataTable = ({ ambassadors, onStatusChange, isUpdating }: Ambass
 };
 
 export default AmbassadorDataTable;
-

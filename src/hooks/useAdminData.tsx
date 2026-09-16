@@ -1,59 +1,26 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { useAdminReport, type AdminReport } from "@/hooks/useAdminReport";
+import { useAuth } from "@/hooks/useAuth";
+import { toCsv } from "@/lib/reporting";
 
-export interface AdminMetrics {
-  totalUsers: number;
-  activeUsers: number;
-  pendingUsers: number;
-  totalRevenueUsd: number;
-  pendingPayoutsUsd: number;
-  pendingPayoutCount: number;
-  paidThisMonthUsd: number;
-  paidThisMonthCount: number;
-}
-
+export type AdminMetrics = AdminReport['metrics'];
 export const useAdminMetrics = () => {
-  return useQuery({
-    queryKey: ["admin-metrics"],
-    queryFn: async (): Promise<AdminMetrics> => {
-      const startOfMonth = new Date();
-      startOfMonth.setDate(1);
-      startOfMonth.setHours(0, 0, 0, 0);
-
-      const [profilesRes, earningsRes] = await Promise.all([
-        supabase.from("profiles").select("id,status"),
-        supabase.from("earnings").select("amount_usd,status,paid_date"),
-      ]);
-
-      if (profilesRes.error) throw profilesRes.error;
-      if (earningsRes.error) throw earningsRes.error;
-
-      const profiles = profilesRes.data ?? [];
-      const earnings = earningsRes.data ?? [];
-
-      const sum = (rows: typeof earnings) =>
-        rows.reduce((acc, e) => acc + Number(e.amount_usd ?? 0), 0);
-
-      const pending = earnings.filter((e) => e.status === "pending");
-      const paid = earnings.filter((e) => e.status === "paid");
-      const paidThisMonth = paid.filter(
-        (e) => e.paid_date && new Date(e.paid_date) >= startOfMonth
-      );
-
-      return {
-        totalUsers: profiles.length,
-        activeUsers: profiles.filter((p) => p.status === "active").length,
-        pendingUsers: profiles.filter((p) => p.status !== "active").length,
-        totalRevenueUsd: sum(paid),
-        pendingPayoutsUsd: sum(pending),
-        pendingPayoutCount: pending.length,
-        paidThisMonthUsd: sum(paidThisMonth),
-        paidThisMonthCount: paidThisMonth.length,
-      };
-    },
-  });
+  const report = useAdminReport();
+  return { ...report, data: report.data?.metrics };
 };
+
+// Page through complete result sets; Supabase caps an individual response.
+async function readAll<T>(page: (from: number, to: number) => PromiseLike<{ data: T[] | null; error: { message: string } | null }>) {
+  const data: T[] = [];
+  for (let from = 0; ; from += 500) {
+    const result = await page(from, from + 499);
+    if (result.error) throw new Error(result.error.message);
+    data.push(...(result.data ?? []));
+    if ((result.data?.length ?? 0) < 500) return { data, error: null };
+  }
+}
 
 /* ------------------------------------------------------------------ */
 /* Ambassadors                                                         */
@@ -73,51 +40,23 @@ export interface AdminAmbassador {
   tier: string;
   joinDate: string;
   activatedAt: string | null;
+  canApprove: boolean;
 }
 
 export const useAdminAmbassadors = () => {
+  const { user, isAdmin } = useAuth();
   return useQuery({
-    queryKey: ["admin-ambassadors"],
+    queryKey: ["admin-ambassadors", user?.id],
+    enabled: Boolean(user && isAdmin),
     queryFn: async (): Promise<AdminAmbassador[]> => {
-      const [profilesRes, statsRes] = await Promise.all([
-        supabase
-          .from("profiles")
-          .select(
-            "id,full_name,phone,region,country,ambassador_id,status,created_at,registration_date,activated_at"
-          )
-          .order("created_at", { ascending: false }),
-        supabase
-          .from("ambassador_stats")
-          .select(
-            "user_id,total_referrals,active_referrals,total_earnings_usd,current_commission_tier"
-          ),
-      ]);
-
-      if (profilesRes.error) throw profilesRes.error;
-      if (statsRes.error) throw statsRes.error;
-
-      const statsByUser = new Map(
-        (statsRes.data ?? []).map((s) => [s.user_id as string, s])
-      );
-
-      return (profilesRes.data ?? []).map((p) => {
-        const s = statsByUser.get(p.id);
-        return {
-          id: p.id,
-          name: p.full_name || "Unnamed",
-          ambassadorId: p.ambassador_id || "—",
-          phone: p.phone || "—",
-          region: p.region || "Unknown",
-          country: p.country || "Unknown",
-          totalReferrals: Number(s?.total_referrals ?? 0),
-          activeReferrals: Number(s?.active_referrals ?? 0),
-          totalEarnings: Number(s?.total_earnings_usd ?? 0),
-          status: p.status || "pending",
-          tier: s?.current_commission_tier || "Standard",
-          joinDate: (p.registration_date || p.created_at || "").slice(0, 10),
-          activatedAt: p.activated_at,
-        };
-      });
+      const { data } = await readAll((from, to) => supabase.rpc('get_admin_ambassadors').order('id').range(from, to));
+      return data.map(p => ({
+        id: p.id, name: p.full_name || 'Unnamed', ambassadorId: p.ambassador_id || '—',
+        phone: p.phone || '—', region: p.region || 'Unknown', country: p.country || 'Unknown',
+        totalReferrals: Number(p.total_referrals), activeReferrals: Number(p.active_referrals),
+        totalEarnings: Number(p.total_earnings), status: p.status || 'pending', tier: p.tier,
+        joinDate: (p.joined_at || '').slice(0, 10), activatedAt: p.activated_at, canApprove: p.receipt_verified,
+      }));
     },
   });
 };
@@ -127,16 +66,13 @@ export const useApproveAmbassadors = () => {
   return useMutation({
     mutationFn: async (ids: string[]) => {
       if (ids.length === 0) return 0;
-      const { error } = await supabase
-        .from("profiles")
-        .update({ status: "active", activated_at: new Date().toISOString() })
-        .in("id", ids);
+      const { data, error } = await supabase.rpc('approve_verified_ambassadors', { p_ids: ids });
       if (error) throw error;
-      return ids.length;
+      return data;
     },
     onSuccess: (count) => {
       queryClient.invalidateQueries({ queryKey: ["admin-ambassadors"] });
-      queryClient.invalidateQueries({ queryKey: ["admin-metrics"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-report"] });
       queryClient.invalidateQueries({ queryKey: ["admin-country-stats"] });
       toast({
         title: "Approved",
@@ -167,34 +103,23 @@ export interface AdminPayout {
   type: string;
   earnedDate: string;
   paidDate: string | null;
+  reference: string | null;
 }
 
 export const useAdminPayouts = () => {
+  const { user, isAdmin } = useAuth();
   return useQuery({
-    queryKey: ["admin-payouts"],
+    queryKey: ["admin-payouts", user?.id],
+    enabled: Boolean(user && isAdmin),
     queryFn: async (): Promise<AdminPayout[]> => {
-      const { data: earnings, error } = await supabase
-        .from("earnings")
-        .select(
-          "id,user_id,amount_usd,currency,status,earning_type,earned_date,paid_date"
-        )
-        .order("earned_date", { ascending: false })
-        .limit(500);
+      const { data: earnings, error } = await readAll((from, to) => supabase.from("earnings")
+        .select("id,user_id,amount_usd,currency,status,earning_type,earned_date,paid_date,payout_reference")
+        .order("earned_date", { ascending: false }).order("id").range(from, to));
       if (error) throw error;
 
-      const userIds = [
-        ...new Set((earnings ?? []).map((e) => e.user_id).filter(Boolean)),
-      ] as string[];
-
-      let profileMap = new Map<string, { full_name: string | null; ambassador_id: string | null }>();
-      if (userIds.length > 0) {
-        const { data: profiles, error: pErr } = await supabase
-          .from("profiles")
-          .select("id,full_name,ambassador_id")
-          .in("id", userIds);
-        if (pErr) throw pErr;
-        profileMap = new Map((profiles ?? []).map((p) => [p.id, p]));
-      }
+      const { data: profiles } = await readAll((from, to) => supabase.from('profiles')
+        .select('id,full_name,ambassador_id').order('id').range(from, to));
+      const profileMap = new Map(profiles.map(p => [p.id, p]));
 
       return (earnings ?? []).map((e) => {
         const p = e.user_id ? profileMap.get(e.user_id) : undefined;
@@ -203,10 +128,11 @@ export const useAdminPayouts = () => {
           ambassadorName: p?.full_name || "Unknown ambassador",
           ambassadorCode: p?.ambassador_id || "—",
           amount: Number(e.amount_usd ?? 0),
-          currency: e.currency || "USD",
+          currency: "USD",
           status: e.status || "pending",
           type: e.earning_type || "commission",
           earnedDate: (e.earned_date || "").slice(0, 10),
+          reference: e.payout_reference,
           paidDate: e.paid_date ? e.paid_date.slice(0, 10) : null,
         };
       });
@@ -217,30 +143,20 @@ export const useAdminPayouts = () => {
 export const useProcessPayouts = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (ids: string[]) => {
-      if (ids.length === 0) return 0;
-      const { error } = await supabase
-        .from("earnings")
-        .update({ status: "paid", paid_date: new Date().toISOString() })
-        .in("id", ids);
+    mutationFn: async ({ ids, status, reference = null }: { ids: string[]; status: 'approved' | 'paid'; reference?: string | null }) => {
+      if (!ids.length) return 0;
+      const { data, error } = await supabase.rpc('transition_earnings', {
+        p_ids: ids, p_status: status, p_reference: reference,
+      });
       if (error) throw error;
-      return ids.length;
+      return data;
     },
     onSuccess: (count) => {
-      queryClient.invalidateQueries({ queryKey: ["admin-payouts"] });
-      queryClient.invalidateQueries({ queryKey: ["admin-metrics"] });
-      toast({
-        title: "Payouts processed",
-        description: `${count} payout${count === 1 ? "" : "s"} marked as paid.`,
-      });
+      ['admin-payouts', 'admin-report', 'admin-ambassadors', 'ambassador-stats', 'earnings-breakdown'].forEach(key =>
+        queryClient.invalidateQueries({ queryKey: [key] }));
+      toast({ title: 'Payout records updated', description: `${count} commission records updated.` });
     },
-    onError: (error: Error) => {
-      toast({
-        title: "Payout failed",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
+    onError: (error: Error) => toast({ title: 'Payout update failed', description: error.message, variant: 'destructive' }),
   });
 };
 
@@ -258,12 +174,13 @@ export interface CountryStat {
 }
 
 export const useAdminCountryStats = () => {
+  const { user, isAdmin } = useAuth();
   return useQuery({
-    queryKey: ["admin-country-stats"],
+    queryKey: ["admin-country-stats", user?.id],
+    enabled: Boolean(user && isAdmin),
     queryFn: async (): Promise<Record<string, CountryStat>> => {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("country,status,created_at,registration_date");
+      const { data, error } = await readAll((from, to) => supabase.from("profiles")
+        .select("country,status,created_at,registration_date").order('id').range(from, to));
       if (error) throw error;
 
       const now = Date.now();
@@ -318,7 +235,7 @@ export const useUpdateCountryLimit = () => {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["country-limits"] });
+      ['country-limits', 'admin-ambassadors', 'ambassador-stats', 'admin-report'].forEach(key => queryClient.invalidateQueries({ queryKey: [key] }));
       toast({ title: "Limit updated" });
     },
     onError: (error: Error) => {
@@ -342,7 +259,7 @@ export const useToggleCountryPremium = () => {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["country-limits"] });
+      ['country-limits', 'admin-ambassadors', 'ambassador-stats', 'admin-report'].forEach(key => queryClient.invalidateQueries({ queryKey: [key] }));
       toast({ title: "Premium status updated" });
     },
     onError: (error: Error) => {
@@ -368,7 +285,7 @@ export const useAddCountry = () => {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["country-limits"] });
+      ['country-limits', 'admin-ambassadors', 'ambassador-stats', 'admin-report'].forEach(key => queryClient.invalidateQueries({ queryKey: [key] }));
       toast({ title: "Country added" });
     },
     onError: (error: Error) => {
@@ -390,13 +307,7 @@ export const downloadCsv = (filename: string, rows: Record<string, unknown>[]) =
     toast({ title: "Nothing to export", variant: "destructive" });
     return;
   }
-  const headers = Object.keys(rows[0]);
-  const escape = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
-  const csv = [
-    headers.join(","),
-    ...rows.map((r) => headers.map((h) => escape(r[h])).join(",")),
-  ].join("\n");
-
+  const csv = toCsv(rows);
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");

@@ -52,7 +52,7 @@ const AdminIrisReports = () => {
   const fetchRecords = async () => {
     setLoading(true);
     const { data, error } = await supabase
-      .from("iris_analyses" as any)
+      .from("iris_analyses")
       .select("*")
       .order("created_at", { ascending: false });
 
@@ -60,7 +60,7 @@ const AdminIrisReports = () => {
       console.error("Error fetching iris analyses:", error);
       toast({ title: "Error", description: "Failed to load iris reports.", variant: "destructive" });
     } else {
-      setRecords((data as any) || []);
+      setRecords(data || []);
     }
     setLoading(false);
   };

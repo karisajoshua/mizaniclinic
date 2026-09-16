@@ -88,7 +88,7 @@ const Index = () => {
 
               {/* Mobile Apps Coming Soon */}
               <div className="flex items-center justify-center lg:justify-start space-x-4 pt-4">
-                <img src="https://rpkttbmlvjshkbjrmnvo.supabase.co/storage/v1/object/public/mizaniclinic//app_download-removebg-preview.png" alt="Mobile Apps Download" className="w-32 h-auto object-contain" />
+                <img src="/branding/app-download.png" alt="Mobile Apps Download" className="w-32 h-auto object-contain" />
                 <div className="text-left">
                   <div className="text-lg font-bold text-white">Mobile apps</div>
                   <div className="text-sm text-blue-200">coming Soon</div>
@@ -108,7 +108,7 @@ const Index = () => {
           <h2 className="text-3xl sm:text-4xl font-black text-center text-tanzania-navy mb-8">
             Simple Steps to Success
           </h2>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[{
               icon: Phone,
@@ -180,7 +180,7 @@ const Index = () => {
 
           {/* Mobile Apps Coming Soon - Bottom Section */}
           <div className="flex flex-col items-center space-y-6 mt-12">
-            <img src="https://rpkttbmlvjshkbjrmnvo.supabase.co/storage/v1/object/public/mizaniclinic//app_download-removebg-preview.png" alt="Mobile Apps Download" className="w-64 h-auto object-contain" />
+            <img src="/branding/app-download.png" alt="Mobile Apps Download" className="w-64 h-auto object-contain" />
             <div>
               <h3 className="text-3xl font-black text-white mb-2">Mobile apps coming Soon</h3>
               <p className="text-lg text-blue-200 font-semibold">Get ready for the ultimate mobile experience</p>
@@ -193,7 +193,7 @@ const Index = () => {
       <footer className="bg-[#00122D] text-white py-6 px-4">
         <div className="container mx-auto text-center">
           <div className="flex justify-center items-center space-x-2 mb-2">
-            <img src="https://rpkttbmlvjshkbjrmnvo.supabase.co/storage/v1/object/public/mizaniclinic//Mizani%20(1).png" alt="Mizani Clinic Logo" className="w-8 h-8 object-contain" />
+            <img src="/branding/mizani-logo.png" alt="Mizani Clinic Logo" className="w-8 h-8 object-contain" />
             <span className="font-bold text-lg">MIZANI HEALTH</span>
           </div>
           <p className="text-blue-200 font-medium">Your Success, Our Mission</p>

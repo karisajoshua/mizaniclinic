@@ -39,7 +39,7 @@ const AdminAmbassadorManagement = () => {
   }, [ambassadors, searchTerm, statusFilter, regionFilter]);
 
   const pendingIds = filteredAmbassadors
-    .filter((a) => a.status !== "active")
+    .filter((a) => a.status === "pending" && a.canApprove)
     .map((a) => a.id);
 
   const handleStatusChange = (ambassadorId: string) => {
@@ -81,7 +81,7 @@ const AdminAmbassadorManagement = () => {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-white">User Management</h2>
-          <p className="text-slate-400">Manage ambassador accounts, approvals, and permissions</p>
+          <p className="text-slate-400">Manage accounts. Receipt verification is required before activation.</p>
         </div>
         <div className="flex space-x-3">
           <Button
@@ -94,7 +94,7 @@ const AdminAmbassadorManagement = () => {
             ) : (
               <UserCheck className="w-4 h-4 mr-2" />
             )}
-            Bulk Approve{pendingIds.length > 0 ? ` (${pendingIds.length})` : ""}
+            Approve verified accounts{pendingIds.length > 0 ? ` (${pendingIds.length})` : ""}
           </Button>
           <Button
             variant="outline"

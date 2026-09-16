@@ -50,7 +50,7 @@ This section provides technical documentation for developers working with the Mi
 ## Quick Start
 
 ### Prerequisites
-- Node.js 18+ and npm/yarn
+- Node.js 22+ and npm
 - Supabase account and project
 - Git for version control
 
@@ -64,7 +64,7 @@ cd ambassador-app
 
 2. **Install Dependencies**
 ```bash
-npm install
+npm ci
 ```
 
 3. **Environment Setup**
@@ -143,8 +143,3 @@ const { data, isLoading, error } = useQuery({
 - **Performance Tests**: Load and stress testing
 
 ## Next Steps
-
-- [Project Architecture →](/developer/architecture)
-- [Database Schema →](/developer/database)
-- [Component Library →](/developer/components)
-- [API Integration →](/developer/api)

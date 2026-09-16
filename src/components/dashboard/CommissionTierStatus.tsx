@@ -1,60 +1,28 @@
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { progressPercent } from '@/lib/reporting';
+import type { AmbassadorStats } from '@/types/dashboard';
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { Award } from "lucide-react";
-import type { AmbassadorStats } from "@/types/dashboard";
+const ratesLabel = (rates: AmbassadorStats['commissionRates']) =>
+  [rates.activation_pack, rates.direct_sales, rates.second_level].map(rate => `${Number((rate * 100).toFixed(2))}%`).join(' / ');
 
-interface CommissionTierStatusProps {
-  ambassadorStats: AmbassadorStats;
+export default function CommissionTierStatus({ ambassadorStats: stats }: { ambassadorStats: AmbassadorStats }) {
+  const premium = stats.currentCommissionTier === 'Premium';
+  return <Card className="border-0 bg-green-50 shadow-xl">
+    <CardHeader><CardTitle>Commission Tier Status</CardTitle></CardHeader>
+    <CardContent className="space-y-4">
+      <div className="flex flex-wrap justify-between gap-2">
+        <span>Current tier</span><Badge>{stats.currentCommissionTier} ({ratesLabel(stats.commissionRates)})</Badge>
+      </div>
+      <p className="text-sm text-gray-600">Activation packs / direct sales / first generation</p>
+      {premium ? <p className="text-green-800 font-semibold">Premium rates are active for new eligible transactions.</p> :
+        <div className="rounded-xl bg-yellow-50 border border-yellow-200 p-4 space-y-3">
+          <p className="font-bold">Progress towards Premium</p>
+          <p>{stats.countryActiveCount.toLocaleString()} / {stats.ambassadorLimit.toLocaleString()} active ambassadors in {stats.countryName}</p>
+          <Progress value={progressPercent(stats.countryActiveCount, stats.ambassadorLimit)} />
+          <p className="text-sm">Premium rates: {ratesLabel(stats.premiumRates)}</p>
+        </div>}
+    </CardContent>
+  </Card>;
 }
-
-const CommissionTierStatus = ({ ambassadorStats }: CommissionTierStatusProps) => {
-  return (
-    <Card className="border-0 bg-gradient-to-br from-green-50 to-emerald-50 shadow-xl animate-slide-in">
-      <CardHeader className="px-4 sm:px-6">
-        <CardTitle className="text-gray-800 text-lg sm:text-xl font-black flex items-center">
-          <Award className="w-5 h-5 sm:w-6 sm:h-6 mr-3 text-green-500" />
-          Commission Tier Status
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="px-4 sm:px-6">
-        <div className="space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
-            <span className="font-bold text-gray-700 text-sm sm:text-base">Current Tier:</span>
-            <Badge className="bg-green-500 text-white font-bold text-sm sm:text-lg px-3 sm:px-4 py-1 sm:py-2 w-fit">
-              Standard (35% – 25% – 10%)
-            </Badge>
-          </div>
-          <div className="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-4">
-            <h4 className="font-black text-yellow-800 mb-2 flex items-center text-sm sm:text-base">
-              Upgrade to Premium Tier!
-            </h4>
-            <p className="text-yellow-700 font-semibold mb-3 text-sm sm:text-base">
-              When {ambassadorStats.ambassadorLimit.toLocaleString()} active Ambassadors are reached in {ambassadorStats.countryName}:
-            </p>
-            <ul className="space-y-2 text-xs sm:text-sm text-yellow-700 font-medium">
-              <li>• Activation Pack: 70% commission</li>
-              <li>• Direct Sales: 35%–75% commission</li>
-              <li>• Global expansion unlocked</li>
-            </ul>
-            <div className="mt-4">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-xs sm:text-sm font-bold text-yellow-800">{ambassadorStats.countryName} Ambassadors:</span>
-                <span className="font-black text-yellow-800 text-sm sm:text-base">
-                  {ambassadorStats.countryActiveCount.toLocaleString()}/{ambassadorStats.ambassadorLimit.toLocaleString()}
-                </span>
-              </div>
-              <Progress
-                value={ambassadorStats.ambassadorLimit > 0 ? Math.min(100, (ambassadorStats.countryActiveCount / ambassadorStats.ambassadorLimit) * 100) : 0}
-                className="h-2 sm:h-3"
-              />
-            </div>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-};
-
-export default CommissionTierStatus;

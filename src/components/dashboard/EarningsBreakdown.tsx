@@ -1,13 +1,16 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useAuth } from "@/hooks/useAuth";
+import { money } from "@/lib/reporting";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { DollarSign, Clock, CheckCircle, XCircle } from "lucide-react";
 
 const EarningsBreakdown = () => {
-  const { data: earnings, isLoading } = useQuery({
-    queryKey: ['earnings-breakdown'],
+  const { user } = useAuth();
+  const { data: earnings, isLoading, error } = useQuery({
+    queryKey: ['earnings-breakdown', user?.id],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
@@ -22,7 +25,7 @@ const EarningsBreakdown = () => {
       if (error) throw error;
       return earnings || [];
     },
-    enabled: true,
+    enabled: Boolean(user),
   });
 
   const getEarningTypeLabel = (type: string) => {
@@ -46,6 +49,7 @@ const EarningsBreakdown = () => {
     switch (status) {
       case 'paid':
         return <CheckCircle className="w-4 h-4 text-green-500" />;
+      case 'approved':
       case 'pending':
         return <Clock className="w-4 h-4 text-yellow-500" />;
       case 'cancelled':
@@ -59,6 +63,8 @@ const EarningsBreakdown = () => {
     switch (status) {
       case 'paid':
         return 'bg-green-500';
+      case 'approved':
+        return 'bg-blue-600';
       case 'pending':
         return 'bg-yellow-500';
       case 'cancelled':
@@ -67,6 +73,8 @@ const EarningsBreakdown = () => {
         return 'bg-gray-500';
     }
   };
+
+  if (error) return <p role="alert">Could not load recent earnings. Please reload to retry.</p>;
 
   if (isLoading) {
     return (
@@ -119,12 +127,12 @@ const EarningsBreakdown = () => {
                     </div>
                     <div className="text-right">
                       <div className="font-bold text-green-600 text-lg">
-                        ${earning.amount_usd}
+                        {money(earning.amount_usd)}
                       </div>
                       <div className="text-xs text-gray-500">
-                        TSH {(earning.amount_usd * 2500).toLocaleString()}
+                        {earning.currency} {earning.amount_local.toLocaleString()}
                       </div>
-                      <Badge 
+                      <Badge
                         className={`${getStatusColor(earning.status)} text-white text-xs mt-1`}
                       >
                         {earning.status}

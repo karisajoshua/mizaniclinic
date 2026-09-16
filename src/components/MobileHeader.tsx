@@ -79,7 +79,7 @@ const MobileHeader = () => {
     return <header className="sticky top-0 z-50 w-full bg-gradient-to-r from-[#00122D] via-[#00122D] to-[#00122D] backdrop-blur-md border-b border-white/10 shadow-xl">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <Link to="/" className="flex items-center space-x-2 group">
-            <img src="https://rpkttbmlvjshkbjrmnvo.supabase.co/storage/v1/object/public/mizaniclinic//Mizani%20(1).png" alt="Mizani Clinic Logo" className="w-10 h-10 object-contain group-hover:scale-105 transition-transform duration-200" />
+            <img src="/branding/mizani-logo.png" alt="Mizani Clinic Logo" className="w-10 h-10 object-contain group-hover:scale-105 transition-transform duration-200" />
             <div className="hidden sm:block">
               <h1 className="text-xl font-bold text-white">MIZANI HEALTH</h1>
               <p className="text-xs text-blue-200 -mt-1">Referral System</p>
@@ -93,7 +93,7 @@ const MobileHeader = () => {
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex items-center space-x-2 group">
-          <img src="https://rpkttbmlvjshkbjrmnvo.supabase.co/storage/v1/object/public/mizaniclinic//Mizani%20(1).png" alt="Mizani Clinic Logo" className="w-10 h-10 object-contain group-hover:scale-105 transition-transform duration-200" />
+          <img src="/branding/mizani-logo.png" alt="Mizani Clinic Logo" className="w-10 h-10 object-contain group-hover:scale-105 transition-transform duration-200" />
           <div className="hidden sm:block">
             <h1 className="text-xl font-bold text-white">MIZANI HEALTH</h1>
             <p className="text-xs text-blue-200 -mt-1">Ambassador Program</p>
@@ -109,11 +109,11 @@ const MobileHeader = () => {
           </SheetTrigger>
           <SheetContent side="right" className="w-80 bg-gradient-to-b from-[#00122D] to-[#00122D] border-white/10">
             <SheetHeader className="text-center border-b border-white/10 pb-4 mb-6">
-              <img src="https://rpkttbmlvjshkbjrmnvo.supabase.co/storage/v1/object/public/mizaniclinic//Mizani%20(1).png" alt="Mizani Clinic Logo" className="w-16 h-16 object-contain mx-auto mb-3" />
+              <img src="/branding/mizani-logo.png" alt="Mizani Clinic Logo" className="w-16 h-16 object-contain mx-auto mb-3" />
               <SheetTitle className="text-2xl font-bold text-white">MIZANI HEALTH</SheetTitle>
               <p className="text-blue-200">Ambassador Program</p>
             </SheetHeader>
-            
+
             <nav className="space-y-2">
               {navItems.map(item => {
               const Icon = item.icon;
@@ -122,7 +122,7 @@ const MobileHeader = () => {
                     <span className="font-medium">{item.label}</span>
                   </Link>;
             })}
-              
+
               {user && <button onClick={handleSignOut} className="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 text-blue-100 hover:bg-white/10 hover:text-white w-full text-left">
                   <LogOut className="w-5 h-5" />
                   <span className="font-medium">Sign Out</span>
@@ -146,7 +146,7 @@ const MobileHeader = () => {
                 <span className="font-medium">{item.label}</span>
               </Link>;
         })}
-          
+
           {user && <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="text-blue-100 hover:bg-white/10 hover:text-white">

@@ -1,4 +1,5 @@
 
+import { errorMessage } from '@/lib/reporting';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
@@ -67,7 +68,7 @@ export const useRegistration = () => {
 
       // Create profile + referral atomically on the server
       const { data: ambassadorId, error: regError } = await supabase.rpc(
-        'register_ambassador' as any,
+        'register_ambassador',
         {
           p_full_name: formData.fullName,
           p_phone: formData.phone,
@@ -108,11 +109,11 @@ export const useRegistration = () => {
 
       navigate('/payment');
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Unexpected registration error:', error);
       toast({
         title: "Registration Failed",
-        description: error?.message || "An unexpected error occurred. Please try again.",
+        description: errorMessage(error, "An unexpected error occurred. Please try again."),
         variant: "destructive"
       });
     } finally {

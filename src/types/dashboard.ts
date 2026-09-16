@@ -1,6 +1,20 @@
 
 export interface AmbassadorStats {
+  /** All dashboard amounts are USD. */
   totalEarnings: number;
+  pendingEarnings: number;
+  approvedEarnings: number;
+  paidEarnings: number;
+  todayEarnings: number;
+  referralsThisWeek: number;
+  countriesReached: number;
+  availableCountries: number;
+  motorbikeTarget: number;
+  carTarget: number;
+  motorbikeAchieved: boolean;
+  carAchieved: boolean;
+  commissionRates: { activation_pack: number; direct_sales: number; second_level: number };
+  premiumRates: { activation_pack: number; direct_sales: number; second_level: number };
   activationPackEarnings: number;
   directReferralEarnings: number;
   secondLevelEarnings: number;
@@ -9,19 +23,12 @@ export interface AmbassadorStats {
   totalReferrals: number;
   activeReferrals: number;
   pendingReferrals: number;
-  referralsByCountry: {
-    Tanzania: number;
-    Kenya: number;
-    Uganda: number;
-    Rwanda: number;
-    Burundi: number;
-    DRC: number;
-  };
+  referralsByCountry: Record<string, number>;
   ambassadorLimit: number;
   countryName: string;
   countryActiveCount: number;
   currentCommissionTier: string;
-  nextPayoutDate: string;
+  nextPayoutDate: string | null;
 }
 
 export interface UserAccount {

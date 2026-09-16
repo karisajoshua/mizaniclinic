@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
@@ -16,6 +16,34 @@ interface TimeSlot {
   available: boolean;
 }
 
+  const generateTimeSlots = (startTime: string, endTime: string, duration: number, bookedTimes: string[]) => {
+    const slots: TimeSlot[] = [];
+    const [startHour, startMinute] = startTime.split(':').map(Number);
+    const [endHour, endMinute] = endTime.split(':').map(Number);
+
+    let currentHour = startHour;
+    let currentMinute = startMinute;
+
+    while (currentHour < endHour || (currentHour === endHour && currentMinute < endMinute)) {
+      const timeString = `${currentHour.toString().padStart(2, '0')}:${currentMinute.toString().padStart(2, '0')}`;
+      const isBooked = bookedTimes.includes(timeString + ':00');
+
+      slots.push({
+        time: timeString,
+        available: !isBooked
+      });
+
+      currentMinute += duration;
+      if (currentMinute >= 60) {
+        currentHour += Math.floor(currentMinute / 60);
+        currentMinute = currentMinute % 60;
+      }
+    }
+
+    return slots;
+  };
+
+
 const AppointmentBooking = () => {
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [selectedTime, setSelectedTime] = useState<string>("");
@@ -28,12 +56,6 @@ const AppointmentBooking = () => {
   useEffect(() => {
     fetchAvailableDates();
   }, []);
-
-  useEffect(() => {
-    if (selectedDate) {
-      fetchTimeSlots();
-    }
-  }, [selectedDate]);
 
   const fetchAvailableDates = async () => {
     try {
@@ -58,12 +80,12 @@ const AppointmentBooking = () => {
     }
   };
 
-  const fetchTimeSlots = async () => {
+  const fetchTimeSlots = useCallback(async () => {
     if (!selectedDate) return;
 
     try {
       const dateStr = format(selectedDate, "yyyy-MM-dd");
-      
+
       // Get availability for the selected date
       const { data: availability, error: availError } = await supabase
         .from("doctor_availability")
@@ -101,34 +123,9 @@ const AppointmentBooking = () => {
         variant: "destructive",
       });
     }
-  };
+  }, [selectedDate]);
 
-  const generateTimeSlots = (startTime: string, endTime: string, duration: number, bookedTimes: string[]) => {
-    const slots: TimeSlot[] = [];
-    const [startHour, startMinute] = startTime.split(':').map(Number);
-    const [endHour, endMinute] = endTime.split(':').map(Number);
-    
-    let currentHour = startHour;
-    let currentMinute = startMinute;
-    
-    while (currentHour < endHour || (currentHour === endHour && currentMinute < endMinute)) {
-      const timeString = `${currentHour.toString().padStart(2, '0')}:${currentMinute.toString().padStart(2, '0')}`;
-      const isBooked = bookedTimes.includes(timeString + ':00');
-      
-      slots.push({
-        time: timeString,
-        available: !isBooked
-      });
-      
-      currentMinute += duration;
-      if (currentMinute >= 60) {
-        currentHour += Math.floor(currentMinute / 60);
-        currentMinute = currentMinute % 60;
-      }
-    }
-    
-    return slots;
-  };
+  useEffect(() => { void fetchTimeSlots(); }, [fetchTimeSlots]);
 
   const handleBookAppointment = async () => {
     if (!selectedDate || !selectedTime) {
@@ -157,7 +154,7 @@ const AppointmentBooking = () => {
 
       // Open Stripe checkout in a new tab
       window.open(sessionData.url, '_blank');
-      
+
       toast({
         title: "Redirecting to Payment",
         description: "You'll be redirected to complete your payment",
@@ -201,8 +198,8 @@ const AppointmentBooking = () => {
               mode="single"
               selected={selectedDate}
               onSelect={setSelectedDate}
-              disabled={(date) => 
-                isBefore(date, new Date()) || 
+              disabled={(date) =>
+                isBefore(date, new Date()) ||
                 isAfter(date, addDays(new Date(), 30)) ||
                 !isDateAvailable(date)
               }
@@ -226,8 +223,8 @@ const AppointmentBooking = () => {
                     disabled={!slot.available}
                     onClick={() => setSelectedTime(slot.time)}
                     className={`${
-                      selectedTime === slot.time 
-                        ? "bg-green-600 hover:bg-green-700" 
+                      selectedTime === slot.time
+                        ? "bg-green-600 hover:bg-green-700"
                         : ""
                     } ${!slot.available ? "opacity-50 cursor-not-allowed" : ""}`}
                   >

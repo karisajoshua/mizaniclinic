@@ -1,6 +1,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DollarSign, Users, Globe, Bike } from "lucide-react";
+import { Coins, Users, Globe, Bike } from "lucide-react";
+import { money } from "@/lib/reporting";
 import type { AmbassadorStats } from "@/types/dashboard";
 
 interface QuickStatsProps {
@@ -8,39 +9,24 @@ interface QuickStatsProps {
 }
 
 const QuickStats = ({ ambassadorStats }: QuickStatsProps) => {
+  const motorbikeReached = ambassadorStats.motorbikeAchieved || ambassadorStats.teamProgressLevel1 >= ambassadorStats.motorbikeTarget;
+  const carReached = ambassadorStats.carAchieved || ambassadorStats.teamProgressLevel2 >= ambassadorStats.carTarget;
+  const bonusRemaining = motorbikeReached
+    ? Math.max(0, ambassadorStats.carTarget - ambassadorStats.teamProgressLevel2)
+    : Math.max(0, ambassadorStats.motorbikeTarget - ambassadorStats.teamProgressLevel1);
   const stats = [
-    {
-      title: "Total Earned",
-      value: `$${(ambassadorStats.totalEarnings / 2500).toFixed(0)} USD`,
-      change: `+$${(2500 / 2500).toFixed(0)} today`,
-      icon: DollarSign,
-      color: "from-green-500 to-emerald-600",
-      changeColor: "text-green-600"
-    },
-    {
-      title: "Active Team",
-      value: ambassadorStats.activeReferrals.toString(),
-      change: "+3 this week",
-      icon: Users,
-      color: "from-blue-500 to-cyan-600",
-      changeColor: "text-blue-600"
-    },
-    {
-      title: "Countries",
-      value: "4/6",
-      change: "Growing globally",
-      icon: Globe,
-      color: "from-purple-500 to-violet-600",
-      changeColor: "text-purple-600"
-    },
-    {
-      title: "Next Bonus",
-      value: `$${(250 / 2500).toFixed(0)} USD`,
-      change: "to Motorbike",
-      icon: Bike,
-      color: "from-orange-500 to-red-600",
-      changeColor: "text-orange-600"
-    }
+    { title: "Total Earned", value: money(ambassadorStats.totalEarnings),
+      change: `${money(ambassadorStats.todayEarnings)} earned today`, icon: Coins,
+      color: "from-green-500 to-emerald-600", changeColor: "text-green-600" },
+    { title: "Your Referrals", value: String(ambassadorStats.totalReferrals),
+      change: `${ambassadorStats.referralsThisWeek} joined this week`, icon: Users,
+      color: "from-blue-500 to-cyan-600", changeColor: "text-blue-600" },
+    { title: "Countries Reached", value: `${ambassadorStats.countriesReached}/${ambassadorStats.availableCountries}`,
+      change: "Countries with your active referrals", icon: Globe,
+      color: "from-purple-500 to-violet-600", changeColor: "text-purple-600" },
+    { title: "Next Bonus", value: motorbikeReached && carReached ? "Targets reached" : money(bonusRemaining),
+      change: motorbikeReached && carReached ? "Awaiting reward fulfilment" : motorbikeReached ? "remaining to Car target" : "remaining to Motorbike target",
+      icon: Bike, color: "from-orange-500 to-red-600", changeColor: "text-orange-600" },
   ];
 
   return (

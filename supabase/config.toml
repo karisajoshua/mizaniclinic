@@ -2,3 +2,6 @@ project_id = "rpkttbmlvjshkbjrmnvo"
 
 [functions.analyze-iris]
 verify_jwt = false
+[db.seed]
+enabled = true
+sql_paths = ["./seed.sql"]

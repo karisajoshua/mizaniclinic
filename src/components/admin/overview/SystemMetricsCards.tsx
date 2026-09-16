@@ -5,7 +5,7 @@ import { useAdminMetrics } from "@/hooks/useAdminData";
 
 const SystemMetricsCards = () => {
   const { data: countries } = useCountryLimits();
-  const { data, isLoading } = useAdminMetrics();
+  const { data, isLoading, isError } = useAdminMetrics();
 
   const systemMetrics = [
     {
@@ -20,7 +20,7 @@ const SystemMetricsCards = () => {
       value: `$${(data?.totalRevenueUsd ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
       icon: DollarSign,
       color: "bg-emerald-600",
-      detail: "paid earnings to date",
+      detail: "recorded receipts, sales and consultations",
     },
     {
       title: "Active Regions",
@@ -49,7 +49,7 @@ const SystemMetricsCards = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-white mb-1">{isLoading ? "—" : metric.value}</div>
+            <div className="text-3xl font-bold text-white mb-1">{isError ? "Unavailable" : isLoading ? "—" : metric.value}</div>
             <span className="text-xs text-slate-400">{metric.detail}</span>
           </CardContent>
         </Card>
