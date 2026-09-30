@@ -765,6 +765,7 @@ export type Database = {
           id: string
         }[]
       }
+      phone_registered: { Args: { p_phone: string }; Returns: string }
       register_ambassador: {
         Args: {
           p_country: string
