@@ -38,20 +38,41 @@ export const useRegistration = () => {
         return;
       }
 
-      // No email is collected at sign-up: derive a private internal one from the phone number
-      const phoneDigits = formData.phone.replace(/\D/g, '');
+      // Normalise phone: 0712..., +255 712..., 255712... all become 255712...
+      let phoneDigits = formData.phone.replace(/\D/g, '');
+      if (phoneDigits.startsWith('0')) phoneDigits = '255' + phoneDigits.slice(1);
       const internalEmail = `${phoneDigits}@ambassadors.mizanihealth.app`;
+
+      const takenMessage = (id?: string | null) =>
+        `This phone number already has an account${id && id !== 'existing account' ? ` (${id})` : ''}. Ask them to sign in with their Ambassador ID, or use a different phone number.`;
+
+      const { data: existingId } = await supabase.rpc('phone_registered' as any, { p_phone: formData.phone });
+      if (existingId) {
+        toast({ title: "Phone Number Already Registered", description: takenMessage(existingId as string), variant: "destructive" });
+        return;
+      }
+
+      // If a sponsor is signed in on this device, sign them out so the new member gets their own session
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      const sponsorWasSignedIn = !!currentSession;
+      if (sponsorWasSignedIn) {
+        await supabase.auth.signOut();
+      }
 
       // Create the user account (auto signs in)
       const { error: authError } = await signUp(internalEmail, formData.password, formData.fullName);
 
       if (authError) {
+        const already = /already registered|already exists/i.test(authError.message);
         toast({
-          title: "Registration Failed",
-          description: authError.message,
+          title: already ? "Phone Number Already Registered" : "Registration Failed",
+          description: already ? takenMessage() : authError.message,
           variant: "destructive",
         });
         return;
+      }
+      if (sponsorWasSignedIn) {
+        toast({ title: "Sponsor signed out", description: "You were signed out so the new member could register. Sign back in with your Ambassador ID afterwards." });
       }
 
       const { data: { user }, error: getUserError } = await supabase.auth.getUser();
