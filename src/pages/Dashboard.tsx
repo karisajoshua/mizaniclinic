@@ -68,149 +68,52 @@ const Dashboard = () => {
   }, [user, loading, navigate, paymentJustCompleted]);
 
   const fetchUserData = async (isRetry = false) => {
-    if (!user) {
-      console.log('No user available for data fetch');
-      return;
-    }
+    if (!user) return;
 
     try {
-      console.log(`Starting fetchUserData for user: ${user.id} ${isRetry ? '(retry)' : ''}`);
-      
-      // If payment was just completed, add a small delay to ensure DB consistency
       if (paymentJustCompleted && !isRetry) {
-        console.log('Payment just completed, adding delay for DB consistency...');
         await new Promise(resolve => setTimeout(resolve, 1000));
       }
-      
-      // Fetch user profile from database
+
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
-        .select('*')
+        .select('full_name, region, ambassador_id, user_referral_id, status')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
 
-      console.log('Profile fetch result:', { profile, profileError });
-
-      if (profileError) {
-        console.error('Error fetching profile:', profileError);
-        
-        // If this is the first attempt and we just completed payment, retry once
+      if (profileError || !profile) {
         if (!isRetry && paymentJustCompleted && retryCount < 2) {
-          console.log('Retrying data fetch after payment completion...');
           setRetryCount(prev => prev + 1);
           setTimeout(() => fetchUserData(true), 2000);
           return;
         }
-        
-        handleFallbackData();
+        setUserAccount({
+          fullName: user.user_metadata?.full_name || "Ambassador",
+          region: "",
+          userReferralId: "",
+        });
+        setHasCompletedPayment(false);
+        setIsLoadingPaymentStatus(false);
         return;
       }
 
-      if (profile) {
-        console.log('Processing profile data:', profile);
-        
-        // Check for ambassador ID in either field - more flexible approach
-        const ambassadorId = profile.user_referral_id || profile.ambassador_id || "";
-        console.log('Ambassador ID found:', ambassadorId);
-        
-        const accountData: UserAccount = {
-          fullName: profile.full_name || user.user_metadata?.full_name || "User",
-          region: profile.region || "Dar es Salaam",
-          userReferralId: ambassadorId
-        };
+      setUserAccount({
+        fullName: profile.full_name || user.user_metadata?.full_name || "Ambassador",
+        region: profile.region || "",
+        userReferralId: profile.ambassador_id || profile.user_referral_id || "",
+      });
+      // Only a server-verified receipt activates an account
+      setHasCompletedPayment(profile.status === 'active');
+      setIsLoadingPaymentStatus(false);
+      localStorage.removeItem('userAccount');
 
-        setUserAccount(accountData);
-        
-        // More comprehensive payment completion check
-        const hasAmbassadorId = Boolean(ambassadorId);
-        const paymentConfirmed = profile.payment_status === 'confirmed';
-        const isActiveStatus = profile.status === 'active' || profile.status === 'activated';
-        
-        console.log('Payment status check:', { 
-          hasAmbassadorId, 
-          paymentConfirmed, 
-          isActiveStatus, 
-          ambassadorId,
-          status: profile.status,
-          paymentStatus: profile.payment_status,
-          paymentJustCompleted
-        });
-        
-        // If user has an ambassador ID and either confirmed payment OR active status, they're good
-        // OR if payment was just completed, trust that state
-        const paymentCompleted = hasAmbassadorId && (paymentConfirmed || isActiveStatus || paymentJustCompleted);
-        console.log('Final payment completed status:', paymentCompleted);
-        
-        setHasCompletedPayment(paymentCompleted);
-        setIsLoadingPaymentStatus(false);
-
-        // Update localStorage with current data
-        localStorage.setItem('userAccount', JSON.stringify({
-          ...accountData,
-          paymentConfirmed: paymentCompleted
-        }));
-
-        // If payment was just completed, clear the state to prevent issues on refresh
-        if (paymentJustCompleted) {
-          navigate('/dashboard', { replace: true, state: {} });
-        }
-      } else {
-        console.log('No profile found, using fallback data');
-        handleFallbackData();
+      if (paymentJustCompleted) {
+        navigate('/dashboard', { replace: true, state: {} });
       }
     } catch (error) {
-      console.error('Error in fetchUserData:', error);
-      
-      // If this is the first attempt and we just completed payment, retry once
-      if (!isRetry && paymentJustCompleted && retryCount < 2) {
-        console.log('Retrying data fetch due to error after payment completion...');
-        setRetryCount(prev => prev + 1);
-        setTimeout(() => fetchUserData(true), 2000);
-        return;
-      }
-      
-      handleFallbackData();
-    }
-  };
-
-  const handleFallbackData = () => {
-    console.log('Using fallback data approach');
-    setIsLoadingPaymentStatus(false);
-    
-    // Check localStorage as fallback
-    const storedUserAccount = localStorage.getItem('userAccount');
-    const registrationData = localStorage.getItem('registrationData');
-    
-    console.log('Stored data check:', { storedUserAccount, registrationData, paymentJustCompleted });
-    
-    if (storedUserAccount) {
-      const accountData = JSON.parse(storedUserAccount);
-      console.log('Using stored account data:', accountData);
-      setUserAccount(accountData);
-      // If payment was just completed, trust that the payment is confirmed
-      const paymentStatus = paymentJustCompleted || (accountData.paymentConfirmed && accountData.userReferralId);
-      setHasCompletedPayment(paymentStatus);
-    } else if (registrationData) {
-      const regData = JSON.parse(registrationData);
-      console.log('Using registration data:', regData);
-      const mockAccount: UserAccount = {
-        fullName: regData.fullName || "User",
-        region: regData.region || "Dar es Salaam",
-        userReferralId: regData.ambassadorId || ""
-      };
-      setUserAccount(mockAccount);
-      // If payment was just completed, they should have access
-      setHasCompletedPayment(paymentJustCompleted || false);
-    } else {
-      console.log('Using default fallback for existing user');
-      // Create default account for existing users
-      const mockAccount: UserAccount = {
-        fullName: user?.user_metadata?.full_name || "User",
-        region: "Dar es Salaam",
-        userReferralId: "MAP-T1001DSM" // Default format
-      };
-      setUserAccount(mockAccount);
-      setHasCompletedPayment(true); // Assume existing users have paid
+      console.error('Error loading dashboard profile:', error);
+      setHasCompletedPayment(false);
+      setIsLoadingPaymentStatus(false);
     }
   };
 
