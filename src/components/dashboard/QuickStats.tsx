@@ -1,66 +1,65 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DollarSign, Users, Globe, Bike } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { DollarSign, Users, Clock, CheckCircle, Bike } from "lucide-react";
 import type { AmbassadorStats } from "@/types/dashboard";
+import { formatUSD, formatTZS } from "@/lib/money";
 
 interface QuickStatsProps {
   ambassadorStats: AmbassadorStats;
 }
 
-const QuickStats = ({ ambassadorStats }: QuickStatsProps) => {
+const MOTORBIKE_TARGET_USD = 400;
+
+const QuickStats = ({ ambassadorStats: s }: QuickStatsProps) => {
+  const awaiting = s.pendingEarnings + s.approvedEarnings;
   const stats = [
-    {
-      title: "Total Earned",
-      value: `$${(ambassadorStats.totalEarnings / 2500).toFixed(0)} USD`,
-      change: `+$${(2500 / 2500).toFixed(0)} today`,
-      icon: DollarSign,
-      color: "from-green-500 to-emerald-600",
-      changeColor: "text-green-600"
-    },
-    {
-      title: "Active Team",
-      value: ambassadorStats.activeReferrals.toString(),
-      change: "+3 this week",
-      icon: Users,
-      color: "from-blue-500 to-cyan-600",
-      changeColor: "text-blue-600"
-    },
-    {
-      title: "Countries",
-      value: "4/6",
-      change: "Growing globally",
-      icon: Globe,
-      color: "from-purple-500 to-violet-600",
-      changeColor: "text-purple-600"
-    },
-    {
-      title: "Next Bonus",
-      value: `$${(250 / 2500).toFixed(0)} USD`,
-      change: "to Motorbike",
-      icon: Bike,
-      color: "from-orange-500 to-red-600",
-      changeColor: "text-orange-600"
-    }
+    { title: "Total Earned", value: formatUSD(s.totalEarnings), sub: formatTZS(s.totalEarnings), icon: DollarSign, color: "from-green-500 to-emerald-600" },
+    { title: "Awaiting Payment", value: formatUSD(awaiting), sub: `${formatUSD(s.approvedEarnings)} approved`, icon: Clock, color: "from-amber-500 to-orange-600" },
+    { title: "Paid Out", value: formatUSD(s.paidEarnings), sub: formatTZS(s.paidEarnings), icon: CheckCircle, color: "from-blue-500 to-cyan-600" },
+    { title: "Active Team", value: s.activeReferrals.toString(), sub: `${s.pendingReferrals} pending activation`, icon: Users, color: "from-teal-500 to-green-600" },
   ];
 
+  const progress = Math.min(100, (s.teamProgressLevel1 / MOTORBIKE_TARGET_USD) * 100);
+  const remaining = Math.max(0, MOTORBIKE_TARGET_USD - s.teamProgressLevel1);
+
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 animate-fade-in">
-      {stats.map((stat, index) => (
-        <Card key={index} className="group border-0 bg-white/90 backdrop-blur-sm hover:bg-white transition-all duration-300 hover:shadow-xl animate-scale-in" style={{animationDelay: `${index * 0.1}s`}}>
-          <CardHeader className="pb-2 px-3 sm:px-6 pt-3 sm:pt-6">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-xs sm:text-sm text-gray-700 font-bold leading-tight">{stat.title}</CardTitle>
-              <div className={`w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br ${stat.color} rounded-lg sm:rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
-                <stat.icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+    <div className="space-y-4 animate-fade-in">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        {stats.map((stat) => (
+          <Card key={stat.title} className="border-0 bg-white/90 shadow-md">
+            <CardHeader className="pb-2 px-3 sm:px-6 pt-3 sm:pt-6">
+              <div className="flex items-center justify-between gap-2">
+                <CardTitle className="text-xs sm:text-sm text-gray-600 font-semibold leading-tight">{stat.title}</CardTitle>
+                <div className={`w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br ${stat.color} rounded-lg flex items-center justify-center shadow`}>
+                  <stat.icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                </div>
               </div>
+            </CardHeader>
+            <CardContent className="px-3 sm:px-6 pb-3 sm:pb-6">
+              <div className="text-base sm:text-xl font-bold text-gray-900">{stat.value}</div>
+              <p className="text-xs text-gray-500 mt-1">{stat.sub}</p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      <Card className="border-0 bg-white/90 shadow-md">
+        <CardContent className="p-4 sm:p-6 space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 font-semibold text-gray-800">
+              <Bike className="w-5 h-5 text-orange-500" />
+              Next milestone: Motorbike Bonus
             </div>
-          </CardHeader>
-          <CardContent className="px-3 sm:px-6 pb-3 sm:pb-6">
-            <div className="text-sm sm:text-lg lg:text-xl font-black text-gray-800 leading-tight">{stat.value}</div>
-            <p className={`text-xs font-semibold ${stat.changeColor} mt-1`}>{stat.change}</p>
-          </CardContent>
-        </Card>
-      ))}
+            <span className="text-sm font-semibold text-gray-700">
+              {formatUSD(s.teamProgressLevel1)} / {formatUSD(MOTORBIKE_TARGET_USD)}
+            </span>
+          </div>
+          <Progress value={progress} className="h-2" />
+          <p className="text-xs text-gray-500">
+            {remaining > 0 ? `${formatUSD(remaining)} to go` : "Target reached — the team will contact you about your bonus."}
+          </p>
+        </CardContent>
+      </Card>
     </div>
   );
 };

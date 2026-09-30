@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { DollarSign, Clock, CheckCircle, XCircle } from "lucide-react";
+import { formatUSD, formatTZS } from "@/lib/money";
 
 const EarningsBreakdown = () => {
   const { data: earnings, isLoading } = useQuery({
@@ -46,27 +47,30 @@ const EarningsBreakdown = () => {
     switch (status) {
       case 'paid':
         return <CheckCircle className="w-4 h-4 text-green-500" />;
-      case 'pending':
-        return <Clock className="w-4 h-4 text-yellow-500" />;
+      case 'approved':
+        return <CheckCircle className="w-4 h-4 text-blue-500" />;
       case 'cancelled':
         return <XCircle className="w-4 h-4 text-red-500" />;
       default:
-        return <Clock className="w-4 h-4 text-gray-500" />;
+        return <Clock className="w-4 h-4 text-amber-500" />;
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'paid':
-        return 'bg-green-500';
-      case 'pending':
-        return 'bg-yellow-500';
+        return 'bg-green-600';
+      case 'approved':
+        return 'bg-blue-600';
       case 'cancelled':
         return 'bg-red-500';
       default:
-        return 'bg-gray-500';
+        return 'bg-amber-500';
     }
   };
+
+  const getStatusLabel = (status: string) =>
+    ({ pending: 'Earned', approved: 'Approved', paid: 'Paid', cancelled: 'Cancelled' } as Record<string, string>)[status] || status;
 
   if (isLoading) {
     return (
@@ -91,56 +95,46 @@ const EarningsBreakdown = () => {
   return (
     <Card className="border-0 bg-white/90 backdrop-blur-sm shadow-xl animate-fade-in">
       <CardHeader className="px-4 sm:px-6">
-        <CardTitle className="text-gray-800 text-lg sm:text-xl font-black flex items-center">
+        <CardTitle className="text-gray-800 text-lg sm:text-xl font-bold flex items-center">
           <DollarSign className="w-5 h-5 sm:w-6 sm:h-6 mr-3 text-green-500" />
-          Recent Earnings
+          Commission History
         </CardTitle>
-        <CardDescription className="font-semibold text-sm sm:text-base">
-          Your latest earning transactions
+        <CardDescription className="text-sm sm:text-base">
+          Earned → Approved → Paid
         </CardDescription>
       </CardHeader>
       <CardContent className="px-4 sm:px-6">
         {earnings && earnings.length > 0 ? (
           <div className="space-y-3">
             {earnings.map((earning) => (
-              <Card key={earning.id} className="border-2 border-gray-200 hover:border-green-300 transition-all duration-300">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      {getStatusIcon(earning.status)}
-                      <div>
-                        <h4 className="font-bold text-gray-800 text-sm">
-                          {getEarningTypeLabel(earning.earning_type)}
-                        </h4>
-                        <p className="text-xs text-gray-500">
-                          {new Date(earning.earned_date).toLocaleDateString()}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="font-bold text-green-600 text-lg">
-                        ${earning.amount_usd}
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        TSH {(earning.amount_usd * 2500).toLocaleString()}
-                      </div>
-                      <Badge 
-                        className={`${getStatusColor(earning.status)} text-white text-xs mt-1`}
-                      >
-                        {earning.status}
-                      </Badge>
-                    </div>
+              <div key={earning.id} className="border rounded-xl p-4 flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  {getStatusIcon(earning.status)}
+                  <div>
+                    <h4 className="font-semibold text-gray-800 text-sm">
+                      {getEarningTypeLabel(earning.earning_type)}
+                    </h4>
+                    <p className="text-xs text-gray-500">
+                      {new Date(earning.earned_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                    </p>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+                <div className="text-right">
+                  <div className="font-bold text-green-600">{formatUSD(Number(earning.amount_usd))}</div>
+                  <div className="text-xs text-gray-500">{formatTZS(Number(earning.amount_usd))}</div>
+                  <Badge className={`${getStatusColor(earning.status)} text-white text-xs mt-1`}>
+                    {getStatusLabel(earning.status)}
+                  </Badge>
+                </div>
+              </div>
             ))}
           </div>
         ) : (
           <div className="text-center py-8">
             <DollarSign className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-            <h3 className="font-bold text-gray-600 mb-2">No earnings yet</h3>
+            <h3 className="font-semibold text-gray-600 mb-2">No commissions yet</h3>
             <p className="text-gray-500 text-sm">
-              Start referring new ambassadors to see your earnings here!
+              Commissions appear here once Ambassadors you sponsor activate their accounts.
             </p>
           </div>
         )}

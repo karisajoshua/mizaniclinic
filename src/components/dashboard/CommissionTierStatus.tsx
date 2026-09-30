@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -9,48 +8,39 @@ interface CommissionTierStatusProps {
   ambassadorStats: AmbassadorStats;
 }
 
-const CommissionTierStatus = ({ ambassadorStats }: CommissionTierStatusProps) => {
+const CommissionTierStatus = ({ ambassadorStats: s }: CommissionTierStatusProps) => {
+  const progress = s.ambassadorLimit > 0 ? Math.min(100, (s.countryActiveCount / s.ambassadorLimit) * 100) : 0;
+
   return (
-    <Card className="border-0 bg-gradient-to-br from-green-50 to-emerald-50 shadow-xl animate-slide-in">
+    <Card className="border-0 bg-white/90 shadow-md animate-fade-in">
       <CardHeader className="px-4 sm:px-6">
-        <CardTitle className="text-gray-800 text-lg sm:text-xl font-black flex items-center">
+        <CardTitle className="text-gray-800 text-lg sm:text-xl font-bold flex items-center">
           <Award className="w-5 h-5 sm:w-6 sm:h-6 mr-3 text-green-500" />
-          Commission Tier Status
+          Commission Tier
         </CardTitle>
       </CardHeader>
-      <CardContent className="px-4 sm:px-6">
-        <div className="space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
-            <span className="font-bold text-gray-700 text-sm sm:text-base">Current Tier:</span>
-            <Badge className="bg-green-500 text-white font-bold text-sm sm:text-lg px-3 sm:px-4 py-1 sm:py-2 w-fit">
-              Standard (35% – 25% – 10%)
-            </Badge>
+      <CardContent className="px-4 sm:px-6 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <span className="font-semibold text-gray-700 text-sm">Current tier</span>
+          {s.premiumUnlocked ? (
+            <Badge className="bg-amber-500 text-white w-fit">Premium — unlocked in {s.countryName}</Badge>
+          ) : (
+            <Badge className="bg-green-600 text-white w-fit">Standard · 35% / 25% / 10%</Badge>
+          )}
+        </div>
+        <div className="rounded-xl border p-4 space-y-2">
+          <p className="text-sm text-gray-700">
+            {s.premiumUnlocked
+              ? `${s.countryName} has reached its Ambassador target. Premium rates will be announced by Mizani Health.`
+              : `Premium unlocks when ${s.countryName} reaches ${s.ambassadorLimit.toLocaleString()} active Ambassadors.`}
+          </p>
+          <div className="flex justify-between text-sm">
+            <span className="text-gray-600">Active Ambassadors in {s.countryName}</span>
+            <span className="font-semibold text-gray-800">
+              {s.countryActiveCount.toLocaleString()} / {s.ambassadorLimit.toLocaleString()}
+            </span>
           </div>
-          <div className="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-4">
-            <h4 className="font-black text-yellow-800 mb-2 flex items-center text-sm sm:text-base">
-              Upgrade to Premium Tier!
-            </h4>
-            <p className="text-yellow-700 font-semibold mb-3 text-sm sm:text-base">
-              When {ambassadorStats.ambassadorLimit.toLocaleString()} active Ambassadors are reached in {ambassadorStats.countryName}:
-            </p>
-            <ul className="space-y-2 text-xs sm:text-sm text-yellow-700 font-medium">
-              <li>• Activation Pack: 70% commission</li>
-              <li>• Direct Sales: 35%–75% commission</li>
-              <li>• Global expansion unlocked</li>
-            </ul>
-            <div className="mt-4">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-xs sm:text-sm font-bold text-yellow-800">{ambassadorStats.countryName} Ambassadors:</span>
-                <span className="font-black text-yellow-800 text-sm sm:text-base">
-                  {ambassadorStats.countryActiveCount.toLocaleString()}/{ambassadorStats.ambassadorLimit.toLocaleString()}
-                </span>
-              </div>
-              <Progress
-                value={ambassadorStats.ambassadorLimit > 0 ? Math.min(100, (ambassadorStats.countryActiveCount / ambassadorStats.ambassadorLimit) * 100) : 0}
-                className="h-2 sm:h-3"
-              />
-            </div>
-          </div>
+          <Progress value={progress} className="h-2" />
         </div>
       </CardContent>
     </Card>

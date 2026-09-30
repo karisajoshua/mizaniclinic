@@ -1,6 +1,10 @@
 
+/** All money values are in USD. */
 export interface AmbassadorStats {
   totalEarnings: number;
+  pendingEarnings: number;
+  approvedEarnings: number;
+  paidEarnings: number;
   activationPackEarnings: number;
   directReferralEarnings: number;
   secondLevelEarnings: number;
@@ -9,19 +13,10 @@ export interface AmbassadorStats {
   totalReferrals: number;
   activeReferrals: number;
   pendingReferrals: number;
-  referralsByCountry: {
-    Tanzania: number;
-    Kenya: number;
-    Uganda: number;
-    Rwanda: number;
-    Burundi: number;
-    DRC: number;
-  };
   ambassadorLimit: number;
   countryName: string;
   countryActiveCount: number;
-  currentCommissionTier: string;
-  nextPayoutDate: string;
+  premiumUnlocked: boolean;
 }
 
 export interface UserAccount {
@@ -44,6 +39,7 @@ export interface Referral {
   joinDate: string;
   location: string;
   status: 'Active' | 'Pending';
+  commission: number;
 }
 
 export interface Appointment {

@@ -2,6 +2,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, MapPin } from "lucide-react";
 import type { Referral } from "@/types/dashboard";
+import { formatUSD } from "@/lib/money";
 
 interface RecentReferralsProps {
   referrals: Referral[];
@@ -11,10 +12,13 @@ const RecentReferrals = ({ referrals }: RecentReferralsProps) => {
   return (
     <Card className="border-0 bg-white/90 backdrop-blur-sm shadow-xl animate-fade-in">
       <CardHeader className="px-4 sm:px-6">
-        <CardTitle className="text-gray-800 text-lg sm:text-xl font-black">Recent Team Members</CardTitle>
-        <CardDescription className="font-semibold text-sm sm:text-base">Your latest successful referrals</CardDescription>
+        <CardTitle className="text-gray-800 text-lg sm:text-xl font-bold">Your Team</CardTitle>
+        <CardDescription className="text-sm sm:text-base">Ambassadors who joined with your code</CardDescription>
       </CardHeader>
       <CardContent className="px-4 sm:px-6">
+        {referrals.length === 0 && (
+          <p className="text-center text-sm text-gray-500 py-6">No team members yet. Share your Ambassador ID to start building your team.</p>
+        )}
         <div className="space-y-3">
           {referrals.map((referral, index) => (
             <Card key={index} className="border-0 bg-gradient-to-r from-white to-blue-50/50 hover:from-blue-50 hover:to-green-50 transition-all duration-300 p-3 sm:p-4">
@@ -42,8 +46,8 @@ const RecentReferrals = ({ referrals }: RecentReferralsProps) => {
                   }`}>
                     {referral.status}
                   </span>
-                  {referral.status === 'Active' && (
-                    <p className="text-xs sm:text-sm text-green-600 font-semibold">+$0.20</p>
+                  {referral.commission > 0 && (
+                    <p className="text-xs sm:text-sm text-green-600 font-semibold">+{formatUSD(referral.commission)}</p>
                   )}
                 </div>
               </div>

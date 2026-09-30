@@ -13,22 +13,21 @@ const DashboardHeader = ({ userAccount }: DashboardHeaderProps) => {
     if (userAccount?.userReferralId) {
       navigator.clipboard.writeText(userAccount.userReferralId);
       toast({
-        title: "Copied! 🎉",
-        description: "Referral code copied to clipboard",
+        title: "Copied",
+        description: "Ambassador ID copied to clipboard",
       });
     }
   };
 
   return (
     <div className="bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 text-white py-4 sm:py-6 px-4 relative overflow-hidden">
-      <div className="absolute inset-0 opacity-30"></div>
       <div className="container mx-auto relative">
         <div className="flex flex-col space-y-3 sm:space-y-4">
           <div className="animate-fade-in">
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-black leading-tight">Karibu, {userAccount.fullName}!</h1>
-            <p className="text-green-200 flex items-center mt-1 font-semibold text-sm sm:text-base">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold leading-tight">Karibu, {userAccount.fullName}</h1>
+            <p className="text-green-100 flex items-center mt-1 text-sm sm:text-base">
               <MapPin className="w-4 h-4 mr-1 flex-shrink-0" />
-              {userAccount.region} • Ambassador Level 2
+              {userAccount.region} • Active Ambassador
             </p>
           </div>
           <div className="animate-slide-in">

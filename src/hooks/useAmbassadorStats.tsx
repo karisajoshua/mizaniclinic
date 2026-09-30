@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { AmbassadorStats } from "@/types/dashboard";
@@ -10,108 +9,50 @@ export const useAmbassadorStats = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
-      // Get ambassador stats from database
-      const { data: stats, error: statsError } = await supabase
-        .from('ambassador_stats')
-        .select('*')
-        .eq('user_id', user.id)
-         .maybeSingle();
-        
+      const [statsRes, profileRes, limitsRes, earningsRes] = await Promise.all([
+        supabase.from('ambassador_stats').select('*').eq('user_id', user.id).maybeSingle(),
+        supabase.from('profiles').select('country').eq('id', user.id).maybeSingle(),
+        supabase.from('country_limits').select('country_name, current_count, ambassador_limit, premium_unlocked'),
+        supabase.from('earnings').select('amount_usd, status, earned_date').eq('user_id', user.id),
+      ]);
 
-      if (statsError && statsError.code !== 'PGRST116') {
-        console.error('Error fetching ambassador stats:', statsError);
-        throw statsError;
-      }
+      if (statsRes.error && statsRes.error.code !== 'PGRST116') throw statsRes.error;
+      const stats = statsRes.data;
 
-      // Get referrals by country
-      const { data: referrals, error: referralsError } = await supabase
-        .from('referrals')
-        .select('country')
-        .eq('referrer_id', user.id)
-        .eq('status', 'active');
+      const countryName = profileRes.data?.country || 'Tanzania';
+      const own = limitsRes.data?.find(c => c.country_name === countryName);
+      const limit = own?.ambassador_limit ?? 100;
+      const count = own?.current_count ?? 0;
 
-      // Get the ambassador's own country and the live country limits
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('country')
-        .eq('id', user.id)
-        .maybeSingle();
-
-      const { data: countryLimits } = await supabase
-        .from('country_limits')
-        .select('country_name, current_count, ambassador_limit');
-
-      if (referralsError) {
-        console.error('Error fetching referrals:', referralsError);
-        throw referralsError;
-      }
-
-      // Get team bonus progress
-      const { data: bonuses, error: bonusesError } = await supabase
-        .from('team_bonuses')
-        .select('*')
-        .eq('user_id', user.id);
-
-      if (bonusesError) {
-        console.error('Error fetching bonuses:', bonusesError);
-      }
-
-      // Count referrals by country
-      const referralsByCountry = {
-        Tanzania: 0,
-        Kenya: 0,
-        Uganda: 0,
-        Rwanda: 0,
-        Burundi: 0,
-        DRC: 0
-      };
-
-      const codeToName: Record<string, keyof typeof referralsByCountry> = {
-        TZ: 'Tanzania',
-        KE: 'Kenya',
-        UG: 'Uganda',
-        RW: 'Rwanda',
-        BI: 'Burundi',
-        CD: 'DRC',
-        Tanzania: 'Tanzania',
-        Kenya: 'Kenya',
-        Uganda: 'Uganda',
-        Rwanda: 'Rwanda',
-        Burundi: 'Burundi',
-        DRC: 'DRC',
-      };
-
-      referrals?.forEach(referral => {
-        const name = codeToName[referral.country as string];
-        if (name) referralsByCountry[name]++;
-      });
-
-      const countryName = profile?.country || 'Tanzania';
-      const ownLimit = countryLimits?.find(c => c.country_name === countryName);
-
-      // Get team progress values from bonuses
-      const motorbikeBonus = bonuses?.find(b => b.bonus_type === 'motorbike');
-      const carBonus = bonuses?.find(b => b.bonus_type === 'car');
+      // Bonus progress is based on the commissions your team activity has earned you
+      const valid = (earningsRes.data || []).filter(e => e.status !== 'cancelled');
+      const monthStart = new Date();
+      monthStart.setDate(1);
+      monthStart.setHours(0, 0, 0, 0);
+      const allTime = valid.reduce((s, e) => s + Number(e.amount_usd || 0), 0);
+      const thisMonth = valid
+        .filter(e => new Date(e.earned_date) >= monthStart)
+        .reduce((s, e) => s + Number(e.amount_usd || 0), 0);
 
       return {
-        totalEarnings: (stats?.total_earnings_usd || 0) * 2500, // Convert back to TZS for display
-        activationPackEarnings: (stats?.activation_pack_earnings_usd || 0) * 2500,
-        directReferralEarnings: (stats?.direct_sales_earnings_usd || 0) * 2500,
-        secondLevelEarnings: (stats?.second_level_earnings_usd || 0) * 2500,
-        teamProgressLevel1: (motorbikeBonus?.current_amount_usd || 0) * 2500,
-        teamProgressLevel2: (carBonus?.current_amount_usd || 0) * 2500,
+        totalEarnings: Number(stats?.total_earnings_usd || 0),
+        pendingEarnings: Number(stats?.pending_earnings_usd || 0),
+        approvedEarnings: Number(stats?.approved_earnings_usd || 0),
+        paidEarnings: Number(stats?.paid_earnings_usd || 0),
+        activationPackEarnings: Number(stats?.activation_pack_earnings_usd || 0),
+        directReferralEarnings: Number(stats?.direct_sales_earnings_usd || 0),
+        secondLevelEarnings: Number(stats?.second_level_earnings_usd || 0),
+        teamProgressLevel1: allTime,
+        teamProgressLevel2: thisMonth,
         totalReferrals: stats?.total_referrals || 0,
         activeReferrals: stats?.active_referrals || 0,
         pendingReferrals: stats?.pending_referrals || 0,
-        referralsByCountry,
-        ambassadorLimit: ownLimit?.ambassador_limit ?? 100,
+        ambassadorLimit: limit,
         countryName,
-        countryActiveCount: ownLimit?.current_count ?? 0,
-        currentCommissionTier: stats?.current_commission_tier || "Standard",
-        nextPayoutDate: stats?.next_payout_date || "2024-02-01"
+        countryActiveCount: count,
+        premiumUnlocked: Boolean(own?.premium_unlocked) || (limit > 0 && count >= limit),
       };
     },
-    enabled: true,
-    refetchInterval: 30000, // Refetch every 30 seconds
+    refetchInterval: 30000,
   });
 };
