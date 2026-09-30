@@ -19,14 +19,14 @@ const ReferralCodeSharing = ({ userAccount }: ReferralCodeSharingProps) => {
     if (userAccount?.userReferralId) {
       navigator.clipboard.writeText(userAccount.userReferralId);
       toast({
-        title: "Copied! 🎉",
-        description: "Ambassador code copied to clipboard",
+        title: "Copied",
+        description: "Ambassador ID copied to clipboard",
       });
     }
   };
 
   const shareWhatsApp = () => {
-    const message = `🎉 Jiunge na Mizani Clinic Ambassador program! Earn 35% commission on every Activation Pack! Use my code: ${userAccount?.userReferralId}. Register here: ${referralLink} 💰🚀`;
+    const message = `Jiunge na Mizani Health Ambassador Program. Become a Mizani Health Ambassador and earn commissions while helping people live healthier lives. Use my Ambassador ID ${userAccount?.userReferralId} when registering: ${referralLink}`;
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
   };
@@ -34,12 +34,12 @@ const ReferralCodeSharing = ({ userAccount }: ReferralCodeSharingProps) => {
   return (
     <Card className="border-0 bg-gradient-to-br from-green-100 via-emerald-50 to-teal-50 shadow-xl animate-slide-in">
       <CardHeader className="px-4 sm:px-6">
-        <CardTitle className="flex items-center space-x-2 text-gray-800 text-lg sm:text-xl font-black">
+        <CardTitle className="flex items-center space-x-2 text-gray-800 text-lg sm:text-xl font-bold">
           <Share2 className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" />
-          <span>Share Your Magic Code!</span>
+          <span>Invite New Ambassadors</span>
         </CardTitle>
-        <CardDescription className="font-semibold text-gray-600 text-sm sm:text-base">
-          Earn 35% commission for each person who joins using your code
+        <CardDescription className="text-gray-600 text-sm sm:text-base">
+          Earn $12.25 (35% of the Activation Pack) for each Ambassador who joins with your ID
         </CardDescription>
       </CardHeader>
       <CardContent className="px-4 sm:px-6">
